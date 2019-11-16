@@ -1,141 +1,10 @@
-import os
-import xlrd
-import yfinance as yf
-from Company import Company
-from Post import Post
-from StockInfo import StockInfo
-
-
-# Project methods:
-def openAndPrepareDatabase(path, sheetName):
-    wb = xlrd.open_workbook(path)
-    database = wb.sheet_by_name(sheetName)
-
-    return database
-
-
-def prepareLocalDatabase(database):
-    for databaseRowIndex in range(1, database.nrows):
-        postId = databaseRowIndex
-        postText = database.cell_value(databaseRowIndex, POST_TEXT_COLUMN)
-        postTimestamp = database.cell_value(databaseRowIndex, POST_TIMESTAMP_COLUMN)
-        postSource = database.cell_value(databaseRowIndex, POST_SOURCE_COLUMN)
-        postSymbols = database.cell_value(databaseRowIndex, POST_SYMBOLS_COLUMN)
-        postCompany = database.cell_value(databaseRowIndex, POST_COMPANY_COLUMN)
-        postUrl = database.cell_value(databaseRowIndex, POST_URL_COLUMN)
-        postVerified = database.cell_value(databaseRowIndex, POST_VERIFIED_COLUMN)
-
-        postCompaniesList = []
-        postSymbolsParsed = postSymbols.split('-')
-        postCompaniesParsed = postCompany.split('*')
-
-        for companiesArrayIndex in range(len(postSymbolsParsed)):
-            newCompany = Company(postSymbolsParsed[companiesArrayIndex], postCompaniesParsed[companiesArrayIndex])
-            postCompaniesList.append(newCompany)
-            companiesDict[postSymbolsParsed[companiesArrayIndex]] = postCompaniesParsed[companiesArrayIndex]
-
-        newPost = Post(postId, postText, postTimestamp, postSource, postCompaniesList,
-                       postUrl, postVerified, "unknown", "unknown")
-
-        postsList.append(newPost)
-
-
-def printLocalDatabase(maxIterations):
-    iterationsCount = 0  # For debugging
-    for post in postsList:
-        print(post.description)
-        iterationsCount += 1
-
-        # For debugging
-        if iterationsCount == maxIterations:
-            break
-
-
-def printCompaniesDict(maxIterations):
-    iterationsCount = 0  # For debugging
-    for companySymbol in companiesDict:
-        print("Company symbol: {}, company name: {}".format(companySymbol, companiesDict[companySymbol]))
-        iterationsCount += 1
-
-        # For debugging
-        if iterationsCount == maxIterations:
-            break
-
-
-def printDelimiter():
-    print("-----------------------------------------------------------")
-
-
-def getStartDate(originalTimeStamp):
-    # TODO: return timestamp
-    return '2015-01-01'
-
-
-def getEndDate(originalTimeStamp):
-    # TODO: return timestamp
-    return '2015-01-01'
-
-
-def getStockDataBySymbolAndDates(stockSymbol, infoStartDate, infoEndDate):
-    data = yf.download(stockSymbol, infoStartDate, infoEndDate)  # returned data is 'DataFrame'
-    # TODO: Check if it is ok
-    if "True" == "True":
-        return data
-    else:
-        return "False"
-
-
-def getPostStocksFilePath(companyName, stockSymbol, infoStartDate, infoEndDate):
-    filePath = "{}/{}_{}_{}.{}".format(stocksBasePath, stockSymbol, infoStartDate, infoEndDate, "csv")
-
-    if not os.path.isfile(filePath):
-        printStr = "Fetching data for company: {},\n " \
-                   "\t with stock symbol: {},\n" \
-                   "\t from date: {},\n" \
-                   "\t to date: {}, " \
-                   "".format(companyName, stockSymbol, infoStartDate, infoEndDate, filePath)
-
-        print(printStr)
-
-        data = getStockDataBySymbolAndDates(stockSymbol, infoStartDate, infoEndDate)
-        if "True" == "False":  # TODO: check..
-            print("Fetching failed...")
-            return ""
-
-        print("Fetching succeeded, saving to file: {}".format(filePath))
-        export_csv = data.to_csv(filePath, index=None, header=True)
-
-        printDelimiter()
-
-    return filePath
-
-
-def importStocksDatabasesForPosts():
-    for post in postsList:
-        # Fetch database for specified post
-        postCompanies = post.companiesList
-        postTimeStamp = post.timeStamp
-        postDateStart = getStartDate(postTimeStamp)
-        postDateEnd = getEndDate(postTimeStamp)
-
-        for company in postCompanies:
-            # Fetch database for each company the post effected on
-            stockFilePath = getPostStocksFilePath(company.name,
-                                                  company.stockSymbol,
-                                                  postDateStart,
-                                                  postDateEnd)
-
-            newStockInfo = StockInfo(company.stockSymbol,
-                                     postDateStart,
-                                     postDateEnd,
-                                     stockFilePath)
-
-            post.addPostStockDatabase(newStockInfo)
-
+from datetime import datetime
+import Utility
 
 # Project properties:
 postsList = []
 companiesDict = {}
+logFilePath = "messages_{}.log".format(datetime.now().strftime("%d-%m-%Y_%H-%M-%S"))
 databasePath = "databases/stocker/stockerbot-export.xlsx"
 workSheetName = "stockerbot-export"
 databaseFileName = "stockerbot-export.xlsx"
@@ -150,26 +19,36 @@ POST_URL_COLUMN = 6
 POST_VERIFIED_COLUMN = 7
 printPostsLimit = 10  # For debugging
 printCompaniesLimit = 10  # For debugging
+maxImportsAtOnce = 20
 
 
 # Project Main
 def main():
+    util = Utility.Utility(postsList, companiesDict, logFilePath, databasePath, workSheetName, databaseFileName, stocksBasePath,
+                           POST_ID_COLUMN, POST_TEXT_COLUMN, POST_TIMESTAMP_COLUMN, POST_SOURCE_COLUMN, POST_SYMBOLS_COLUMN,
+                           POST_COMPANY_COLUMN, POST_URL_COLUMN, POST_VERIFIED_COLUMN, printPostsLimit,
+                           printCompaniesLimit, maxImportsAtOnce)
+
     # TODO: move functions to another file
-    print("Welcome to our project :)")
+    util.printAndLog("Summarize", "Welcome to our project :)")
+    util.printAndLog("Regular", "Log path: {}\n".format(logFilePath))
 
     # Get Database
-    print("Loading databases files...")
-    database = openAndPrepareDatabase(databasePath, workSheetName)
+    util.printAndLog("Header", "Loading databases files...")
+    database = util.openAndPrepareDatabase(databasePath, workSheetName)
 
     # Build local database
-    print("Building local databases...")
-    prepareLocalDatabase(database)
+    util.printAndLog("Header", "Building local databases...")
+    util.prepareLocalDatabase(database)
 
     # TODO: add more databases?
 
     # Importing stocks databases
-    print("Importing stocks databases...")
-    importStocksDatabasesForPosts()
+    util.printAndLog("Header", "Importing stocks databases...")
+    util.importStocksDatabasesForPosts()
+
+    # Debug:
+    util.printFailedImports()
 
     # TODO: Analyze stocks databases
     # TODO: NLP database process
