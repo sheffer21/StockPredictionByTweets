@@ -67,7 +67,7 @@ def printDelimiter():
 
 
 def getStockDataBySymbolAndDates(companyName, stockSymbol, infoStartDate, infoEndDate):
-    filePath = "{}/{}_{}_{}".format(stocksBasePath, stockSymbol, infoStartDate, infoEndDate)
+    filePath = "{}/{}_{}_{}.{}".format(stocksBasePath, stockSymbol, infoStartDate, infoEndDate, "csv")
 
     if not os.path.isfile(filePath):
         printStr = "Fetching data for company: {},\n " \
@@ -78,10 +78,10 @@ def getStockDataBySymbolAndDates(companyName, stockSymbol, infoStartDate, infoEn
 
         print(printStr)
 
-        data = yf.download(stockSymbol, infoStartDate, infoEndDate)
+        data = yf.download(stockSymbol, infoStartDate, infoEndDate)  # returned data is 'DataFrame'
         if "True" == "True":  # TODO: check if return data is ok
             print("Fetching succeeded, saving to file: {}".format(filePath))
-            # TODO: save to file
+            export_csv = data.to_csv(filePath, index=None, header=True)
         else:
             print("Fetching failed...")
 
