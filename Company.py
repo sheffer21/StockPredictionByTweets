@@ -3,11 +3,20 @@ class Company:
     __m_totalCompanies = 0
 
     def __init__(self, symbol, name):
-        self.__m_symbol = symbol
-        self.__m_name = name
+        self.__c_symbol = symbol
+        self.__c_name = name
+
+        Company.__m_totalCompanies += 1
+
+    @property
+    def stockSymbol(self):
+        return self.__c_symbol
+
+    @property
+    def name(self):
+        return self.__c_name
 
     @property
     def description(self):
-        desc_str = "Company name: %s, company symbol: %s" % (self.__m_symbol, self.__m_name)
-
+        desc_str = "Company name: %s, company symbol: %s" % (self.__c_symbol, self.__c_name)
         return desc_str

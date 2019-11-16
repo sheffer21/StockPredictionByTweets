@@ -3,12 +3,11 @@ from Company import Company
 
 class Post:
     __m_totalPosts = 0
-    _test = 50
 
-    def __init__(self, postId, text, date, source, companies, url, verified, stock_delta, stock_change):
+    def __init__(self, postId, text, timeStamp, source, companies, url, verified, stock_delta, stock_change):
         self.__p_id = postId
         self.__p_text = text
-        self.__p_date = date
+        self.__p_timeStamp = timeStamp
         self.__p_source = source
         self.__p_companies = companies
         self.__p_url = url
@@ -16,6 +15,7 @@ class Post:
         self.__p_stock_delta = stock_delta
         self.__p_stock_change = stock_change
         self.__p_total_impact = stock_change
+        self.__p_post_stock_info = []
 
         Post.__m_totalPosts += 1
 
@@ -34,7 +34,7 @@ class Post:
                           "\t stock delta: {},\n" \
                           "\t stock change: {},\n" \
                           "\t total impact: {},\n" \
-                          "".format(self.__p_id, self.__p_text, self.__p_date, self.__p_source, self.__p_url,
+                          "".format(self.__p_id, self.__p_text, self.__p_timeStamp, self.__p_source, self.__p_url,
                                     self.__p_verified, self.__p_stock_delta, self.__p_stock_change, self.__p_total_impact)
 
         companiesDescription = "This post is associated with the following companies:\n"
@@ -45,12 +45,20 @@ class Post:
         return postDescription + companiesDescription
 
     @property
+    def id(self):
+        return self.__p_id
+
+    @property
     def totalImpact(self):
         return self.__p_total_impact
 
     @property
-    def date(self):
-        return self.__p_date
+    def companiesList(self):
+        return self.__p_companies
+
+    @property
+    def timeStamp(self):
+        return self.__p_timeStamp
 
     @property
     def text(self):
@@ -71,3 +79,5 @@ class Post:
     def setPostStockDelta(self, total_impact):
         self.__p_total_impact = total_impact
 
+    def addPostStockDatabase(self, stockInfo):
+        self.__p_post_stock_info.append(stockInfo)
