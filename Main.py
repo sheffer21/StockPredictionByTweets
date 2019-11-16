@@ -66,7 +66,26 @@ def printDelimiter():
     print("-----------------------------------------------------------")
 
 
-def getStockDataBySymbolAndDates(companyName, stockSymbol, infoStartDate, infoEndDate):
+def getStartDate(originalTimeStamp):
+    # TODO: return timestamp
+    return '2015-01-01'
+
+
+def getEndDate(originalTimeStamp):
+    # TODO: return timestamp
+    return '2015-01-01'
+
+
+def getStockDataBySymbolAndDates(stockSymbol, infoStartDate, infoEndDate):
+    data = yf.download(stockSymbol, infoStartDate, infoEndDate)  # returned data is 'DataFrame'
+    # TODO: Check if it is ok
+    if "True" == "True":
+        return data
+    else:
+        return "False"
+
+
+def getPostStocksFilePath(companyName, stockSymbol, infoStartDate, infoEndDate):
     filePath = "{}/{}_{}_{}.{}".format(stocksBasePath, stockSymbol, infoStartDate, infoEndDate, "csv")
 
     if not os.path.isfile(filePath):
@@ -78,26 +97,17 @@ def getStockDataBySymbolAndDates(companyName, stockSymbol, infoStartDate, infoEn
 
         print(printStr)
 
-        data = yf.download(stockSymbol, infoStartDate, infoEndDate)  # returned data is 'DataFrame'
-        if "True" == "True":  # TODO: check if return data is ok
-            print("Fetching succeeded, saving to file: {}".format(filePath))
-            export_csv = data.to_csv(filePath, index=None, header=True)
-        else:
+        data = getStockDataBySymbolAndDates(stockSymbol, infoStartDate, infoEndDate)
+        if "True" == "False":  # TODO: check..
             print("Fetching failed...")
+            return ""
+
+        print("Fetching succeeded, saving to file: {}".format(filePath))
+        export_csv = data.to_csv(filePath, index=None, header=True)
 
         printDelimiter()
 
     return filePath
-
-
-def getStartDate(originalTimeStamp):
-    # TODO: return timestamp
-    return '2015-01-01'
-
-
-def getEndDate(originalTimeStamp):
-    # TODO: return timestamp
-    return '2015-01-01'
 
 
 def importStocksDatabasesForPosts():
@@ -110,10 +120,10 @@ def importStocksDatabasesForPosts():
 
         for company in postCompanies:
             # Fetch database for each company the post effected on
-            stockFilePath = getStockDataBySymbolAndDates(company.name,
-                                                         company.stockSymbol,
-                                                         postDateStart,
-                                                         postDateEnd)
+            stockFilePath = getPostStocksFilePath(company.name,
+                                                  company.stockSymbol,
+                                                  postDateStart,
+                                                  postDateEnd)
 
             newStockInfo = StockInfo(company.stockSymbol,
                                      postDateStart,
@@ -144,6 +154,7 @@ printCompaniesLimit = 10  # For debugging
 
 # Project Main
 def main():
+    # TODO: move functions to another file
     print("Welcome to our project :)")
 
     # Get Database
@@ -154,12 +165,13 @@ def main():
     print("Building local databases...")
     prepareLocalDatabase(database)
 
+    # TODO: add more databases?
+
     # Importing stocks databases
     print("Importing stocks databases...")
     importStocksDatabasesForPosts()
 
     # TODO: Analyze stocks databases
-    # TODO: Initial database process
     # TODO: NLP database process
 
     # Print database & companies (for debugging):
