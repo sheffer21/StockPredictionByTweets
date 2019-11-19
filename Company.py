@@ -1,12 +1,9 @@
 # define the Vehicle class
 class Company:
-    __m_totalCompanies = 0
 
     def __init__(self, symbol, name):
         self.__c_symbol = symbol
         self.__c_name = name
-
-        Company.__m_totalCompanies += 1
 
     @property
     def stockSymbol(self):
