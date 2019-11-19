@@ -1,8 +1,17 @@
-from Company import Company
+from datetime import datetime
+
+
+def getPostTimeFromTimeStamp(timeStamp):  # Return time in format:
+    datetimeObj = datetime.strptime(timeStamp, '%a %b %d %H:%M:%S +0000 %Y')
+    return datetimeObj.time()
+
+
+def getPostDateFromTimeStamp(timeStamp):  # Return date in format: 'YY-MM-DD'
+    datetimeObj = datetime.strptime(timeStamp, '%a %b %d %H:%M:%S +0000 %Y')
+    return datetimeObj.date()
 
 
 class Post:
-    __m_totalPosts = 0
 
     def __init__(self, postId, text, timeStamp, source, companies, url, verified, stock_delta, stock_change):
         self.__p_id = postId
@@ -16,8 +25,8 @@ class Post:
         self.__p_stock_change = stock_change
         self.__p_total_impact = stock_change
         self.__p_post_stock_info = []
-
-        Post.__m_totalPosts += 1
+        self.__p_date = getPostDateFromTimeStamp(timeStamp)
+        self.__p_time = getPostTimeFromTimeStamp(timeStamp)
 
     @classmethod
     def totalPosts(cls):
@@ -63,6 +72,14 @@ class Post:
     @property
     def text(self):
         return self.__p_text
+
+    @property
+    def date(self):
+        return self.__p_date
+
+    @property
+    def time(self):
+        return self.__p_time
 
     def addCompany(self, company):
         self.__p_companies.append(company)

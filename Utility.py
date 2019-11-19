@@ -1,3 +1,4 @@
+from datetime import datetime
 import os
 import sys
 import xlrd
@@ -7,6 +8,14 @@ import matplotlib.pyplot as plt
 from Company import Company
 from Post import Post
 from StockInfo import StockInfo
+import pandas_datareader.data as web
+import pandas as pd
+from iexfinance.stocks import Stock
+import matplotlib.pyplot as plt
+from iexfinance.stocks import get_historical_data
+from yahoo_finance_api2 import share
+from yahoo_finance_api2.exceptions import YahooFinanceError
+from Statistics import Statistics
 
 
 class Utility:
@@ -14,6 +23,7 @@ class Utility:
     failedImports = {}
     companiesDict = {}
     logFilePath = "messages.log"
+    logFileName = ""
     databasePath = "databases/stocker/stockerbot-export.xlsx"
     workSheetName = "stockerbot-export"
     databaseFileName = "stockerbot-export.xlsx"
@@ -29,8 +39,11 @@ class Utility:
     maxImportsAtOnce = float('inf')
     printPostsLimit = 10  # For debugging
     printCompaniesLimit = 10  # For debugging
-    successCount = 0
-    totalCount = 0
+    successfulImportsCount = 0
+    totalImportsCount = 0
+    importDaysBeforePostDate = 0
+    importDaysAfterPostDate = 0
+    statistics = Statistics(datetime.now())
 
     HEADER = '\033[95m'
     OKBLUE = '\033[94m'
@@ -41,14 +54,15 @@ class Utility:
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
 
-    def __init__(self, postsList, companiesDict, logFilePath, databasePath, workSheetName, databaseFileName,
+    def __init__(self, postsList, companiesDict, logFilePath, logFileName, databasePath, workSheetName, databaseFileName,
                  stocksBasePath, POST_ID_COLUMN, POST_TEXT_COLUMN, POST_TIMESTAMP_COLUMN, POST_SOURCE_COLUMN,
-                 POST_SYMBOLS_COLUMN, POST_COMPANY_COLUMN, POST_URL_COLUMN, POST_VERIFIED_COLUMN,
-                 printPostsLimit, printCompaniesLimit, maxImportsAtOnce):
+                 POST_SYMBOLS_COLUMN, POST_COMPANY_COLUMN, POST_URL_COLUMN, POST_VERIFIED_COLUMN, printPostsLimit,
+                 printCompaniesLimit, maxImportsAtOnce, importDaysBeforePostDate, importDaysAfterPostDate, statistics):
 
         Utility.postsList = postsList
         Utility.companiesDict = companiesDict
         Utility.logFilePath = logFilePath
+        Utility.logFileName = logFileName
         Utility.databasePath = databasePath
         Utility.workSheetName = workSheetName
         Utility.databaseFileName = databaseFileName
@@ -64,8 +78,10 @@ class Utility:
         Utility.printPostsLimit = printPostsLimit  # For debugging
         Utility.printCompaniesLimit = printCompaniesLimit  # For debugging
         Utility.maxImportsAtOnce = maxImportsAtOnce
-        Utility.successCount = 0
-        Utility.totalCount = 0
+        Utility.successfulImportsCount = 0
+        Utility.importDaysBeforePostDate = importDaysBeforePostDate
+        Utility.importDaysAfterPostDate = importDaysAfterPostDate
+        Utility.statistics = statistics
 
     @staticmethod
     def printAndLog(messageType, message):
@@ -87,7 +103,7 @@ class Utility:
 
         # Print to log:
         old_stdout = sys.stdout
-        logFile = open(Utility.logFilePath, "a")
+        logFile = open(Utility.logFilePath + Utility.logFileName, "a")
         sys.stdout = logFile
         print(message)
         logFile.close()
@@ -100,7 +116,6 @@ class Utility:
     def openAndPrepareDatabase(path, sheetName):
         wb = xlrd.open_workbook(path)
         database = wb.sheet_by_name(sheetName)
-
         return database
 
     def prepareLocalDatabase(self, database):
@@ -159,18 +174,24 @@ class Utility:
         dataFrame.to_csv(filePath, index=None, header=True)
 
     @staticmethod
-    def getStartDate(originalTimeStamp):
-        # TODO: return timestamp
-        return '2015-01-01'
+    def getStartDate(originalPostDate, originalPostTime):
+        newDateTime = datetime(originalPostDate.year,
+                               originalPostDate.month,
+                               originalPostDate.day - Utility.importDaysBeforePostDate)
+        return newDateTime
 
     @staticmethod
-    def getEndDate(originalTimeStamp):
-        # TODO: return timestamp
-        return '2015-01-01'
+    def getEndDate(originalPostDate, originalPostTime):
+        newDateTime = datetime(originalPostDate.year,
+                               originalPostDate.month,
+                               originalPostDate.day + Utility.importDaysAfterPostDate)
+        return newDateTime
 
     @staticmethod
     def getStockDataBySymbolAndDates(stockSymbol, infoStartDate, infoEndDate):
-        data = yf.download(stockSymbol, infoStartDate, infoEndDate)  # returned data is 'DataFrame'
+        data = {}
+        # data = web.DataReader(stockSymbol, 'yahoo', infoStartDate, infoEndDate)
+        data = yf.download(stockSymbol, infoStartDate, infoEndDate, interval="1h")
         return data
 
     def printFailedImports(self):
@@ -179,10 +200,12 @@ class Utility:
                                         "".format(failure, self.failedImports[failure]))
 
     def getPostStocksFilePath(self, companyName, stockSymbol, infoStartDate, infoEndDate):
-        filePath = "{}/{}_{}_{}.{}".format(self.stocksBasePath, stockSymbol, infoStartDate, infoEndDate, "csv")
+        filePath = "{}/{}_{}_{}.{}".format(self.stocksBasePath, stockSymbol, '2019-1-1', '2019-1-3', "csv")
 
         if not os.path.isfile(filePath):
-            Utility.totalCount += 1
+            Utility.totalImportsCount += 1
+
+            self.printAndLog("Regular", "Import tries count: {}".format(Utility.totalImportsCount))
 
             printStr = "Fetching data for company: {},\n " \
                        "\t with stock symbol: {},\n" \
@@ -192,15 +215,19 @@ class Utility:
 
             self.printAndLog("Regular", printStr)
 
-            dataFrame = self.getStockDataBySymbolAndDates(stockSymbol, infoStartDate, infoEndDate)
-            if len(dataFrame) == 0:
-                self.printAndLog("Error", "Fetching failed...")
-                Utility.failedImports[stockSymbol] = companyName
+            try:
+                dataFrame = self.getStockDataBySymbolAndDates(stockSymbol, infoStartDate, infoEndDate)
+                if len(dataFrame) == 0:
+                    self.printAndLog("Error", "Fetching failed...")
+                    Utility.failedImports[stockSymbol] = companyName
+                    return ""
+            except:
+                self.printAndLog("Error", "An error occurred while trying to fetch for stock symbol: {}".format(stockSymbol))
                 return ""
 
             self.printAndLog("Success", "Fetching succeeded, saving to file: {}".format(filePath))
             self.exportDataFrame(dataFrame, filePath)
-            Utility.successCount += 1
+            Utility.successfulImportsCount += 1
 
             self.printDelimiter()
 
@@ -210,9 +237,8 @@ class Utility:
         for post in self.postsList:
             # Fetch database for specified post
             postCompanies = post.companiesList
-            postTimeStamp = post.timeStamp
-            postDateStart = self.getStartDate(postTimeStamp)
-            postDateEnd = self.getEndDate(postTimeStamp)
+            postDateStart = self.getStartDate(post.date, post.time)
+            postDateEnd = self.getEndDate(post.date, post.time)
 
             for company in postCompanies:
                 # Fetch database for each company the post effected on
@@ -228,11 +254,12 @@ class Utility:
 
                 post.addPostStockDatabase(newStockInfo)
 
-                if Utility.totalCount == Utility.maxImportsAtOnce:
+                if Utility.totalImportsCount == Utility.maxImportsAtOnce:
                     break
 
-            if Utility.totalCount == Utility.maxImportsAtOnce:
+            if Utility.totalImportsCount == Utility.maxImportsAtOnce:
                 break
 
         Utility.printAndLog("Summarize",
-                            "Import done. {} passed out of {}.".format(Utility.successCount, Utility.totalCount))
+                            "Import done. {} passed out of {}.".format(Utility.successfulImportsCount,
+                                                                       Utility.totalImportsCount))
