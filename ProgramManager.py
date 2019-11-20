@@ -17,7 +17,7 @@ class ProgramManager:
     postsList = []
     database = {}
     companiesDict = {}
-    failedImports = {}
+    failedSymbolsImports = {}
     logFilePath = configuration['logFilePath']
     logFileName = configuration['logFileName'].format(datetime.now().strftime("%d-%m-%Y_%H-%M-%S"))
     databasePath = configuration['databasePath']
@@ -92,9 +92,94 @@ class ProgramManager:
         sys.stdout = old_stdout
 
     @staticmethod
-    def openAndPrepareDatabase():
+    def openAndPrepareRawDatabase():
         wb = xlrd.open_workbook(ProgramManager.databasePath)
         ProgramManager.database = wb.sheet_by_name(ProgramManager.workSheetName)
+
+    @staticmethod
+    def exportDataFrame(dataFrame, exportPath):
+        dataFrame.to_csv(exportPath, index=None, header=True)
+
+    @staticmethod
+    def getStartDate(originalPostDate):
+        newDateTime = datetime(originalPostDate.year,
+                               originalPostDate.month,
+                               originalPostDate.day - ProgramManager.importDaysBeforePostDate)
+        return newDateTime
+
+    @staticmethod
+    def getEndDate(originalPostDate):
+        newDateTime = datetime(originalPostDate.year,
+                               originalPostDate.month,
+                               originalPostDate.day + ProgramManager.importDaysAfterPostDate)
+        return newDateTime
+
+    @staticmethod
+    def getStockDataBySymbolAndDates(stockSymbol, infoStartDate, infoEndDate):
+        data = yf.download(stockSymbol, infoStartDate, infoEndDate, interval="1h")
+        return data
+
+    def printLocalDatabase(self):
+        iterationsCount = 0  # For debugging
+        for post in self.postsList:
+            self.printAndLog("Regular", post.description)
+            iterationsCount += 1
+
+            # For debugging
+            if iterationsCount == ProgramManager.printPostsLimit:
+                break
+
+    def printCompaniesDict(self):
+        iterationsCount = 0  # For debugging
+        for companySymbol in self.companiesDict:
+            self.printAndLog("Regular", "Company symbol: {}, company name: {}\n"
+                                        "".format(companySymbol, self.companiesDict[companySymbol]))
+
+            iterationsCount += 1
+
+            if iterationsCount == ProgramManager.printCompaniesLimit:
+                break
+
+    def printDelimiter(self):
+        self.printAndLog("Regular", "-----------------------------------------------------------")
+
+    def printFailedImports(self):
+        for failure in self.failedSymbolsImports:
+            self.printAndLog("Regular", "Failed to fetch: company symbol: {}, company name: {}"
+                                        "".format(failure, self.failedSymbolsImports[failure]))
+
+    def getPostStocksFilePath(self, companyName, stockSymbol, infoStartDate, infoEndDate):
+        filePath = "{}/{}_{}_{}.{}".format(self.stocksBasePath, stockSymbol, '2019-1-1', '2019-1-3', "csv")
+
+        if not os.path.isfile(filePath):
+            ProgramManager.statistics.increaseTotalImportCount()
+            self.printAndLog("Regular", "Import tries count: {}".format(ProgramManager.statistics.totalImportCount))
+
+            printStr = "Fetching data for company: {},\n " \
+                       "\t with stock symbol: {},\n" \
+                       "\t from date: {},\n" \
+                       "\t to date: {}, " \
+                       "".format(companyName, stockSymbol, infoStartDate, infoEndDate, filePath)
+
+            self.printAndLog("Regular", printStr)
+
+            try:
+                dataFrame = self.getStockDataBySymbolAndDates(stockSymbol, infoStartDate, infoEndDate)
+                if len(dataFrame) == 0:
+                    self.printAndLog("Error", "Fetching failed...")
+                    ProgramManager.failedSymbolsImports[stockSymbol] = companyName
+                    return ""
+            except:
+                self.printAndLog("Error", "An error occurred while trying to fetch for stock symbol: {}".format(stockSymbol))
+                return ""
+
+            self.printAndLog("Success", "Fetching succeeded, saving to file: {}".format(filePath))
+            self.exportDataFrame(dataFrame, filePath)
+            ProgramManager.statistics.increaseSuccessfulImportCount()
+
+            self.printDelimiter()
+
+        return filePath
 
     def prepareLocalDatabase(self):
         for databaseRowIndex in range(1, ProgramManager.database.nrows):
@@ -116,106 +201,16 @@ class ProgramManager:
                 postCompaniesList.append(newCompany)
                 self.companiesDict[postSymbolsParsed[companiesArrayIndex]] = postCompaniesParsed[companiesArrayIndex]
 
-            newPost = Post(postId, postText, postTimestamp, postSource, postCompaniesList,
-                           postUrl, postVerified, "unknown", "unknown")
+            newPost = Post(postId, postText, postTimestamp, postSource, postCompaniesList, postUrl, postVerified)
 
             self.postsList.append(newPost)
-
-    def printLocalDatabase(self, maxIterations):
-        iterationsCount = 0  # For debugging
-        for post in self.postsList:
-            self.printAndLog("Regular", post.description)
-            iterationsCount += 1
-
-            # For debugging
-            if iterationsCount == maxIterations:
-                break
-
-    def printCompaniesDict(self, maxIterations):
-        iterationsCount = 0  # For debugging
-        for companySymbol in self.companiesDict:
-            self.printAndLog("Regular", "Company symbol: {}, company name: {}\n"
-                                        "".format(companySymbol, self.companiesDict[companySymbol]))
-
-            iterationsCount += 1
-
-            # For debugging
-            if iterationsCount == maxIterations:
-                break
-
-    def printDelimiter(self):
-        self.printAndLog("Regular", "-----------------------------------------------------------")
-
-    # Exporting 'DataFrame' to csv
-    @staticmethod
-    def exportDataFrame(dataFrame, filePath):
-        dataFrame.to_csv(filePath, index=None, header=True)
-
-    @staticmethod
-    def getStartDate(originalPostDate, originalPostTime):
-        newDateTime = datetime(originalPostDate.year,
-                               originalPostDate.month,
-                               originalPostDate.day - ProgramManager.importDaysBeforePostDate)
-        return newDateTime
-
-    @staticmethod
-    def getEndDate(originalPostDate, originalPostTime):
-        newDateTime = datetime(originalPostDate.year,
-                               originalPostDate.month,
-                               originalPostDate.day + ProgramManager.importDaysAfterPostDate)
-        return newDateTime
-
-    @staticmethod
-    def getStockDataBySymbolAndDates(stockSymbol, infoStartDate, infoEndDate):
-        data = {}
-        # data = web.DataReader(stockSymbol, 'yahoo', infoStartDate, infoEndDate)
-        data = yf.download(stockSymbol, infoStartDate, infoEndDate, interval="1h")
-        return data
-
-    def printFailedImports(self):
-        for failure in self.failedImports:
-            self.printAndLog("Regular", "Failed to fetch: company symbol: {}, company name: {}"
-                                        "".format(failure, self.failedImports[failure]))
-
-    def getPostStocksFilePath(self, companyName, stockSymbol, infoStartDate, infoEndDate):
-        filePath = "{}/{}_{}_{}.{}".format(self.stocksBasePath, stockSymbol, '2019-1-1', '2019-1-3', "csv")
-
-        if not os.path.isfile(filePath):
-            ProgramManager.statistics.increaseTotalImportCount()
-            self.printAndLog("Regular", "Import tries count: {}".format(ProgramManager.statistics.totalImportsCount))
-
-            printStr = "Fetching data for company: {},\n " \
-                       "\t with stock symbol: {},\n" \
-                       "\t from date: {},\n" \
-                       "\t to date: {}, " \
-                       "".format(companyName, stockSymbol, infoStartDate, infoEndDate, filePath)
-
-            self.printAndLog("Regular", printStr)
-
-            try:
-                dataFrame = self.getStockDataBySymbolAndDates(stockSymbol, infoStartDate, infoEndDate)
-                if len(dataFrame) == 0:
-                    self.printAndLog("Error", "Fetching failed...")
-                    ProgramManager.failedImports[stockSymbol] = companyName
-                    return ""
-            except:
-                self.printAndLog("Error", "An error occurred while trying to fetch for stock symbol: {}".format(stockSymbol))
-                return ""
-
-            self.printAndLog("Success", "Fetching succeeded, saving to file: {}".format(filePath))
-            self.exportDataFrame(dataFrame, filePath)
-            ProgramManager.statistics.increaseSuccessfulImportCount()
-
-            self.printDelimiter()
-
-        return filePath
 
     def importStocksDatabasesForPosts(self):
         for post in self.postsList:
             # Fetch database for specified post
             postCompanies = post.companiesList
-            postDateStart = self.getStartDate(post.date, post.time)
-            postDateEnd = self.getEndDate(post.date, post.time)
+            postDateStart = self.getStartDate(post.date)
+            postDateEnd = self.getEndDate(post.date)
 
             for company in postCompanies:
                 # Fetch database for each company the post effected on
