@@ -1,10 +1,8 @@
 class StockInfo:
-    __m_totalInstances = 0
 
-    def __init__(self, stockSymbol, infoStartDate, infoEndDate, rawData):
+    def __init__(self, stockSymbol, infoStartDate, infoEndDate, rawDataPath):
         self.__s_stockSymbol = stockSymbol
         self.__s_infoStartDate = infoStartDate
         self.__s_infoEndDate = infoEndDate
-        self.__s_dataPath = ""
+        self.__s_dataPath = rawDataPath
 
-        StockInfo.__m_totalInstances += 1

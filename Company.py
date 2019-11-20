@@ -1,4 +1,3 @@
-# define the Vehicle class
 class Company:
 
     def __init__(self, symbol, name):
