@@ -10,7 +10,7 @@ def main():
 
     # Get Database
     programManager.printAndLog("Header", "Loading databases files...")
-    programManager.openAndPrepareDatabase()
+    programManager.openAndPrepareRawDatabase()
 
     # Build local database
     programManager.printAndLog("Header", "Building local databases...")
@@ -29,9 +29,8 @@ def main():
     # TODO: NLP database process
 
     # Print database & companies (for debugging):
-    # printLocalDatabase(printPostsLimit)
-    # printCompaniesDict(printCompaniesLimit)
-    # print(statistics.getStatistics())
+    # printLocalDatabase()
+    # printCompaniesDict()
 
 
 # Run project

@@ -13,7 +13,7 @@ def getPostDateFromTimeStamp(timeStamp):  # Return date in format: 'YY-MM-DD'
 
 class Post:
 
-    def __init__(self, postId, text, timeStamp, source, companies, url, verified, stock_delta, stock_change):
+    def __init__(self, postId, text, timeStamp, source, companies, url, verified):
         self.__p_id = postId
         self.__p_text = text
         self.__p_timeStamp = timeStamp
@@ -21,10 +21,10 @@ class Post:
         self.__p_companies = companies
         self.__p_url = url
         self.__p_verified = verified
-        self.__p_total_impact = stock_change
-        self.__p_post_stocks_info = {}
         self.__p_date = getPostDateFromTimeStamp(timeStamp)
         self.__p_time = getPostTimeFromTimeStamp(timeStamp)
+        self.__p_post_stocks_info = {}
+        self.__p_total_impact = 0
 
     @property
     def id(self):
