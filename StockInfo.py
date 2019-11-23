@@ -1,4 +1,6 @@
 import csv
+import datetime
+
 import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
 import sys
@@ -15,9 +17,10 @@ class StockInfo:
         "Stock Splits": 6
     }
 
-    def __init__(self, stockCompany, stockSymbol, infoStartDate, infoEndDate, rawDataPath):
+    def __init__(self, stockCompany, stockSymbol, postOriginalDate, infoStartDate, infoEndDate, rawDataPath):
         self.__stockCompany = stockCompany
         self.__s_stockSymbol = stockSymbol
+        self.__s_postOriginalDate = postOriginalDate
         self.__s_infoStartDate = infoStartDate
         self.__s_infoEndDate = infoEndDate
         self.__s_dataPath = rawDataPath
@@ -50,19 +53,36 @@ class StockInfo:
     def plotByColumnName(self, columnName):
         x = []
         y = []
+        x_ticks = []
+
+        count = 0
+        originalDateIndex = 0
         for rowDate in self.__s_stockData:
+
+            postDate = datetime.datetime.strptime(rowDate, '%Y-%m-%d')
+            if count % 3 == 0 or postDate.date() == self.__s_postOriginalDate:
+                x_ticks.append(rowDate)
+                if postDate.date() == self.__s_postOriginalDate:
+                    originalDateIndex = len(x_ticks) - 1
+
+            count += 1
+
             x.append(rowDate)
             y.append(float(self.__s_stockData[rowDate][StockInfo.columnIdx.get(columnName)]))
 
-        plt.plot(x, y, color='red')
+        fig, ax = plt.subplots()
+        ax.plot(x, y, color='red')
+        ax.get_xticklabels()[originalDateIndex].set_color("red")
         plt.xlabel('Date')
-        plt.ylabel('Value by date')
-        plt.xticks(x, rotation=45)
-        plt.title('Values of \'{}\' for company {}\n Between dates: {} - {}'
+        plt.ylabel('Value in $')
+        plt.xticks(x_ticks, rotation=45)
+        plt.title('Values of \'{}\' for company {}\n Between dates: {} - {}\n Post publish date: {}'
                   ''.format(columnName,
                             self.__stockCompany,
                             self.__s_infoStartDate,
-                            self.__s_infoEndDate))
+                            self.__s_infoEndDate,
+                            self.__s_postOriginalDate))
+
         valueLegend = mpatches.Patch(color='red', label='Value by date')
         plt.legend(handles=[valueLegend])
         plt.grid()

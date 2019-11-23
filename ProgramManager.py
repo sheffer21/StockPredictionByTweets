@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 import os
 import sys
 import xlrd
@@ -102,16 +102,12 @@ class ProgramManager:
 
     @staticmethod
     def getStartDate(originalPostDate):
-        newDateTime = datetime(originalPostDate.year,
-                               originalPostDate.month,
-                               originalPostDate.day - ProgramManager.importDaysBeforePostDate)
+        newDateTime = originalPostDate - timedelta(days=ProgramManager.importDaysBeforePostDate)
         return newDateTime
 
     @staticmethod
     def getEndDate(originalPostDate):
-        newDateTime = datetime(originalPostDate.year,
-                               originalPostDate.month,
-                               originalPostDate.day + ProgramManager.importDaysAfterPostDate)
+        newDateTime = originalPostDate + timedelta(days=ProgramManager.importDaysAfterPostDate)
         return newDateTime
 
     @staticmethod
@@ -150,7 +146,7 @@ class ProgramManager:
                                         "".format(failure, self.failedSymbolsImports[failure]))
 
     def getPostStocksFilePath(self, companyName, stockSymbol, infoStartDate, infoEndDate):
-        filePath = "{}/{}_{}_{}.{}".format(self.stocksBasePath, stockSymbol, '2019-1-1', '2019-1-3', "csv")
+        filePath = "{}/{}_{}_{}.{}".format(self.stocksBasePath, stockSymbol, infoStartDate, infoEndDate, "csv")
 
         if not os.path.isfile(filePath):
             ProgramManager.statistics.increaseTotalImportCount()
@@ -223,6 +219,7 @@ class ProgramManager:
                 if not stockFilePath == "":
                     newStockInfo = StockInfo(company.name,
                                              company.stockSymbol,
+                                             post.date,
                                              postDateStart,
                                              postDateEnd,
                                              stockFilePath)
