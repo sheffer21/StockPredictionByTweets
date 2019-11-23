@@ -16,6 +16,6 @@
   "printPostsLimit" : 10,
   "printCompaniesLimit" : 10,
   "maxImportsAtOnce" : 10,
-  "importDaysBeforePostDate" : 2,
+  "importDaysBeforePostDate" : 10,
   "importDaysAfterPostDate" : 3
 }
