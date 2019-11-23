@@ -98,7 +98,7 @@ class ProgramManager:
 
     @staticmethod
     def exportDataFrame(dataFrame, exportPath):
-        dataFrame.to_csv(exportPath, index=None, header=True)
+        dataFrame.to_csv(exportPath)
 
     @staticmethod
     def getStartDate(originalPostDate):
@@ -116,7 +116,8 @@ class ProgramManager:
 
     @staticmethod
     def getStockDataBySymbolAndDates(stockSymbol, infoStartDate, infoEndDate):
-        data = yf.download(stockSymbol, infoStartDate, infoEndDate, interval="1h")
+        symbolDownloader = yf.Ticker(stockSymbol)
+        data = symbolDownloader.history(start=infoStartDate, end=infoEndDate, actions="true")
         return data
 
     def printLocalDatabase(self):
@@ -219,12 +220,17 @@ class ProgramManager:
                                                            postDateStart,
                                                            postDateEnd)
 
-                newStockInfo = StockInfo(company.stockSymbol,
-                                         postDateStart,
-                                         postDateEnd,
-                                         stockFilePath)
+                if not stockFilePath == "":
+                    newStockInfo = StockInfo(company.name,
+                                             company.stockSymbol,
+                                             postDateStart,
+                                             postDateEnd,
+                                             stockFilePath)
 
-                post.addStockInfo(company.stockSymbol, newStockInfo)
+                    post.addStockInfo(company.stockSymbol, newStockInfo)
+                    self.printAndLog("Regular", "Saved stock info for symbol: {}.".format(company.stockSymbol))
+                else:
+                    self.printAndLog("Error", "Could not save stock info for symbol: {}.".format(company.stockSymbol))
 
                 if ProgramManager.statistics.totalImportCount == ProgramManager.maxImportsAtOnce:
                     break
