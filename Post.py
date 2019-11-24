@@ -16,6 +16,7 @@ class Post:
     def __init__(self, postId, text, timeStamp, source, companies, url, verified):
         self.__p_id = postId
         self.__p_text = text
+        self.__p_processed_text = ""
         self.__p_timeStamp = timeStamp
         self.__p_source = source
         self.__p_companies = companies
@@ -24,15 +25,10 @@ class Post:
         self.__p_date = getPostDateFromTimeStamp(timeStamp)
         self.__p_time = getPostTimeFromTimeStamp(timeStamp)
         self.__p_post_stocks_info = {}
-        self.__p_total_impact = 0
 
     @property
     def id(self):
         return self.__p_id
-
-    @property
-    def totalImpact(self):
-        return self.__p_total_impact
 
     @property
     def companiesList(self):
@@ -45,6 +41,10 @@ class Post:
     @property
     def text(self):
         return self.__p_text
+
+    @property
+    def processedText(self):
+        return self.__p_processed_text
 
     @property
     def date(self):
@@ -66,9 +66,8 @@ class Post:
                           "\t source: {},\n" \
                           "\t url: {},\n" \
                           "\t verified: {},\n" \
-                          "\t total impact: {},\n" \
                           "".format(self.__p_id, self.__p_text, self.__p_timeStamp, self.__p_source,
-                                    self.__p_url, self.__p_verified, self.__p_total_impact)
+                                    self.__p_url, self.__p_verified)
 
         companiesDescription = "This post is associated with the following companies:\n"
 
@@ -85,9 +84,6 @@ class Post:
 
     def addStockInfo(self, stockSymbol, stockInfo):
         self.__p_post_stocks_info[stockSymbol] = stockInfo
-
-    def setImpact(self, total_impact):
-        self.__p_total_impact = total_impact
 
     def getStockInfo(self, stockSymbol):
         return self.__p_post_stocks_info[stockSymbol]

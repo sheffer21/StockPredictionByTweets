@@ -1,13 +1,14 @@
-from datetime import datetime, timedelta
 import os
 import sys
+import json
 import xlrd
+from datetime import datetime, timedelta
 import yfinance as yf
 from Company import Company
+from Database import Database
 from Post import Post
 from StockInfo import StockInfo
 from Statistics import Statistics
-import json
 
 
 class ProgramManager:
@@ -15,8 +16,9 @@ class ProgramManager:
         configuration = json.load(config_file)
 
     postsList = []
-    database = {}
+    initial_database = {}
     companiesDict = {}
+    finalDatabase = Database()
     failedSymbolsImports = {}
     logFilePath = configuration['logFilePath']
     logFileName = configuration['logFileName'].format(datetime.now().strftime("%d-%m-%Y_%H-%M-%S"))
@@ -94,7 +96,7 @@ class ProgramManager:
     @staticmethod
     def openAndPrepareRawDatabase():
         wb = xlrd.open_workbook(ProgramManager.databasePath)
-        ProgramManager.database = wb.sheet_by_name(ProgramManager.workSheetName)
+        ProgramManager.initial_database = wb.sheet_by_name(ProgramManager.workSheetName)
 
     @staticmethod
     def exportDataFrame(dataFrame, exportPath):
@@ -115,6 +117,10 @@ class ProgramManager:
         symbolDownloader = yf.Ticker(stockSymbol)
         data = symbolDownloader.history(start=infoStartDate, end=infoEndDate, actions="true")
         return data
+
+    @property
+    def database(self):
+        return ProgramManager.finalDatabase
 
     def printLocalDatabase(self):
         iterationsCount = 0  # For debugging
@@ -179,15 +185,15 @@ class ProgramManager:
         return filePath
 
     def prepareLocalDatabase(self):
-        for databaseRowIndex in range(1, ProgramManager.database.nrows):
+        for databaseRowIndex in range(1, ProgramManager.initial_database.nrows):
             postId = databaseRowIndex
-            postText = ProgramManager.database.cell_value(databaseRowIndex, self.POST_TEXT_COLUMN)
-            postTimestamp = ProgramManager.database.cell_value(databaseRowIndex, self.POST_TIMESTAMP_COLUMN)
-            postSource = ProgramManager.database.cell_value(databaseRowIndex, self.POST_SOURCE_COLUMN)
-            postSymbols = ProgramManager.database.cell_value(databaseRowIndex, self.POST_SYMBOLS_COLUMN)
-            postCompany = ProgramManager.database.cell_value(databaseRowIndex, self.POST_COMPANY_COLUMN)
-            postUrl = ProgramManager.database.cell_value(databaseRowIndex, self.POST_URL_COLUMN)
-            postVerified = ProgramManager.database.cell_value(databaseRowIndex, self.POST_VERIFIED_COLUMN)
+            postText = ProgramManager.initial_database.cell_value(databaseRowIndex, self.POST_TEXT_COLUMN)
+            postTimestamp = ProgramManager.initial_database.cell_value(databaseRowIndex, self.POST_TIMESTAMP_COLUMN)
+            postSource = ProgramManager.initial_database.cell_value(databaseRowIndex, self.POST_SOURCE_COLUMN)
+            postSymbols = ProgramManager.initial_database.cell_value(databaseRowIndex, self.POST_SYMBOLS_COLUMN)
+            postCompany = ProgramManager.initial_database.cell_value(databaseRowIndex, self.POST_COMPANY_COLUMN)
+            postUrl = ProgramManager.initial_database.cell_value(databaseRowIndex, self.POST_URL_COLUMN)
+            postVerified = ProgramManager.initial_database.cell_value(databaseRowIndex, self.POST_VERIFIED_COLUMN)
 
             postCompaniesList = []
             postSymbolsParsed = postSymbols.split('-')
@@ -238,3 +244,8 @@ class ProgramManager:
         ProgramManager.printAndLog("Summarize",
                                    "Import done. {} passed out of {}.".format(ProgramManager.statistics.successfulImportCount,
                                                                               ProgramManager.statistics.totalImportCount))
+
+    def buildFinalDatabase(self):
+        for post in self.postsList:
+            for stockInfo in post.stocksInfo:
+                ProgramManager.finalDatabase.addItem(post.processedText, stockInfo.finalResult)
