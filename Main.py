@@ -19,8 +19,12 @@ def main():
     # TODO: add more databases?
 
     # Importing stocks databases
-    programManager.printAndLog("Header", "Importing stocks databases...")
+    programManager.printAndLog("Header", "Importing stocks databases and analyzing stocks...")
     programManager.importStocksDatabasesForPosts()
+
+    # Setting final train sets
+    programManager.printAndLog("Header", "Building final databases for learning algorithms")
+    programManager.buildFinalDatabase()
 
     # Debug:
     programManager.printFailedImports()
