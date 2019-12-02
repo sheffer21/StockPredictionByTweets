@@ -1,0 +1,46 @@
+[94mWelcome to our project: "Stock prediction by twitter" :)[0m
+Log path: logs/messages_24-11-2019_21-21-57.log
+
+[95mLoading databases files...[0m
+[95mBuilding local databases...[0m
+[95mImporting stocks databases and analyzing stocks...[0m
+Saved stock info for symbol: GS.
+Saved stock info for symbol: M.
+Import tries count: 1
+Fetching data for company: American,
+ 	 with stock symbol: AIG,
+	 from date: 2018-06-18,
+	 to date: 2018-08-17, 
+[92mFetching succeeded, saving to file: databases/stocks/AIG_2018-06-18_2018-08-17.csv[0m
+-----------------------------------------------------------
+Saved stock info for symbol: AIG.
+Import tries count: 2
+Fetching data for company: Bitcoin,
+ 	 with stock symbol: BTC,
+	 from date: 2018-06-18,
+	 to date: 2018-08-17, 
+[91mFetching failed...[0m
+[91mCould not save stock info for symbol: BTC.[0m
+Import tries count: 3
+Fetching data for company: Oracle,
+ 	 with stock symbol: ORCL,
+	 from date: 2018-06-18,
+	 to date: 2018-08-17, 
+[92mFetching succeeded, saving to file: databases/stocks/ORCL_2018-06-18_2018-08-17.csv[0m
+-----------------------------------------------------------
+Saved stock info for symbol: ORCL.
+Import tries count: 4
+Fetching data for company: Facebook,
+ 	 with stock symbol: FB,
+	 from date: 2018-06-18,
+	 to date: 2018-08-17, 
+[92mFetching succeeded, saving to file: databases/stocks/FB_2018-06-18_2018-08-17.csv[0m
+-----------------------------------------------------------
+Saved stock info for symbol: FB.
+Import tries count: 5
+Fetching data for company: Alphabet,
+ 	 with stock symbol: GOOGL,
+	 from date: 2018-06-18,
+	 to date: 2018-08-17, 
+[92mFetching succeeded, saving to file: databases/stocks/GOOGL_2018-06-18_2018-08-17.csv[0m
+-----------------------------------------------------------

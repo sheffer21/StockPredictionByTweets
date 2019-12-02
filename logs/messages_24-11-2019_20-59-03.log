@@ -1,0 +1,13 @@
+[94mWelcome to our project: "Stock prediction by twitter" :)[0m
+Log path: logs/messages_24-11-2019_20-59-03.log
+
+[95mLoading databases files...[0m
+[95mBuilding local databases...[0m
+[95mImporting stocks databases and analyzing stocks...[0m
+Import tries count: 1
+Fetching data for company: The Goldman Sachs,
+ 	 with stock symbol: GS,
+	 from date: 2018-06-18,
+	 to date: 2018-08-17, 
+[92mFetching succeeded, saving to file: databases/stocks/GS_2018-06-18_2018-08-17.csv[0m
+-----------------------------------------------------------

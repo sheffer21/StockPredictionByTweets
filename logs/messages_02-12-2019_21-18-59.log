@@ -1,0 +1,8 @@
+[94mWelcome to our project: "Stock prediction by twitter" :)[0m
+Log path: logs/messages_02-12-2019_21-18-59.log
+
+[95mLoading databases files...[0m
+[95mBuilding local databases...[0m
+[95mImporting stocks databases and analyzing stocks...[0m
+Saved stock info for symbol: GS.
+Saved stock info for symbol: M.
