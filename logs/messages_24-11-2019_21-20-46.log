@@ -1,0 +1,20 @@
+[94mWelcome to our project: "Stock prediction by twitter" :)[0m
+Log path: logs/messages_24-11-2019_21-20-46.log
+
+[95mLoading databases files...[0m
+[95mBuilding local databases...[0m
+[95mImporting stocks databases and analyzing stocks...[0m
+Saved stock info for symbol: GS.
+Import tries count: 1
+Fetching data for company: Macy's,
+ 	 with stock symbol: M,
+	 from date: 2018-06-18,
+	 to date: 2018-08-17, 
+[92mFetching succeeded, saving to file: databases/stocks/M_2018-06-18_2018-08-17.csv[0m
+-----------------------------------------------------------
+Saved stock info for symbol: M.
+Import tries count: 2
+Fetching data for company: American,
+ 	 with stock symbol: AIG,
+	 from date: 2018-06-18,
+	 to date: 2018-08-17, 

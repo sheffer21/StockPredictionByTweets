@@ -17,5 +17,6 @@
   "printCompaniesLimit" : 10,
   "maxImportsAtOnce" : 10,
   "importDaysBeforePostDate" : 30,
-  "importDaysAfterPostDate" : 30
+  "importDaysAfterPostDate" : 30,
+  "graphDaysInterval" : 3
 }

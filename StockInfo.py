@@ -3,6 +3,7 @@ import datetime
 import matplotlib.pyplot as plt
 import numpy as np
 import sys
+import json
 
 
 def ListToFormattedString(alist):
@@ -12,6 +13,9 @@ def ListToFormattedString(alist):
 
 
 class StockInfo:
+    with open('config.json') as config_file:
+        configuration = json.load(config_file)
+
     columnColor = {
         "Open": "red",
         "High": "black",
@@ -32,6 +36,8 @@ class StockInfo:
         "Stock Splits": 6
     }
 
+    graphDaysInterval = configuration['graphDaysInterval']
+
     def __init__(self, stockCompany, stockSymbol, postOriginalDate, infoStartDate, infoEndDate, rawDataPath):
         self.__stockCompany = stockCompany
         self.__s_stockSymbol = stockSymbol
@@ -40,12 +46,16 @@ class StockInfo:
         self.__s_infoEndDate = infoEndDate
         self.__s_dataPath = rawDataPath
         self.__s_stockData = {}
+        self.__s_deltaData = {}
+        self.__s_percentChanges = {}
+        self.__s_averageChanges = []
         self.__s_finalResult = 0
 
         self.parseData()
         self.fillMissingData()
         self.analyzeStock()
-        self.plotByColumnNames(["Open"])
+        self.plotByColumnNames("Values", ["Open", "Close"])
+        self.plotByColumnNames("Change", ["Open"])
 
     @property
     def finalResult(self):
@@ -102,7 +112,44 @@ class StockInfo:
 
         self.__s_stockData = newStockData
 
-    def plotByColumnNames(self, columnNames):
+    def plotAllSeparately(self):
+        self.plotByColumnNames("Values", "Open")
+        self.plotByColumnNames("Values", "High")
+        self.plotByColumnNames("Values", "Low")
+        self.plotByColumnNames("Values", "Close")
+        self.plotByColumnNames("Values", "Volume")
+
+    def analyzeStock(self):
+        for row in self.__s_stockData:
+            postDate = datetime.datetime.strptime(row, '%Y-%m-%d').date()
+            prevDate = str(postDate - datetime.timedelta(days=1))
+            postDate = str(postDate)
+
+            if prevDate not in self.__s_stockData:
+                continue
+
+            percentVec = []
+            prevVec = np.array(self.__s_stockData[prevDate])
+            currVec = np.array(self.__s_stockData[postDate])
+            diffVec = currVec - prevVec
+
+            for i in range(len(currVec)):
+                if diffVec[i] == 0 or prevVec[i] == 0:
+                    percentVec.append(0)
+                else:
+                    percentVec.append(diffVec[i] * 100 / prevVec[i])
+
+            self.__s_deltaData[postDate] = diffVec
+            self.__s_percentChanges[postDate] = percentVec
+
+        count = 0
+        sum = np.zeros(7, )
+        for row in self.__s_percentChanges:
+            sum = np.add(sum, np.array(self.__s_percentChanges[row]))
+            count += 1
+        self.__s_averageChanges = sum / count
+
+    def plotByColumnNames(self, plotName, columnNames):
         x = []
         y = {}
         for columnName in columnNames:
@@ -110,11 +157,16 @@ class StockInfo:
 
         x_ticks = []
 
+        if plotName == "Values":
+            plotData = self.__s_stockData
+        else:
+            plotData = self.__s_percentChanges
+
         count = 0
         originalDateIndex = 0
-        for rowDate in self.__s_stockData:
+        for rowDate in plotData:
             postDate = datetime.datetime.strptime(rowDate, '%Y-%m-%d')
-            if count % 3 == 0 or postDate.date() == self.__s_postOriginalDate:
+            if count % StockInfo.graphDaysInterval == 0 or postDate.date() == self.__s_postOriginalDate:
                 x_ticks.append(rowDate)
                 if postDate.date() == self.__s_postOriginalDate:
                     originalDateIndex = len(x_ticks) - 1
@@ -123,19 +175,19 @@ class StockInfo:
 
             x.append(rowDate)
             for columnName in columnNames:
-                y[columnName].append(self.__s_stockData[rowDate][StockInfo.columnIdx.get(columnName)])
+                y[columnName].append(plotData[rowDate][StockInfo.columnIdx.get(columnName)])
 
         fig, ax = plt.subplots()
         plt.grid()
 
         for y_key in y:
-            ax.plot(x, y[y_key], color=StockInfo.columnColor.get(y_key), label='\'{}\' value'.format(y_key))
+            ax.plot(x, y[y_key], color=StockInfo.columnColor.get(y_key), label='\'{}\' change value'.format(y_key))
             ax.get_xticklabels()[originalDateIndex].set_color("red")
 
         plt.xlabel('Date')
-        plt.ylabel('Value in $')
+        plt.ylabel('Change of value in %')
         plt.xticks(x_ticks, rotation=45)
-        plt.title('{} values for company \'{}\'\n Between dates: {} - {}\n Post publish date: {}'
+        plt.title('{} change of values for company \'{}\'\n Between dates: {} - {}\n Post publish date: {}'
                   ''.format(ListToFormattedString(columnNames),
                             self.__stockCompany,
                             self.__s_infoStartDate,
@@ -144,14 +196,7 @@ class StockInfo:
 
         plt.legend(loc="upper left")
         plt.show()
-        sys.exit()
 
-    def plotAllSeparately(self):
-        self.plotByColumnNames("Open")
-        self.plotByColumnNames("High")
-        self.plotByColumnNames("Low")
-        self.plotByColumnNames("Close")
-        self.plotByColumnNames("Volume")
-
-    def analyzeStock(self):
-        pass
+        if (not plotName == "Values") and self.__s_stockSymbol == "FB":
+            print(self.__s_averageChanges)
+            sys.exit()
