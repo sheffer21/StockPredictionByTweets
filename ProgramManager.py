@@ -248,4 +248,4 @@ class ProgramManager:
     def buildFinalDatabase(self):
         for post in self.postsList:
             for stockInfo in post.stocksInfo:
-                ProgramManager.finalDatabase.addItem(post.processedText, stockInfo.finalResult)
+                ProgramManager.finalDatabase.addItem(post.text, post.stocksInfo[stockInfo].stockTag)

@@ -15,8 +15,10 @@
   "POST_VERIFIED_COLUMN" : 7,
   "printPostsLimit" : 10,
   "printCompaniesLimit" : 10,
-  "maxImportsAtOnce" : 10,
+  "maxImportsAtOnce" : "float['inf']",
   "importDaysBeforePostDate" : 30,
   "importDaysAfterPostDate" : 30,
-  "graphDaysInterval" : 3
+  "graphDaysInterval" : 3,
+  "effectiveDaysAfterPost" : 5,
+  "effectiveColumnName" : "Close"
 }

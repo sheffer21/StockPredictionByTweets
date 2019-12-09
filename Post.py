@@ -16,7 +16,6 @@ class Post:
     def __init__(self, postId, text, timeStamp, source, companies, url, verified):
         self.__p_id = postId
         self.__p_text = text
-        self.__p_processed_text = ""
         self.__p_timeStamp = timeStamp
         self.__p_source = source
         self.__p_companies = companies
@@ -41,10 +40,6 @@ class Post:
     @property
     def text(self):
         return self.__p_text
-
-    @property
-    def processedText(self):
-        return self.__p_processed_text
 
     @property
     def date(self):

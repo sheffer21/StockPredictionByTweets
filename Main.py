@@ -29,8 +29,10 @@ def main():
     # Debug:
     programManager.printFailedImports()
 
-    # TODO: Analyze stocks databases
-    # TODO: NLP database process
+    return
+
+    for row in programManager.database:
+        print(row)
 
     # Print database & companies (for debugging):
     # printLocalDatabase()
