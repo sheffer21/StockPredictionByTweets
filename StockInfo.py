@@ -1,9 +1,8 @@
 import csv
 import datetime
+import json
 import matplotlib.pyplot as plt
 import numpy as np
-import sys
-import json
 
 
 def ListToFormattedString(alist):
@@ -37,6 +36,8 @@ class StockInfo:
     }
 
     graphDaysInterval = configuration['graphDaysInterval']
+    effectiveDaysAfterPost = configuration['effectiveDaysAfterPost']
+    effectiveColumnIndex = columnIdx.get(configuration['effectiveColumnName'])
 
     def __init__(self, stockCompany, stockSymbol, postOriginalDate, infoStartDate, infoEndDate, rawDataPath):
         self.__stockCompany = stockCompany
@@ -48,18 +49,26 @@ class StockInfo:
         self.__s_stockData = {}
         self.__s_deltaData = {}
         self.__s_percentChanges = {}
+        self.__s_deviationOfDay = {}
         self.__s_averageChanges = []
-        self.__s_finalResult = 0
+        self.__s_averageValues = []
+        self.__s_stockTag = 0
 
         self.parseData()
         self.fillMissingData()
         self.analyzeStock()
-        self.plotByColumnNames("Values", ["Open", "Close"])
-        self.plotByColumnNames("Change", ["Open"])
+        self.calculateDeviation()
+        self.calculateTag()
+
+        print(self.__s_stockTag)
+        if self.__s_stockSymbol == "FB":
+            self.plotByColumnNames("Values", ["Open", "Close"])
+            self.plotByColumnNames("Change", ["Close"])
+            exit()
 
     @property
-    def finalResult(self):
-        return self.__s_finalResult
+    def stockTag(self):
+        return self.__s_stockTag
 
     def parseData(self):
         with open(self.__s_dataPath, newline='') as dataFile:
@@ -78,39 +87,52 @@ class StockInfo:
 
                 self.__s_stockData[rowKey] = rowValue
 
-    def fillMissingData(self):
-        newStockData = {}
+    def getPreviousAvailableDate(self, date):
 
+        dateFormat = datetime.datetime.strptime(date, '%Y-%m-%d').date()
+        prevDate = str(dateFormat - datetime.timedelta(days=1))
+        while prevDate not in self.__s_stockData:
+            prevDateFormat = datetime.datetime.strptime(prevDate, '%Y-%m-%d').date()
+            prevDate = str(prevDateFormat - datetime.timedelta(days=1))
+
+        return prevDate
+
+    def fillBetween(self, missingDates, fromDate, toDate):
+
+        fromDateFormat = datetime.datetime.strptime(fromDate, '%Y-%m-%d').date()
+        toDateFormat = datetime.datetime.strptime(toDate, '%Y-%m-%d').date()
+        toFillDate = fromDateFormat + datetime.timedelta(days=1)
+        if toFillDate == toDateFormat:
+            return
+
+        if str(fromDateFormat) in self.__s_stockData.keys():
+            fromVec = self.__s_stockData[str(fromDateFormat)]
+        else:
+            fromVec = missingDates[str(fromDateFormat)]
+
+        toVec = self.__s_stockData[str(toDateFormat)]
+        fillVec = [x / 2 for x in np.add(fromVec, toVec)]
+        missingDates[str(toFillDate)] = fillVec
+
+        self.fillBetween(missingDates, str(toFillDate), str(toDateFormat))
+
+    def fillMissingData(self):
+
+        missingDates = {}
+        isFirst = True
         for currDate in self.__s_stockData:
             postDate = datetime.datetime.strptime(currDate, '%Y-%m-%d').date()
             prev_1_Date = str(postDate - datetime.timedelta(days=1))
-            prev_2_Date = str(postDate - datetime.timedelta(days=2))
-            prev_3_Date = str(postDate - datetime.timedelta(days=3))
-            postDate = str(postDate)
 
-            if newStockData == {} or prev_1_Date in newStockData.keys():  # Nothing is missing
-                newStockData[postDate] = self.__s_stockData[postDate]
-            else:
-                if prev_2_Date in newStockData.keys():  # Need to fill just prev day
-                    firstVec = self.__s_stockData[prev_2_Date]
-                    secondVec = self.__s_stockData[postDate]
-                    mat = np.array([firstVec, secondVec])
-                    filledVec = np.mean(mat, axis=0)
-                    newStockData[prev_1_Date] = filledVec
-                    newStockData[postDate] = self.__s_stockData[postDate]
+            if isFirst or prev_1_Date in self.__s_stockData.keys():  # Nothing is missing
+                isFirst = False
+                continue
 
-                else:  # Need to fill 2 days
-                    firstVec = self.__s_stockData[prev_3_Date]
-                    secondVec = self.__s_stockData[postDate]
-                    mat = np.array([firstVec, secondVec])
-                    firstFilledVec = np.mean(mat, axis=0)
-                    mat = np.array([firstFilledVec, secondVec])
-                    secondFilledVec = np.mean(mat, axis=0)
-                    newStockData[prev_2_Date] = firstFilledVec
-                    newStockData[prev_1_Date] = secondFilledVec
-                    newStockData[postDate] = self.__s_stockData[postDate]
+            lastDate = self.getPreviousAvailableDate(currDate)
+            self.fillBetween(missingDates, lastDate, currDate)
 
-        self.__s_stockData = newStockData
+        for date in missingDates:
+            self.__s_stockData[date] = missingDates[date]
 
     def plotAllSeparately(self):
         self.plotByColumnNames("Values", "Open")
@@ -120,6 +142,9 @@ class StockInfo:
         self.plotByColumnNames("Values", "Volume")
 
     def analyzeStock(self):
+        rowsCount = 0
+        rowsSum = np.zeros(7, )
+
         for row in self.__s_stockData:
             postDate = datetime.datetime.strptime(row, '%Y-%m-%d').date()
             prevDate = str(postDate - datetime.timedelta(days=1))
@@ -127,6 +152,9 @@ class StockInfo:
 
             if prevDate not in self.__s_stockData:
                 continue
+
+            rowsSum = np.add(rowsSum, np.array(self.__s_stockData[row]))
+            rowsCount += 1
 
             percentVec = []
             prevVec = np.array(self.__s_stockData[prevDate])
@@ -142,14 +170,16 @@ class StockInfo:
             self.__s_deltaData[postDate] = diffVec
             self.__s_percentChanges[postDate] = percentVec
 
-        count = 0
-        sum = np.zeros(7, )
+        avrgCount = 0
+        avrgRowsSum = np.zeros(7, )
         for row in self.__s_percentChanges:
-            sum = np.add(sum, np.array(self.__s_percentChanges[row]))
-            count += 1
-        self.__s_averageChanges = sum / count
+            avrgRowsSum = np.add(avrgRowsSum, np.array(self.__s_percentChanges[row]))
+            avrgCount += 1
 
-    def plotByColumnNames(self, plotName, columnNames):
+        self.__s_averageChanges = avrgRowsSum / avrgCount
+        self.__s_averageValues = rowsSum / rowsCount
+
+    def plotByColumnNames(self, plotType, columnNames):
         x = []
         y = {}
         for columnName in columnNames:
@@ -157,7 +187,7 @@ class StockInfo:
 
         x_ticks = []
 
-        if plotName == "Values":
+        if plotType == "Values":
             plotData = self.__s_stockData
         else:
             plotData = self.__s_percentChanges
@@ -170,6 +200,7 @@ class StockInfo:
                 x_ticks.append(rowDate)
                 if postDate.date() == self.__s_postOriginalDate:
                     originalDateIndex = len(x_ticks) - 1
+                    count = 0
 
             count += 1
 
@@ -184,6 +215,18 @@ class StockInfo:
             ax.plot(x, y[y_key], color=StockInfo.columnColor.get(y_key), label='\'{}\' change value'.format(y_key))
             ax.get_xticklabels()[originalDateIndex].set_color("red")
 
+            if len(columnNames) == 1:
+                averageVector = np.empty(len(x))
+
+                if plotType == "Values":
+                    averageValue = self.__s_averageValues[StockInfo.columnIdx.get(y_key)]
+                else:
+                    averageValue = self.__s_averageChanges[StockInfo.columnIdx.get(y_key)]
+
+                averageVector.fill(averageValue)
+                ax.plot(x, averageVector, 'green')
+                ax.text(0.01, 0.03, 'Average value: {0:.4f}'.format(averageValue), transform=ax.transAxes)
+
         plt.xlabel('Date')
         plt.ylabel('Change of value in %')
         plt.xticks(x_ticks, rotation=45)
@@ -197,6 +240,68 @@ class StockInfo:
         plt.legend(loc="upper left")
         plt.show()
 
-        if (not plotName == "Values") and self.__s_stockSymbol == "FB":
-            print(self.__s_averageChanges)
-            sys.exit()
+    # def calculateDeviation(self):
+    #     helperDict = {}
+    #     for indexDate in self.__s_percentChanges:
+    #         count = 0
+    #         percentSum = 0
+    #
+    #         for currentDate in self.__s_percentChanges:
+    #
+    #             if currentDate != indexDate:
+    #                 percentSum = percentSum + self.__s_percentChanges[currentDate][StockInfo.effectiveColumnIndex]
+    #                 count += 1
+    #
+    #         if count == 0:
+    #             res = 0
+    #         else:
+    #             res = percentSum / count
+    #
+    #         helperDict[indexDate] = res
+    #
+    #     self.__s_deviationOfDay = helperDict
+
+    def calculateAverageExcluded(self, indexDate):
+
+        sum = 0
+        count = 0
+        for date in self.__s_percentChanges:
+            if date == indexDate:
+                continue
+            count += 1
+            sum += self.__s_percentChanges[date][StockInfo.effectiveColumnIndex]
+
+        if count == 0:
+            return 0
+
+        return sum / count
+
+    def calculateDeviation(self):
+
+        deviation = {}
+        for indexDate in self.__s_percentChanges:
+            averageExcluded = self.calculateAverageExcluded(indexDate)
+            deviation[indexDate] = self.__s_percentChanges[indexDate][StockInfo.effectiveColumnIndex] - averageExcluded
+
+        self.__s_deviationOfDay = deviation
+
+    def calculateTag(self):
+        tag = 0
+        index = 0
+        for currentDate in self.__s_deviationOfDay:
+
+            currentDateInDateFormat = datetime.datetime.strptime(currentDate, '%Y-%m-%d').date()
+            if currentDateInDateFormat < self.__s_postOriginalDate:
+                continue
+
+            tag += (StockInfo.effectiveDaysAfterPost - index) * self.__s_deviationOfDay[currentDate]
+            if index == (StockInfo.effectiveDaysAfterPost - 1):
+                break
+
+            index += 1
+
+        sumOfDays = 0
+        for count in range(StockInfo.effectiveDaysAfterPost):
+            sumOfDays += count
+
+        self.__s_stockTag = tag
