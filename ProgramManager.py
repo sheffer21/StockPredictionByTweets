@@ -9,6 +9,8 @@ from Database import Database
 from Post import Post
 from StockInfo import StockInfo
 from Statistics import Statistics
+import pandas as pd
+from sklearn.model_selection import train_test_split
 
 
 class ProgramManager:
@@ -18,7 +20,6 @@ class ProgramManager:
     postsList = []
     initial_database = {}
     companiesDict = {}
-    finalDatabase = Database()
     failedSymbolsImports = {}
     logFilePath = configuration['logFilePath']
     logFileName = configuration['logFileName'].format(datetime.now().strftime("%d-%m-%Y_%H-%M-%S"))
@@ -40,6 +41,13 @@ class ProgramManager:
     importDaysBeforePostDate = configuration['importDaysBeforePostDate']
     importDaysAfterPostDate = configuration['importDaysAfterPostDate']
     statistics = Statistics(datetime.now())
+    FINAL_DATABASE_TEXT_COLUMN = configuration["FINAL_DATABASE_TEXT_COLUMN"]
+    FINAL_DATABASE_PREDICTION_COLUMN = configuration["FINAL_DATABASE_PREDICTION_COLUMN"]
+    FINAL_DATABASE_FOLDER = configuration["FINAL_DATABASE_FOLDER"]
+    FINAL_DATABASE_TRAIN = configuration["FINAL_DATABASE_TRAIN"]
+    FINAL_DATABASE_TEST = configuration["FINAL_DATABASE_TEST"]
+
+    finalDatabase = pd.DataFrame(columns=[FINAL_DATABASE_PREDICTION_COLUMN, FINAL_DATABASE_TEXT_COLUMN])
 
     HEADER = '\033[95m'
     OKBLUE = '\033[94m'
@@ -95,7 +103,7 @@ class ProgramManager:
 
     @staticmethod
     def openAndPrepareRawDatabase():
-        wb = xlrd.open_workbook(ProgramManager.databasePath)
+        wb = xlrd.open_workbook(ProgramManager.databasePath, on_demand=True)
         ProgramManager.initial_database = wb.sheet_by_name(ProgramManager.workSheetName)
 
     @staticmethod
@@ -245,7 +253,34 @@ class ProgramManager:
                                    "Import done. {} passed out of {}.".format(ProgramManager.statistics.successfulImportCount,
                                                                               ProgramManager.statistics.totalImportCount))
 
-    def buildFinalDatabase(self):
+    def add_false_stocks_to_data_base(self):
+        count = 0
+        result = 0
         for post in self.postsList:
-            for stockInfo in post.stocksInfo:
-                ProgramManager.finalDatabase.addItem(post.processedText, stockInfo.finalResult)
+            stock_info = StockInfo("", "", "", "", "", "")
+            stock_info.finalResult = result
+            post.addStockInfo("Symbol", stock_info)
+            count += 1
+            if count % 50 == 0:
+                result += 0.1
+
+    @staticmethod
+    def save_split_data_base_to_csv():
+        train, test = train_test_split(ProgramManager.finalDatabase, test_size=0.2, random_state=42)
+
+        # reset indices
+        train.reset_index(drop=True)
+        test.reset_index(drop=True)
+        train.to_csv(f'{ProgramManager.FINAL_DATABASE_FOLDER}{ProgramManager.FINAL_DATABASE_TRAIN}', index=False)
+        test.to_csv(f'{ProgramManager.FINAL_DATABASE_FOLDER}{ProgramManager.FINAL_DATABASE_TEST}', index=False)
+
+    def build_final_database(self):
+        ProgramManager.finalDatabase = pd.concat(
+            [pd.DataFrame([[stockInfo.finalResult, post.text]],
+                          columns=[ProgramManager.FINAL_DATABASE_PREDICTION_COLUMN,
+                                   ProgramManager.FINAL_DATABASE_TEXT_COLUMN])
+             for post in self.postsList
+             for stockInfo in post.stocksInfo.values()], ignore_index=True)
+
+        ProgramManager.save_split_data_base_to_csv()
+
