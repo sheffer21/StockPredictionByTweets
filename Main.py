@@ -17,8 +17,6 @@ def main(process_data=False):
     # NLP database process
     numeric_representation_service = NumericRepresentationService.NumericRepresentationService(program_manager)
     train_iterator, test_iterator = numeric_representation_service.get_numeric_representation_of_final_data()
-    train_iterator
-    test_iterator
 
     # TODO: Analyze stocks databases
 

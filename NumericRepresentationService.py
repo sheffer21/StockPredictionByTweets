@@ -75,7 +75,7 @@ class NumericRepresentationService:
         text = re.sub(r'(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)', '', text)
 
         # Get rid of all non letters or numbers
-        text = re.sub(r'[^A-Za-z0-9]+', ' ', text)
+        text = re.sub(r'[^A-Za-z0-9.]+', ' ', text)
 
         return text.strip()
 
