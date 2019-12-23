@@ -1,8 +1,9 @@
 import torch
 import torchtext.vocab
 import spacy
-
+import constants as c
 import re
+from logger import Logger as Log
 
 
 class NumericRepresentationService:
@@ -17,41 +18,40 @@ class NumericRepresentationService:
     # dim = The dimensionality of the vectors
     glove = torchtext.vocab.GloVe(name='6B', dim=100)
 
-    def __init__(self, program_manager):
-        self.manager = program_manager
+    def __init__(self):
         self.Text = []
         self.Label = []
 
-        program_manager.printAndLog("Regular", f"Glove data base size: {len(self.glove.itos)}")
+        Log.print_and_log("Regular", f"Glove data base size: {len(self.glove.itos)}")
 
     def get_numeric_representation_of_final_data(self):
 
-        self.manager.printAndLog("Regular", f"Converting final data base to numeric representation...")
+        Log.print_and_log("Regular", f"Converting final data base to numeric representation...")
 
         # Defines a data type together with instructions for converting to Tensor.
         self.Text = torchtext.data.Field(tokenize=self.tokenizer)
         self.Label = torchtext.data.LabelField(dtype=torch.int)
 
         # Load data from csv
-        data_fields = [(self.manager.FINAL_DATABASE_PREDICTION_COLUMN, self.Label),
-                       (self.manager.FINAL_DATABASE_TEXT_COLUMN, self.Text)]
-        train, test = torchtext.data.TabularDataset.splits(path=self.manager.FINAL_DATABASE_FOLDER,
-                                                           train=self.manager.FINAL_DATABASE_TRAIN,
-                                                           test=self.manager.FINAL_DATABASE_TEST,
+        data_fields = [(c.FINAL_DATABASE_PREDICTION_COLUMN, self.Label),
+                       (c.FINAL_DATABASE_TEXT_COLUMN, self.Text)]
+        train, test = torchtext.data.TabularDataset.splits(path=c.FINAL_DATABASE_FOLDER,
+                                                           train=c.FINAL_DATABASE_TRAIN,
+                                                           test=c.FINAL_DATABASE_TEST,
                                                            format='csv',
                                                            skip_header=True,
                                                            fields=data_fields)
-        self.manager.printAndLog("Regular", f'Number of training examples: {len(train)}')
-        self.manager.printAndLog("Regular", f'Number of testing examples: {len(test)}')
-        self.manager.printAndLog("Regular", f'Train example: {train.examples[0].Tweet}')
+        Log.print_and_log("Regular", f'Number of training examples: {len(train)}')
+        Log.print_and_log("Regular", f'Number of testing examples: {len(test)}')
+        Log.print_and_log("Regular", f'Train example: {train.examples[0].Tweet}')
 
         # Construct the Vocab object for this field from the data set
         # Words outside the 25000 words vector will be initialize
         # using torch.Tensor.normal (word mean and standard deviation)
         self.Text.build_vocab(train, max_size=25000, vectors="glove.6B.100d", unk_init=torch.Tensor.normal_)
         self.Label.build_vocab(train)
-        self.manager.printAndLog("Regular", f"Pre trained embedding size{self.Text.vocab.vectors.shape}")
-        self.manager.printAndLog("Regular", f'Most frequent word in vocabulary: {self.Text.vocab.freqs.most_common(10)}')
+        Log.print_and_log("Regular", f"Pre trained embedding size{self.Text.vocab.vectors.shape}")
+        Log.print_and_log("Regular", f'Most frequent word in vocabulary: {self.Text.vocab.freqs.most_common(10)}')
 
         # Defines an iterator that batches examples of similar lengths together.
         # Minimizes amount of padding needed while producing freshly shuffled batches for each new
@@ -89,9 +89,9 @@ class NumericRepresentationService:
             for tweet_index in range(len(batch.Tweet)):
                 print(f'Prediction in tensor: {batch.Prediction[tweet_index]}')
                 prediction_tensor = batch.Prediction[tweet_index]
-                prediction = self.Label.vocab.itos[prediction_tensor.item()]
-                print(f'Translate Prediction: '
-                      f'{prediction}')
+                # prediction = self.Label.vocab.itos[prediction_tensor]
+                # print(f'Translate Prediction: '
+                #      f'{prediction}')
                 tweet = self.get_tweet_from_batch(batch.Tweet, tweet_index)
                 print(f'Tweet in tensor: {tweet}')
                 print(f'Translate Tweet: '
