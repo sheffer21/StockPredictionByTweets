@@ -148,7 +148,7 @@ class StockInfo:
 
         plt.legend(loc="upper left")
         plt.show()
-        sys.exit()
+        # sys.exit()
 
     def plotAllSeparately(self):
         self.plotByColumnNames("Open")
