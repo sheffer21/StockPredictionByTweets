@@ -2,7 +2,7 @@ import os
 import json
 import xlrd
 from datetime import datetime, timedelta
-import constants as c
+from common import constants as c
 import yfinance as yf
 from Company import Company
 from Post import Post
@@ -10,7 +10,7 @@ from StockInfo import StockInfo
 from Statistics import Statistics
 import pandas as pd
 from sklearn.model_selection import train_test_split
-from logger import Logger as Log
+from common.logger import Logger as Log
 
 
 class ProgramManager:
@@ -23,7 +23,7 @@ class ProgramManager:
     failedSymbolsImports = {}
     statistics = Statistics(datetime.now())
 
-    finalDatabase = pd.DataFrame(columns=[c.FINAL_DATABASE_PREDICTION_COLUMN, c.FINAL_DATABASE_TEXT_COLUMN])
+    finalDatabase = pd.DataFrame(columns=[c.PREDICTION_COLUMN, c.TEXT_COLUMN])
 
     def __init__(self):
         if not os.path.isdir(c.stocksBasePath):
@@ -61,7 +61,7 @@ class ProgramManager:
     def printLocalDatabase(self):
         iterationsCount = 0  # For debugging
         for post in self.postsList:
-            Log.print_and_log("Regular", post.description)
+            Log.print_and_log(c.MessageType.Regular.value, post.description)
             iterationsCount += 1
 
             # For debugging
@@ -71,7 +71,7 @@ class ProgramManager:
     def printCompaniesDict(self):
         iterationsCount = 0  # For debugging
         for companySymbol in self.companiesDict:
-            Log.print_and_log("Regular", "Company symbol: {}, company name: {}\n"
+            Log.print_and_log(c.MessageType.Regular.value, "Company symbol: {}, company name: {}\n"
                                         "".format(companySymbol, self.companiesDict[companySymbol]))
 
             iterationsCount += 1
@@ -80,11 +80,11 @@ class ProgramManager:
                 break
 
     def printDelimiter(self):
-        Log.print_and_log("Regular", "-----------------------------------------------------------")
+        Log.print_and_log(c.MessageType.Regular.value, "-----------------------------------------------------------")
 
     def printFailedImports(self):
         for failure in self.failedSymbolsImports:
-            Log.print_and_log("Regular", "Failed to fetch: company symbol: {}, company name: {}"
+            Log.print_and_log(c.MessageType.Regular.value, "Failed to fetch: company symbol: {}, company name: {}"
                                         "".format(failure, self.failedSymbolsImports[failure]))
 
     def getPostStocksFilePath(self, companyName, stockSymbol, infoStartDate, infoEndDate):
@@ -92,7 +92,8 @@ class ProgramManager:
 
         if not os.path.isfile(filePath):
             ProgramManager.statistics.increaseTotalImportCount()
-            Log.print_and_log("Regular", "Import tries count: {}".format(ProgramManager.statistics.totalImportCount))
+            Log.print_and_log(c.MessageType.Regular.value,
+                              "Import tries count: {}".format(ProgramManager.statistics.totalImportCount))
 
             printStr = "Fetching data for company: {},\n " \
                        "\t with stock symbol: {},\n" \
@@ -100,19 +101,20 @@ class ProgramManager:
                        "\t to date: {}, " \
                        "".format(companyName, stockSymbol, infoStartDate, infoEndDate, filePath)
 
-            Log.print_and_log("Regular", printStr)
+            Log.print_and_log(c.MessageType.Regular.value, printStr)
 
             try:
                 dataFrame = self.getStockDataBySymbolAndDates(stockSymbol, infoStartDate, infoEndDate)
                 if len(dataFrame) == 0:
-                    Log.print_and_log("Error", "Fetching failed...")
+                    Log.print_and_log(c.MessageType.Error.value, "Fetching failed...")
                     ProgramManager.failedSymbolsImports[stockSymbol] = companyName
                     return ""
             except:
-                Log.print_and_log("Error", "An error occurred while trying to fetch for stock symbol: {}".format(stockSymbol))
+                Log.print_and_log(c.MessageType.Error.value,
+                                  "An error occurred while trying to fetch for stock symbol: {}".format(stockSymbol))
                 return ""
 
-            Log.print_and_log("Success", "Fetching succeeded, saving to file: {}".format(filePath))
+            Log.print_and_log(c.MessageType.Success.value, "Fetching succeeded, saving to file: {}".format(filePath))
             self.exportDataFrame(dataFrame, filePath)
             ProgramManager.statistics.increaseSuccessfulImportCount()
 
@@ -167,9 +169,11 @@ class ProgramManager:
                                              stockFilePath)
 
                     post.addStockInfo(company.stockSymbol, newStockInfo)
-                    Log.print_and_log("Regular", "Saved stock info for symbol: {}.".format(company.stockSymbol))
+                    Log.print_and_log(c.MessageType.Regular.value,
+                                      "Saved stock info for symbol: {}.".format(company.stockSymbol))
                 else:
-                    Log.print_and_log("Error", "Could not save stock info for symbol: {}.".format(company.stockSymbol))
+                    Log.print_and_log(c.MessageType.Error.value,
+                                      "Could not save stock info for symbol: {}.".format(company.stockSymbol))
 
                 if ProgramManager.statistics.totalImportCount == c.maxImportsAtOnce:
                     break
@@ -177,9 +181,9 @@ class ProgramManager:
             if ProgramManager.statistics.totalImportCount == c.maxImportsAtOnce:
                 break
 
-        Log.print_and_log("Summarize",
-                                   "Import done. {} passed out of {}.".format(ProgramManager.statistics.successfulImportCount,
-                                                                              ProgramManager.statistics.totalImportCount))
+        Log.print_and_log(c.MessageType.Summarize.value, "Import done. {} passed out of {}.".format(
+                                       ProgramManager.statistics.successfulImportCount,
+                                       ProgramManager.statistics.totalImportCount))
 
     def add_false_stocks_to_data_base(self):
         count = 0
@@ -199,14 +203,14 @@ class ProgramManager:
         # reset indices
         train.reset_index(drop=True)
         test.reset_index(drop=True)
-        train.to_csv(f'{c.FINAL_DATABASE_FOLDER}{c.FINAL_DATABASE_TRAIN}', index=False)
-        test.to_csv(f'{c.FINAL_DATABASE_FOLDER}{c.FINAL_DATABASE_TEST}', index=False)
+        train.to_csv(f'{c.FINAL_DATABASE_FOLDER}{c.TrainFile}', index=False)
+        test.to_csv(f'{c.FINAL_DATABASE_FOLDER}{c.testFile}', index=False)
 
     def build_final_database(self):
         ProgramManager.finalDatabase = pd.concat(
             [pd.DataFrame([[stockInfo.finalResult, post.text]],
-                          columns=[c.FINAL_DATABASE_PREDICTION_COLUMN,
-                                   c.FINAL_DATABASE_TEXT_COLUMN])
+                          columns=[c.PREDICTION_COLUMN,
+                                   c.TEXT_COLUMN])
              for post in self.postsList
              for stockInfo in post.stocksInfo.values()], ignore_index=True)
 
