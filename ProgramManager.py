@@ -215,4 +215,3 @@ class ProgramManager:
              for stockInfo in post.stocksInfo.values()], ignore_index=True)
 
         ProgramManager.save_split_data_base_to_csv()
-

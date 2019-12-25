@@ -50,7 +50,10 @@ def prepare_database():
     program_manager.build_final_database()
 
     # Debug:
-    program_manager.printFailedImports()
+    # Print database & companies (for debugging):
+    # printLocalDatabase()
+    # printCompaniesDict()
+    # program_manager.printFailedImports()
 
 
 # Run project

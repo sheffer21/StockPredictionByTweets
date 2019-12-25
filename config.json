@@ -15,12 +15,8 @@
   "POST_VERIFIED_COLUMN" : 7,
   "printPostsLimit" : 10,
   "printCompaniesLimit" : 10,
-  "maxImportsAtOnce" : 10,
+  "maxImportsAtOnce" : "float['inf']",
   "importDaysBeforePostDate" : 30,
   "importDaysAfterPostDate" : 30,
-  "FINAL_DATABASE_PREDICTION_COLUMN" : "Prediction",
-  "FINAL_DATABASE_TEXT_COLUMN" : "Tweet",
-  "FINAL_DATABASE_FOLDER" : "databases/final_data/",
-  "FINAL_DATABASE_TRAIN" : "train_tweets.csv",
-  "FINAL_DATABASE_TEST" : "test_tweets.csv"
+
 }
