@@ -72,6 +72,10 @@ class StockInfo:
         def stockTag(self):
             return self.__s_stockTag
 
+    @finalResult.setter
+    def finalResult(self, result):
+        self.__s_finalResult = result
+
     def parseData(self):
         with open(self.__s_dataPath, newline='') as dataFile:
             reader = csv.DictReader(dataFile)
@@ -241,6 +245,7 @@ class StockInfo:
 
         plt.legend(loc="upper left")
         plt.show()
+        # sys.exit()
 
     def calculateAverageExcluded(self, indexDate):
 
