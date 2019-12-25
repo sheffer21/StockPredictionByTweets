@@ -18,7 +18,5 @@
   "maxImportsAtOnce" : "float['inf']",
   "importDaysBeforePostDate" : 30,
   "importDaysAfterPostDate" : 30,
-  "graphDaysInterval" : 3,
-  "effectiveDaysAfterPost" : 6,
-  "effectiveColumnName" : "Close"
+
 }

@@ -1,14 +1,16 @@
 import os
-import sys
 import json
 import xlrd
 from datetime import datetime, timedelta
+from common import constants as c
 import yfinance as yf
 from Company import Company
-from Database import Database
 from Post import Post
 from StockInfo import StockInfo
 from Statistics import Statistics
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from common.logger import Logger as Log
 
 
 class ProgramManager:
@@ -18,85 +20,19 @@ class ProgramManager:
     postsList = []
     initial_database = {}
     companiesDict = {}
-    finalDatabase = Database()
     failedSymbolsImports = {}
-    logFilePath = configuration['logFilePath']
-    logFileName = configuration['logFileName'].format(datetime.now().strftime("%d-%m-%Y_%H-%M-%S"))
-    databasePath = configuration['databasePath']
-    workSheetName = configuration['workSheetName']
-    databaseFileName = configuration['databaseFileName']
-    stocksBasePath = configuration['stocksBasePath']
-    POST_ID_COLUMN = configuration['POST_ID_COLUMN']
-    POST_TEXT_COLUMN = configuration['POST_TEXT_COLUMN']
-    POST_TIMESTAMP_COLUMN = configuration['POST_TIMESTAMP_COLUMN']
-    POST_SOURCE_COLUMN = configuration['POST_SOURCE_COLUMN']
-    POST_SYMBOLS_COLUMN = configuration['POST_SYMBOLS_COLUMN']
-    POST_COMPANY_COLUMN = configuration['POST_COMPANY_COLUMN']
-    POST_URL_COLUMN = configuration['POST_URL_COLUMN']
-    POST_VERIFIED_COLUMN = configuration['POST_VERIFIED_COLUMN']
-    printPostsLimit = configuration['printPostsLimit']  # For debugging
-    printCompaniesLimit = configuration['printCompaniesLimit']  # For debugging
-    maxImportsAtOnce = configuration['maxImportsAtOnce']
-    importDaysBeforePostDate = configuration['importDaysBeforePostDate']
-    importDaysAfterPostDate = configuration['importDaysAfterPostDate']
     statistics = Statistics(datetime.now())
 
-    HEADER = '\033[95m'
-    OKBLUE = '\033[94m'
-    OKGREEN = '\033[92m'
-    WARNING = '\033[93m'
-    FAIL = '\033[91m'
-    ENDC = '\033[0m'
+    finalDatabase = pd.DataFrame(columns=[c.PREDICTION_COLUMN, c.TEXT_COLUMN])
 
     def __init__(self):
-        if not os.path.isdir(ProgramManager.logFilePath):
-            os.mkdir(ProgramManager.logFilePath)
-
-        if not os.path.isdir(ProgramManager.stocksBasePath):
-            os.mkdir(ProgramManager.stocksBasePath)
-
-    @staticmethod
-    def printMessage(messageType, message):
-        prefix = {
-            "Regular": "",
-            "Error": ProgramManager.FAIL,
-            "Success": ProgramManager.OKGREEN,
-            "Summarize": ProgramManager.OKBLUE,
-            "Header": ProgramManager.HEADER
-        }
-
-        suffix = {
-            "Regular": "",
-            "Error": ProgramManager.ENDC,
-            "Success": ProgramManager.ENDC,
-            "Summarize": ProgramManager.ENDC,
-            "Header": ProgramManager.ENDC
-        }
-
-        if messageType == "printLog":
-            print(prefix.get("Regular", "") +
-                  "Log path: {}{}\n".format(ProgramManager.logFilePath, ProgramManager.logFileName) +
-                  suffix.get(messageType, ""))
-        else:
-            print(prefix.get(messageType, "") + message + suffix.get(messageType, ""))
-
-    @staticmethod
-    def printAndLog(messageType, message):
-        # Print to console:
-        ProgramManager.printMessage(messageType, message)
-
-        # Print to log:
-        old_stdout = sys.stdout
-        logFile = open(ProgramManager.logFilePath + ProgramManager.logFileName, "a")
-        sys.stdout = logFile
-        ProgramManager.printMessage(messageType, message)
-        logFile.close()
-        sys.stdout = old_stdout
+        if not os.path.isdir(c.stocksBasePath):
+            os.mkdir(c.stocksBasePath)
 
     @staticmethod
     def openAndPrepareRawDatabase():
-        wb = xlrd.open_workbook(ProgramManager.databasePath)
-        ProgramManager.initial_database = wb.sheet_by_name(ProgramManager.workSheetName)
+        wb = xlrd.open_workbook(c.databasePath, on_demand=True)
+        ProgramManager.initial_database = wb.sheet_by_name(c.workSheetName)
 
     @staticmethod
     def exportDataFrame(dataFrame, exportPath):
@@ -104,12 +40,12 @@ class ProgramManager:
 
     @staticmethod
     def getStartDate(originalPostDate):
-        newDateTime = originalPostDate - timedelta(days=ProgramManager.importDaysBeforePostDate)
+        newDateTime = originalPostDate - timedelta(days=c.importDaysBeforePostDate)
         return newDateTime
 
     @staticmethod
     def getEndDate(originalPostDate):
-        newDateTime = originalPostDate + timedelta(days=ProgramManager.importDaysAfterPostDate)
+        newDateTime = originalPostDate + timedelta(days=c.importDaysAfterPostDate)
         return newDateTime
 
     @staticmethod
@@ -125,38 +61,39 @@ class ProgramManager:
     def printLocalDatabase(self):
         iterationsCount = 0  # For debugging
         for post in self.postsList:
-            self.printAndLog("Regular", post.description)
+            Log.print_and_log(c.MessageType.Regular.value, post.description)
             iterationsCount += 1
 
             # For debugging
-            if iterationsCount == ProgramManager.printPostsLimit:
+            if iterationsCount == c.printPostsLimit:
                 break
 
     def printCompaniesDict(self):
         iterationsCount = 0  # For debugging
         for companySymbol in self.companiesDict:
-            self.printAndLog("Regular", "Company symbol: {}, company name: {}\n"
+            Log.print_and_log(c.MessageType.Regular.value, "Company symbol: {}, company name: {}\n"
                                         "".format(companySymbol, self.companiesDict[companySymbol]))
 
             iterationsCount += 1
 
-            if iterationsCount == ProgramManager.printCompaniesLimit:
+            if iterationsCount == c.printCompaniesLimit:
                 break
 
     def printDelimiter(self):
-        self.printAndLog("Regular", "-----------------------------------------------------------")
+        Log.print_and_log(c.MessageType.Regular.value, "-----------------------------------------------------------")
 
     def printFailedImports(self):
         for failure in self.failedSymbolsImports:
-            self.printAndLog("Regular", "Failed to fetch: company symbol: {}, company name: {}"
+            Log.print_and_log(c.MessageType.Regular.value, "Failed to fetch: company symbol: {}, company name: {}"
                                         "".format(failure, self.failedSymbolsImports[failure]))
 
     def getPostStocksFilePath(self, companyName, stockSymbol, infoStartDate, infoEndDate):
-        filePath = "{}/{}_{}_{}.{}".format(self.stocksBasePath, stockSymbol, infoStartDate, infoEndDate, "csv")
+        filePath = "{}/{}_{}_{}.{}".format(c.stocksBasePath, stockSymbol, infoStartDate, infoEndDate, "csv")
 
         if not os.path.isfile(filePath):
             ProgramManager.statistics.increaseTotalImportCount()
-            self.printAndLog("Regular", "Import tries count: {}".format(ProgramManager.statistics.totalImportCount))
+            Log.print_and_log(c.MessageType.Regular.value,
+                              "Import tries count: {}".format(ProgramManager.statistics.totalImportCount))
 
             printStr = "Fetching data for company: {},\n " \
                        "\t with stock symbol: {},\n" \
@@ -164,19 +101,20 @@ class ProgramManager:
                        "\t to date: {}, " \
                        "".format(companyName, stockSymbol, infoStartDate, infoEndDate, filePath)
 
-            self.printAndLog("Regular", printStr)
+            Log.print_and_log(c.MessageType.Regular.value, printStr)
 
             try:
                 dataFrame = self.getStockDataBySymbolAndDates(stockSymbol, infoStartDate, infoEndDate)
                 if len(dataFrame) == 0:
-                    self.printAndLog("Error", "Fetching failed...")
+                    Log.print_and_log(c.MessageType.Error.value, "Fetching failed...")
                     ProgramManager.failedSymbolsImports[stockSymbol] = companyName
                     return ""
             except:
-                self.printAndLog("Error", "An error occurred while trying to fetch for stock symbol: {}".format(stockSymbol))
+                Log.print_and_log(c.MessageType.Error.value,
+                                  "An error occurred while trying to fetch for stock symbol: {}".format(stockSymbol))
                 return ""
 
-            self.printAndLog("Success", "Fetching succeeded, saving to file: {}".format(filePath))
+            Log.print_and_log(c.MessageType.Success.value, "Fetching succeeded, saving to file: {}".format(filePath))
             self.exportDataFrame(dataFrame, filePath)
             ProgramManager.statistics.increaseSuccessfulImportCount()
 
@@ -187,13 +125,13 @@ class ProgramManager:
     def prepareLocalDatabase(self):
         for databaseRowIndex in range(1, ProgramManager.initial_database.nrows):
             postId = databaseRowIndex
-            postText = ProgramManager.initial_database.cell_value(databaseRowIndex, self.POST_TEXT_COLUMN)
-            postTimestamp = ProgramManager.initial_database.cell_value(databaseRowIndex, self.POST_TIMESTAMP_COLUMN)
-            postSource = ProgramManager.initial_database.cell_value(databaseRowIndex, self.POST_SOURCE_COLUMN)
-            postSymbols = ProgramManager.initial_database.cell_value(databaseRowIndex, self.POST_SYMBOLS_COLUMN)
-            postCompany = ProgramManager.initial_database.cell_value(databaseRowIndex, self.POST_COMPANY_COLUMN)
-            postUrl = ProgramManager.initial_database.cell_value(databaseRowIndex, self.POST_URL_COLUMN)
-            postVerified = ProgramManager.initial_database.cell_value(databaseRowIndex, self.POST_VERIFIED_COLUMN)
+            postText = ProgramManager.initial_database.cell_value(databaseRowIndex, c.POST_TEXT_COLUMN)
+            postTimestamp = ProgramManager.initial_database.cell_value(databaseRowIndex, c.POST_TIMESTAMP_COLUMN)
+            postSource = ProgramManager.initial_database.cell_value(databaseRowIndex, c.POST_SOURCE_COLUMN)
+            postSymbols = ProgramManager.initial_database.cell_value(databaseRowIndex, c.POST_SYMBOLS_COLUMN)
+            postCompany = ProgramManager.initial_database.cell_value(databaseRowIndex, c.POST_COMPANY_COLUMN)
+            postUrl = ProgramManager.initial_database.cell_value(databaseRowIndex, c.POST_URL_COLUMN)
+            postVerified = ProgramManager.initial_database.cell_value(databaseRowIndex, c.POST_VERIFIED_COLUMN)
 
             postCompaniesList = []
             postSymbolsParsed = postSymbols.split('-')
@@ -231,21 +169,49 @@ class ProgramManager:
                                              stockFilePath)
 
                     post.addStockInfo(company.stockSymbol, newStockInfo)
-                    self.printAndLog("Regular", "Saved stock info for symbol: {}.".format(company.stockSymbol))
+                    Log.print_and_log(c.MessageType.Regular.value,
+                                      "Saved stock info for symbol: {}.".format(company.stockSymbol))
                 else:
-                    self.printAndLog("Error", "Could not save stock info for symbol: {}.".format(company.stockSymbol))
+                    Log.print_and_log(c.MessageType.Error.value,
+                                      "Could not save stock info for symbol: {}.".format(company.stockSymbol))
 
-                if ProgramManager.statistics.totalImportCount == ProgramManager.maxImportsAtOnce:
+                if ProgramManager.statistics.totalImportCount == c.maxImportsAtOnce:
                     break
 
-            if ProgramManager.statistics.totalImportCount == ProgramManager.maxImportsAtOnce:
+            if ProgramManager.statistics.totalImportCount == c.maxImportsAtOnce:
                 break
 
-        ProgramManager.printAndLog("Summarize",
-                                   "Import done. {} passed out of {}.".format(ProgramManager.statistics.successfulImportCount,
-                                                                              ProgramManager.statistics.totalImportCount))
+        Log.print_and_log(c.MessageType.Summarize.value, "Import done. {} passed out of {}.".format(
+                                       ProgramManager.statistics.successfulImportCount,
+                                       ProgramManager.statistics.totalImportCount))
 
-    def buildFinalDatabase(self):
+    def add_false_stocks_to_data_base(self):
+        count = 0
+        result = 0
         for post in self.postsList:
-            for stockInfo in post.stocksInfo:
-                ProgramManager.finalDatabase.addItem(post.text, post.stocksInfo[stockInfo].stockTag)
+            stock_info = StockInfo("", "", "", "", "", "")
+            stock_info.finalResult = result
+            post.addStockInfo("Symbol", stock_info)
+            count += 1
+            if count % 50 == 0:
+                result += 0.1
+
+    @staticmethod
+    def save_split_data_base_to_csv():
+        train, test = train_test_split(ProgramManager.finalDatabase, test_size=0.2, random_state=42)
+
+        # reset indices
+        train.reset_index(drop=True)
+        test.reset_index(drop=True)
+        train.to_csv(f'{c.FINAL_DATABASE_FOLDER}{c.TrainFile}', index=False)
+        test.to_csv(f'{c.FINAL_DATABASE_FOLDER}{c.testFile}', index=False)
+
+    def build_final_database(self):
+        ProgramManager.finalDatabase = pd.concat(
+            [pd.DataFrame([[stockInfo.finalResult, post.text]],
+                          columns=[c.PREDICTION_COLUMN,
+                                   c.TEXT_COLUMN])
+             for post in self.postsList
+             for stockInfo in post.stocksInfo.values()], ignore_index=True)
+
+        ProgramManager.save_split_data_base_to_csv()
