@@ -19,6 +19,6 @@
   "importDaysBeforePostDate" : 30,
   "importDaysAfterPostDate" : 30,
   "graphDaysInterval" : 3,
-  "effectiveDaysAfterPost" : 5,
+  "effectiveDaysAfterPost" : 6,
   "effectiveColumnName" : "Close"
 }

@@ -61,14 +61,16 @@ class StockInfo:
         self.calculateTag()
 
         print(self.__s_stockTag)
+
+        self.plotByColumnNames("Values", ["Open", "Close"])
+        self.plotByColumnNames("Change", ["Close"])
+
         if self.__s_stockSymbol == "FB":
-            self.plotByColumnNames("Values", ["Open", "Close"])
-            self.plotByColumnNames("Change", ["Close"])
             exit()
 
-    @property
-    def stockTag(self):
-        return self.__s_stockTag
+        @property
+        def stockTag(self):
+            return self.__s_stockTag
 
     def parseData(self):
         with open(self.__s_dataPath, newline='') as dataFile:
@@ -240,27 +242,6 @@ class StockInfo:
         plt.legend(loc="upper left")
         plt.show()
 
-    # def calculateDeviation(self):
-    #     helperDict = {}
-    #     for indexDate in self.__s_percentChanges:
-    #         count = 0
-    #         percentSum = 0
-    #
-    #         for currentDate in self.__s_percentChanges:
-    #
-    #             if currentDate != indexDate:
-    #                 percentSum = percentSum + self.__s_percentChanges[currentDate][StockInfo.effectiveColumnIndex]
-    #                 count += 1
-    #
-    #         if count == 0:
-    #             res = 0
-    #         else:
-    #             res = percentSum / count
-    #
-    #         helperDict[indexDate] = res
-    #
-    #     self.__s_deviationOfDay = helperDict
-
     def calculateAverageExcluded(self, indexDate):
 
         sum = 0
@@ -282,6 +263,10 @@ class StockInfo:
         for indexDate in self.__s_percentChanges:
             averageExcluded = self.calculateAverageExcluded(indexDate)
             deviation[indexDate] = self.__s_percentChanges[indexDate][StockInfo.effectiveColumnIndex] - averageExcluded
+
+        print(self.__s_percentChanges)
+        print(averageExcluded)
+        print(deviation)
 
         self.__s_deviationOfDay = deviation
 
