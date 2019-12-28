@@ -1,17 +1,20 @@
 import enum
 
 # Program paths
-databasePath = "databases/stocker/stockerbot-export.xlsx"
-workSheetName = "stockerbot-export"
-databaseFileName = "stockerbot-export.xlsx"
-stocksBasePath = "databases/stocks"
-companies_path = 'companies.csv'
-FINAL_DATABASE_FOLDER = "databases/final_data/"
+logsDirectory = "Log"
+logNamePrefix = "messages_"
+databasePath = "../Databases/stockerbot-export.csv"
+workSheetName = "Tweets-Merged"
+databaseFileName = "Tweets-Merged.xlsx"
+stocksBasePath = "../Databases/Stocks"
+companies_path = '../Databases/Companies.csv'
+FINAL_DATABASE_FOLDER = "Databases/final_data/"
 TrainFile = "train_tweets.csv"
 testFile = "test_tweets.csv"
-twitterCrawlerDataBaseDir = "databases/"
-twitterCrawlerFilesPrefix = "tweets-"
-twitterCrawlerMergedFilesName = "tweets-Merged.csv"
+twitterCrawlerDataBaseDir = "../Databases/Tweets/"
+twitterCrawlerFilesPrefix = "Tweets-"
+twitterCrawlerMergedFilesName = "Tweets-Merged.csv"
+databaseDateFormat = "%a %b %d %H:%M:%S +0000 %Y"
 
 POST_ID_COLUMN = 0
 POST_TEXT_COLUMN = 1
@@ -21,11 +24,16 @@ POST_SYMBOLS_COLUMN = 4
 POST_COMPANY_COLUMN = 5
 POST_URL_COLUMN = 6
 POST_VERIFIED_COLUMN = 7
+
 printPostsLimit = 10  # For debugging
 printCompaniesLimit = 10  # For debugging
 maxImportsAtOnce = 10
 importDaysBeforePostDate = 30
 importDaysAfterPostDate = 30
+graphDaysInterval = 3
+effectiveDaysAfterPost = 6
+effectiveColumnName = "Open"
+maximumSearchSize = 10
 
 # Data base column names
 PREDICTION_COLUMN = "Prediction"
