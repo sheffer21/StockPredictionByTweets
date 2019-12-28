@@ -1,0 +1,14 @@
+[95mLoading Databases files...[0m
+[95mBuilding local Databases...[0m
+[95mImporting Stocks Databases and analyzing Stocks...[0m
+Saved stock info for symbol: GS.
+Saved stock info for symbol: M.
+Saved stock info for symbol: AIG.
+Import tries count: 1
+Fetching data for company: Bitcoin,
+ 	 with stock symbol: BTC,
+	 from date: 2018-06-18,
+	 to date: 2018-08-17, 
+[91mFetching failed...[0m
+[91mCould not save stock info for symbol: BTC.[0m
+Saved stock info for symbol: ORCL.

@@ -8,7 +8,7 @@ workSheetName = "Tweets-Merged"
 databaseFileName = "Tweets-Merged.xlsx"
 stocksBasePath = "../Databases/Stocks"
 companies_path = '../Databases/Companies.csv'
-FINAL_DATABASE_FOLDER = "Databases/final_data/"
+FINAL_DATABASE_FOLDER = "../Databases/Database/"
 TrainFile = "train_tweets.csv"
 testFile = "test_tweets.csv"
 twitterCrawlerDataBaseDir = "../Databases/Tweets/"
@@ -51,6 +51,9 @@ PLACE_COLUMN = "place"
 ENTITIES_COLUMN = "Entities"
 STOCK_SYMBOL_COLUMN = "Stock Symbol"
 COMPANY_COLUMN = "Company"
+
+MAIN_HEADER = '\033[95m'
+MAIN_ENDC = '\033[0m'
 
 
 class MessageType(enum.Enum):
