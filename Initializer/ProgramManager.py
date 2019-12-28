@@ -20,8 +20,6 @@ class ProgramManager:
 
     finalDatabase = pd.DataFrame(columns=[const.PREDICTION_COLUMN, const.TEXT_COLUMN])
 
-    # filename = os.path.join(dirname, c.companies_path)
-
     def __init__(self, logger):
         if not os.path.isdir(os.path.join(ProgramManager.dirname, const.stocksBasePath)):
             os.mkdir(os.path.join(ProgramManager.dirname, const.stocksBasePath))
@@ -71,7 +69,7 @@ class ProgramManager:
         iterationsCount = 0  # For debugging
         for companySymbol in self.companiesDict:
             self.logger.printAndLog(const.MessageType.Regular, "Company symbol: {}, company name: {}\n"
-                                                                     "".format(companySymbol, self.companiesDict[companySymbol]))
+                                                               "".format(companySymbol, self.companiesDict[companySymbol]))
 
             iterationsCount += 1
 
@@ -84,8 +82,9 @@ class ProgramManager:
     def printFailedImports(self):
         for failure in self.failedSymbolsImports:
             self.logger.printAndLog(const.MessageType.Regular, "Failed to fetch: company symbol: {}, company name: {}"
-                                                                     "".format(failure, self.failedSymbolsImports[failure]))
+                                                               "".format(failure, self.failedSymbolsImports[failure]))
 
+    # noinspection PyBroadException
     def getPostStocksFilePath(self, companyName, stockSymbol, infoStartDate, infoEndDate):
         filePath = "{}/{}_{}_{}.{}".format(const.stocksBasePath, stockSymbol, infoStartDate, infoEndDate, "csv")
         filePath = os.path.join(ProgramManager.dirname, filePath)
@@ -122,6 +121,7 @@ class ProgramManager:
 
         return filePath
 
+    # noinspection PyTypeChecker
     def prepareLocalDatabase(self):
 
         for databaseRow in ProgramManager.initialDatabase.values:
@@ -199,21 +199,25 @@ class ProgramManager:
                 result += 0.1
 
     @staticmethod
-    def save_split_data_base_to_csv():
+    def saveSplitDataBaseToCsv():
         train, test = train_test_split(ProgramManager.finalDatabase, test_size=0.2, random_state=42)
+
+        databaseDirectory = os.path.join(ProgramManager.dirname, const.FINAL_DATABASE_FOLDER)
+        if not os.path.isdir(databaseDirectory):
+            os.mkdir(databaseDirectory)
 
         # reset indices
         train.reset_index(drop=True)
         test.reset_index(drop=True)
-        train.to_csv(f'{const.FINAL_DATABASE_FOLDER}{const.TrainFile}', index=False)
-        test.to_csv(f'{const.FINAL_DATABASE_FOLDER}{const.testFile}', index=False)
+        train.to_csv(f'{databaseDirectory}{const.TrainFile}', index=False)
+        test.to_csv(f'{databaseDirectory}{const.testFile}', index=False)
 
-    def build_final_database(self):
+    def buildFinalDatabase(self):
         ProgramManager.finalDatabase = pd.concat(
-            [pd.DataFrame([[stockInfo.finalResult, post.text]],
+            [pd.DataFrame([[stockInfo.stockTag, post.text]],
                           columns=[const.PREDICTION_COLUMN,
                                    const.TEXT_COLUMN])
              for post in self.postsList
              for stockInfo in post.stocksInfo.values()], ignore_index=True)
 
-        ProgramManager.save_split_data_base_to_csv()
+        ProgramManager.saveSplitDataBaseToCsv()

@@ -2,7 +2,7 @@ import csv
 import datetime
 import matplotlib.pyplot as plt
 import numpy as np
-from Common import Constants as c
+from Common import Constants as const
 
 
 def ListToFormattedString(alist):
@@ -33,9 +33,9 @@ class StockInfo:
         "Stock Splits": 6
     }
 
-    graphDaysInterval = c.graphDaysInterval
-    effectiveDaysAfterPost = c.effectiveDaysAfterPost
-    effectiveColumnIndex = columnIdx.get(c.effectiveColumnName)
+    graphDaysInterval = const.graphDaysInterval
+    effectiveDaysAfterPost = const.effectiveDaysAfterPost
+    effectiveColumnIndex = columnIdx.get(const.effectiveColumnName)
 
     def __init__(self, stockCompany, stockSymbol, postOriginalDate, infoStartDate, infoEndDate, rawDataPath):
         self.__stockCompany = stockCompany
@@ -47,22 +47,20 @@ class StockInfo:
         self.__s_stockData = {}
         self.__s_deltaData = {}
         self.__s_percentChanges = {}
-        self.__s_deviationOfDay = {}
+        self.__s_deviationPerDate = {}
         self.__s_averageChanges = []
         self.__s_averageValues = []
         self.__s_stockTag = 0
 
         self.parseData()
         self.fillMissingData()
+        self.rearrangeData()
         self.analyzeStock()
-        self.calculateDeviation()
+        self.calculateDeviations()
         self.calculateTag()
 
         self.plotByColumnNames("Values", ["Open", "Close"])
         self.plotByColumnNames("Change", ["Close"])
-
-        if self.__s_stockSymbol == "FB":
-            exit()
 
     @property
     def stockTag(self):
@@ -132,12 +130,16 @@ class StockInfo:
         for date in missingDates:
             self.__s_stockData[date] = missingDates[date]
 
-    def plotAllSeparately(self):
-        self.plotByColumnNames("Values", "Open")
-        self.plotByColumnNames("Values", "High")
-        self.plotByColumnNames("Values", "Low")
-        self.plotByColumnNames("Values", "Close")
-        self.plotByColumnNames("Values", "Volume")
+    def rearrangeData(self):
+        arrangedDatabase = {}
+        date = next(iter(self.__s_stockData))
+        while date in self.__s_stockData.keys():
+            arrangedDatabase[date] = self.__s_stockData[date]
+            dateFormat = datetime.datetime.strptime(date, '%Y-%m-%d').date()
+            nextDateFormat = dateFormat + datetime.timedelta(days=1)
+            date = str(nextDateFormat)
+
+        self.__s_stockData = arrangedDatabase
 
     def analyzeStock(self):
         rowsCount = 0
@@ -168,14 +170,57 @@ class StockInfo:
             self.__s_deltaData[postDate] = diffVec
             self.__s_percentChanges[postDate] = percentVec
 
-        avrgCount = 0
-        avrgRowsSum = np.zeros(7, )
+        averageCount = 0
+        averageRowsSum = np.zeros(7, )
         for row in self.__s_percentChanges:
-            avrgRowsSum = np.add(avrgRowsSum, np.array(self.__s_percentChanges[row]))
-            avrgCount += 1
+            averageRowsSum = np.add(averageRowsSum, np.array(self.__s_percentChanges[row]))
+            averageCount += 1
 
-        self.__s_averageChanges = avrgRowsSum / avrgCount
+        self.__s_averageChanges = averageRowsSum / averageCount
         self.__s_averageValues = rowsSum / rowsCount
+
+    def calculateDeviations(self):
+        deviation = {}
+        for date in self.__s_percentChanges:
+            averageExcluded = self.calculateAverageExcluded(date)
+            deviation[date] = self.__s_percentChanges[date][StockInfo.effectiveColumnIndex] - averageExcluded
+
+        self.__s_deviationPerDate = deviation
+
+    def calculateAverageExcluded(self, indexDate):
+        sum = 0
+        count = 0
+        for date in self.__s_percentChanges:
+            if date == indexDate:
+                continue
+            count += 1
+            sum += self.__s_percentChanges[date][StockInfo.effectiveColumnIndex]
+
+        if count == 0:
+            return 0
+
+        return sum / count
+
+    def calculateTag(self):
+        tag = 0
+        index = 0
+        for currentDate in self.__s_deviationPerDate:
+
+            currentDateInDateFormat = datetime.datetime.strptime(currentDate, '%Y-%m-%d').date()
+            if currentDateInDateFormat < self.__s_postOriginalDate:
+                continue
+
+            tag += (StockInfo.effectiveDaysAfterPost - index) * self.__s_deviationPerDate[currentDate]
+            if index == (StockInfo.effectiveDaysAfterPost - 1):
+                break
+
+            index += 1
+
+        sumOfDays = 0
+        for count in range(StockInfo.effectiveDaysAfterPost):
+            sumOfDays += count
+
+        self.__s_stockTag = tag
 
     def plotByColumnNames(self, plotType, columnNames):
         x = []
@@ -187,8 +232,12 @@ class StockInfo:
 
         if plotType == "Values":
             plotData = self.__s_stockData
+            titlePrefix = ""
+            yTitle = "Value"
         else:
             plotData = self.__s_percentChanges
+            titlePrefix = "change of"
+            yTitle = "Change of value in %"
 
         count = 0
         originalDateIndex = 0
@@ -226,10 +275,11 @@ class StockInfo:
                 ax.text(0.01, 0.03, 'Average value: {0:.4f}'.format(averageValue), transform=ax.transAxes)
 
         plt.xlabel('Date')
-        plt.ylabel('Change of value in %')
-        plt.xticks(x_ticks, rotation=45)
-        plt.title('{} change of values for company \'{}\'\n Between dates: {} - {}\n Post publish date: {}'
+        plt.ylabel(yTitle)
+        plt.xticks(x_ticks, rotation=45, ha='right')
+        plt.title('{} {} values for company \'{}\'\n Between dates: {} - {}\n Post publish date: {}'
                   ''.format(ListToFormattedString(columnNames),
+                            titlePrefix,
                             self.__stockCompany,
                             self.__s_infoStartDate,
                             self.__s_infoEndDate,
@@ -237,49 +287,12 @@ class StockInfo:
 
         plt.legend(loc="upper left")
         plt.show()
-        # sys.exit()
 
-    def calculateAverageExcluded(self, indexDate):
+        exit()
 
-        sum = 0
-        count = 0
-        for date in self.__s_percentChanges:
-            if date == indexDate:
-                continue
-            count += 1
-            sum += self.__s_percentChanges[date][StockInfo.effectiveColumnIndex]
-
-        if count == 0:
-            return 0
-
-        return sum / count
-
-    def calculateDeviation(self):
-
-        deviation = {}
-        for indexDate in self.__s_percentChanges:
-            averageExcluded = self.calculateAverageExcluded(indexDate)
-            deviation[indexDate] = self.__s_percentChanges[indexDate][StockInfo.effectiveColumnIndex] - averageExcluded
-
-        self.__s_deviationOfDay = deviation
-
-    def calculateTag(self):
-        tag = 0
-        index = 0
-        for currentDate in self.__s_deviationOfDay:
-
-            currentDateInDateFormat = datetime.datetime.strptime(currentDate, '%Y-%m-%d').date()
-            if currentDateInDateFormat < self.__s_postOriginalDate:
-                continue
-
-            tag += (StockInfo.effectiveDaysAfterPost - index) * self.__s_deviationOfDay[currentDate]
-            if index == (StockInfo.effectiveDaysAfterPost - 1):
-                break
-
-            index += 1
-
-        sumOfDays = 0
-        for count in range(StockInfo.effectiveDaysAfterPost):
-            sumOfDays += count
-
-        self.__s_stockTag = tag
+    def plotAllSeparately(self):
+        self.plotByColumnNames("Values", "Open")
+        self.plotByColumnNames("Values", "High")
+        self.plotByColumnNames("Values", "Low")
+        self.plotByColumnNames("Values", "Close")
+        self.plotByColumnNames("Values", "Volume")

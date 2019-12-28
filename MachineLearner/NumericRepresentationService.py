@@ -1,7 +1,7 @@
 import torch
 import torchtext.vocab
 import spacy
-from Common import Constants as c
+from Common import Constants as const
 import re
 from Common.Logger import Logger as Log
 
@@ -18,40 +18,42 @@ class NumericRepresentationService:
     # dim = The dimensionality of the vectors
     glove = torchtext.vocab.GloVe(name='6B', dim=100)
 
-    def __init__(self):
+    def __init__(self, logger):
         self.Text = []
         self.Label = []
 
-        Log.print_and_log(c.MessageType.Regular.value, f"Glove data base size: {len(self.glove.itos)}")
+        self.logger = logger
+
+        self.logger.printAndLog(const.MessageType.Regular, f"Glove data base size: {len(self.glove.itos)}")
 
     def get_numeric_representation_of_final_data(self):
 
-        Log.print_and_log(c.MessageType.Regular.value, f"Converting final data base to numeric representation...")
+        self.logger.printAndLog(const.MessageType.Regular, f"Converting final data base to numeric representation...")
 
         # Defines a data type together with instructions for converting to Tensor.
         self.Text = torchtext.data.Field(tokenize=self.tokenizer)
         self.Label = torchtext.data.LabelField(dtype=torch.int)
 
         # Load data from csv
-        data_fields = [(c.PREDICTION_COLUMN, self.Label),
-                       (c.TEXT_COLUMN, self.Text)]
-        train, test = torchtext.data.TabularDataset.splits(path=c.FINAL_DATABASE_FOLDER,
-                                                           train=c.TrainFile,
-                                                           test=c.testFile,
+        data_fields = [(const.PREDICTION_COLUMN, self.Label),
+                       (const.TEXT_COLUMN, self.Text)]
+        train, test = torchtext.data.TabularDataset.splits(path=const.FINAL_DATABASE_FOLDER,
+                                                           train=const.TrainFile,
+                                                           test=const.testFile,
                                                            format='csv',
                                                            skip_header=True,
                                                            fields=data_fields)
-        Log.print_and_log(c.MessageType.Regular.value, f'Number of training examples: {len(train)}')
-        Log.print_and_log(c.MessageType.Regular.value, f'Number of testing examples: {len(test)}')
-        Log.print_and_log(c.MessageType.Regular.value, f'Train example: {train.examples[0].Tweet}')
+        self.logger.printAndLog(const.MessageType.Regular, f'Number of training examples: {len(train)}')
+        self.logger.printAndLog(const.MessageType.Regular, f'Number of testing examples: {len(test)}')
+        self.logger.printAndLog(const.MessageType.Regular, f'Train example: {train.examples[0].Tweet}')
 
         # Construct the Vocab object for this field from the data set
         # Words outside the 25000 words vector will be initialize
         # using torch.Tensor.normal (word mean and standard deviation)
         self.Text.build_vocab(train, max_size=25000, vectors="glove.6B.100d", unk_init=torch.Tensor.normal_)
         self.Label.build_vocab(train)
-        Log.print_and_log(c.MessageType.Regular.value, f"Pre trained embedding size{self.Text.vocab.vectors.shape}")
-        Log.print_and_log(c.MessageType.Regular.value,
+        self.logger.printAndLog(const.MessageType.Regular, f"Pre trained embedding size{self.Text.vocab.vectors.shape}")
+        self.logger.printAndLog(const.MessageType.Regular,
                           f'Most frequent word in vocabulary: {self.Text.vocab.freqs.most_common(10)}')
 
         # Defines an iterator that batches examples of similar lengths together.
