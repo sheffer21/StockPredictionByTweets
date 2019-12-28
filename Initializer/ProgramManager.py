@@ -123,9 +123,9 @@ class ProgramManager:
         return filePath
 
     def prepareLocalDatabase(self):
-        count = 0
+
         for databaseRow in ProgramManager.initialDatabase.values:
-            count += 1
+
             postId = databaseRow[const.POST_ID_COLUMN]
             postText = databaseRow[const.POST_TEXT_COLUMN]
             postTimestamp = databaseRow[const.POST_TIMESTAMP_COLUMN]
