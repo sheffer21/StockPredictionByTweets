@@ -2,34 +2,33 @@ import os
 from datetime import datetime, timedelta
 from Common import Constants as const
 import yfinance as yf
-from Initializer.Company import Company
-from Initializer.Post import Post
-from Initializer.StockInfo import StockInfo
-from Initializer.Statistics import Statistics
+from Preprocessor.Company import Company
+from Preprocessor.Post import Post
+from Preprocessor.StockInfo import StockInfo
+from Preprocessor.Statistics import Statistics
 import pandas as pd
 from sklearn.model_selection import train_test_split
 
 
-class ProgramManager:
+class PreProcessor:
     postsList = []
     initialDatabase = {}
     companiesDict = {}
-    failedSymbolsImports = {}
+    failedSymbolsImports = pd.DataFrame(columns=['company', 'symbol', 'from', 'to'])
+    finalDatabase = pd.DataFrame(columns=[const.PREDICTION_COLUMN, const.TEXT_COLUMN])
     statistics = Statistics(datetime.now())
     dirname = os.path.dirname(__file__)
 
-    finalDatabase = pd.DataFrame(columns=[const.PREDICTION_COLUMN, const.TEXT_COLUMN])
-
     def __init__(self, logger):
-        if not os.path.isdir(os.path.join(ProgramManager.dirname, const.stocksBasePath)):
-            os.mkdir(os.path.join(ProgramManager.dirname, const.stocksBasePath))
+        if not os.path.isdir(os.path.join(PreProcessor.dirname, const.stocksBasePath)):
+            os.mkdir(os.path.join(PreProcessor.dirname, const.stocksBasePath))
 
         self.logger = logger
 
     @staticmethod
     def openAndPrepareRawDatabase():
-        databasePath = os.path.join(ProgramManager.dirname, const.databasePath)
-        ProgramManager.initialDatabase = pd.read_csv(databasePath)
+        originalDatabasePath = os.path.join(PreProcessor.dirname, const.originalDatabasePath)
+        PreProcessor.initialDatabase = pd.read_csv(originalDatabasePath)
 
     @staticmethod
     def exportDataFrame(dataFrame, exportPath):
@@ -53,7 +52,7 @@ class ProgramManager:
 
     @property
     def database(self):
-        return ProgramManager.finalDatabase
+        return PreProcessor.finalDatabase
 
     def printLocalDatabase(self):
         iterationsCount = 0  # For debugging
@@ -79,20 +78,30 @@ class ProgramManager:
     def printDelimiter(self):
         self.logger.printAndLog(const.MessageType.Regular, "-----------------------------------------------------------")
 
-    def printFailedImports(self):
-        for failure in self.failedSymbolsImports:
-            self.logger.printAndLog(const.MessageType.Regular, "Failed to fetch: company symbol: {}, company name: {}"
-                                                               "".format(failure, self.failedSymbolsImports[failure]))
+    def printAndExportFailedImports(self):
+        failedImportsDirectory = os.path.join(PreProcessor.dirname, const.failedImportsPath)
+        if not os.path.isdir(failedImportsDirectory):
+            os.mkdir(failedImportsDirectory)
+
+        failedImports = PreProcessor.failedSymbolsImports
+        for index, failure in failedImports.iterrows():
+            self.logger.printAndLog(const.MessageType.Error, "Failed to fetch: company {}, symbol: {}, "
+                                                             "from date: {}, to date: {}"
+                                                             "".format(failure['company'], failure['symbol'],
+                                                                       failure['from'], failure['to']))
+
+        filePath = "{}/{}_{}.{}".format(failedImportsDirectory, const.failedImportsFileName, self.logger.getLoggerDate(), "csv")
+        PreProcessor.failedSymbolsImports.to_csv(f'{filePath}', index=False)
 
     # noinspection PyBroadException
     def getPostStocksFilePath(self, companyName, stockSymbol, infoStartDate, infoEndDate):
         filePath = "{}/{}_{}_{}.{}".format(const.stocksBasePath, stockSymbol, infoStartDate, infoEndDate, "csv")
-        filePath = os.path.join(ProgramManager.dirname, filePath)
+        filePath = os.path.join(PreProcessor.dirname, filePath)
 
         if not os.path.isfile(filePath):
-            ProgramManager.statistics.increaseTotalImportCount()
+            PreProcessor.statistics.increaseTotalImportCount()
             self.logger.printAndLog(const.MessageType.Regular,
-                                    "Import tries count: {}".format(ProgramManager.statistics.totalImportCount))
+                                    "Import tries count: {}".format(PreProcessor.statistics.totalImportCount))
 
             printStr = "Fetching data for company: {},\n " \
                        "\t with stock symbol: {},\n" \
@@ -106,7 +115,11 @@ class ProgramManager:
                 dataFrame = self.getStockDataBySymbolAndDates(stockSymbol, infoStartDate, infoEndDate)
                 if len(dataFrame) == 0:
                     self.logger.printAndLog(const.MessageType.Error, "Fetching failed...")
-                    ProgramManager.failedSymbolsImports[stockSymbol] = companyName
+
+                    failedImports = PreProcessor.failedSymbolsImports
+                    newFailedImport = pd.DataFrame(data=[[companyName, stockSymbol, infoStartDate, infoEndDate]],
+                                                   columns=['company', 'symbol', 'from', 'to'])
+                    PreProcessor.failedSymbolsImports = failedImports.append(newFailedImport)
                     return ""
             except:
                 self.logger.printAndLog(const.MessageType.Error,
@@ -115,7 +128,7 @@ class ProgramManager:
 
             self.logger.printAndLog(const.MessageType.Success, "Fetching succeeded, saving to file: {}".format(filePath))
             self.exportDataFrame(dataFrame, filePath)
-            ProgramManager.statistics.increaseSuccessfulImportCount()
+            PreProcessor.statistics.increaseSuccessfulImportCount()
 
             self.printDelimiter()
 
@@ -123,9 +136,9 @@ class ProgramManager:
 
     # noinspection PyTypeChecker
     def prepareLocalDatabase(self):
+        for databaseRow in PreProcessor.initialDatabase.values:
 
-        for databaseRow in ProgramManager.initialDatabase.values:
-
+            # Update after database changes
             postId = databaseRow[const.POST_ID_COLUMN]
             postText = databaseRow[const.POST_TEXT_COLUMN]
             postTimestamp = databaseRow[const.POST_TIMESTAMP_COLUMN]
@@ -177,16 +190,17 @@ class ProgramManager:
                     self.logger.printAndLog(const.MessageType.Error,
                                             "Could not save stock info for symbol: {}.".format(company.stockSymbol))
 
-                if ProgramManager.statistics.totalImportCount == const.maxImportsAtOnce:
+                if PreProcessor.statistics.totalImportCount == const.maxImportsAtOnce:
                     break
 
-            if ProgramManager.statistics.totalImportCount == const.maxImportsAtOnce:
+            if PreProcessor.statistics.totalImportCount == const.maxImportsAtOnce:
                 break
 
         self.logger.printAndLog(const.MessageType.Summarize, "Import done. {} passed out of {}.".format(
-            ProgramManager.statistics.successfulImportCount,
-            ProgramManager.statistics.totalImportCount))
+            PreProcessor.statistics.successfulImportCount,
+            PreProcessor.statistics.totalImportCount))
 
+    # TODO : delete
     def add_false_stocks_to_data_base(self):
         count = 0
         result = 0
@@ -200,24 +214,24 @@ class ProgramManager:
 
     @staticmethod
     def saveSplitDataBaseToCsv():
-        train, test = train_test_split(ProgramManager.finalDatabase, test_size=0.2, random_state=42)
+        train, test = train_test_split(PreProcessor.finalDatabase, test_size=0.2, random_state=42)
 
-        databaseDirectory = os.path.join(ProgramManager.dirname, const.FINAL_DATABASE_FOLDER)
+        databaseDirectory = os.path.join(PreProcessor.dirname, const.finalDatabaseFolder)
         if not os.path.isdir(databaseDirectory):
             os.mkdir(databaseDirectory)
 
         # reset indices
         train.reset_index(drop=True)
         test.reset_index(drop=True)
-        train.to_csv(f'{databaseDirectory}{const.TrainFile}', index=False)
+        train.to_csv(f'{databaseDirectory}{const.trainFile}', index=False)
         test.to_csv(f'{databaseDirectory}{const.testFile}', index=False)
 
     def buildFinalDatabase(self):
-        ProgramManager.finalDatabase = pd.concat(
+        PreProcessor.finalDatabase = pd.concat(
             [pd.DataFrame([[stockInfo.stockTag, post.text]],
                           columns=[const.PREDICTION_COLUMN,
                                    const.TEXT_COLUMN])
              for post in self.postsList
              for stockInfo in post.stocksInfo.values()], ignore_index=True)
 
-        ProgramManager.saveSplitDataBaseToCsv()
+        PreProcessor.saveSplitDataBaseToCsv()

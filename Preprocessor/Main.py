@@ -1,4 +1,4 @@
-from Initializer import ProgramManager
+from Preprocessor import Manager
 from Common.Logger import Logger as Log
 import Common.Constants as const
 
@@ -12,32 +12,30 @@ def main(outsourcedLogger=None):
 
     # Load configurations and initialize the program
     logger.printAndLog(const.MessageType.Summarize, "Starting pre data processing...")
-    programManager = ProgramManager.ProgramManager(logger)
+    preProcessor = Manager.PreProcessor(logger)
 
     # Get Database
     logger.printAndLog(const.MessageType.Header, "Loading Databases files...")
-    programManager.openAndPrepareRawDatabase()
+    preProcessor.openAndPrepareRawDatabase()
 
     # Build local database
     logger.printAndLog(const.MessageType.Header, "Building local Databases...")
-    programManager.prepareLocalDatabase()
+    preProcessor.prepareLocalDatabase()
 
     # Importing Stocks Databases
     logger.printAndLog(const.MessageType.Header, "Importing Stocks Databases and analyzing Stocks...")
-    programManager.importStocksDatabasesForPosts()
+    preProcessor.importStocksDatabasesForPosts()
 
     # Setting final train sets
     logger.printAndLog(const.MessageType.Header, "Building final Databases for learning algorithms...")
-    programManager.buildFinalDatabase()
+    preProcessor.buildFinalDatabase()
+
+    # Print and export failed stock imports
+    logger.printAndLog(const.MessageType.Header, "Listing failed imports...")
+    preProcessor.printAndExportFailedImports()
 
     # Done
     logger.printAndLog(const.MessageType.Summarize, "Pre data processing finished...")
-
-    # Debug:
-    # Print database & companies (for debugging):
-    # printLocalDatabase()
-    # printCompaniesDict()
-    # program_manager.printFailedImports()
 
 
 # Run project

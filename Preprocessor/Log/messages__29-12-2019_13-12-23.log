@@ -1,0 +1,107 @@
+[94mStarting pre data processing...[0m
+[95mLoading Databases files...[0m
+[95mBuilding local Databases...[0m
+[95mImporting Stocks Databases and analyzing Stocks...[0m
+Saved stock info for symbol: GS.
+Saved stock info for symbol: M.
+Saved stock info for symbol: AIG.
+Import tries count: 1
+Fetching data for company: Bitcoin,
+ 	 with stock symbol: BTC,
+	 from date: 2018-06-18,
+	 to date: 2018-08-17, 
+[91mFetching failed...[0m
+[91mAn error occurred while trying to fetch for stock symbol: BTC[0m
+[91mCould not save stock info for symbol: BTC.[0m
+Saved stock info for symbol: ORCL.
+Saved stock info for symbol: FB.
+Saved stock info for symbol: GOOGL.
+Saved stock info for symbol: GOOG.
+Import tries count: 2
+Fetching data for company: Harris,
+ 	 with stock symbol: HRS,
+	 from date: 2018-06-18,
+	 to date: 2018-08-17, 
+[91mFetching failed...[0m
+[91mAn error occurred while trying to fetch for stock symbol: HRS[0m
+[91mCould not save stock info for symbol: HRS.[0m
+Saved stock info for symbol: INTC.
+Saved stock info for symbol: USB.
+Saved stock info for symbol: NFLX.
+Import tries count: 3
+Fetching data for company: Bitcoin,
+ 	 with stock symbol: BTC,
+	 from date: 2018-06-18,
+	 to date: 2018-08-17, 
+[91mFetching failed...[0m
+[91mAn error occurred while trying to fetch for stock symbol: BTC[0m
+[91mCould not save stock info for symbol: BTC.[0m
+Import tries count: 4
+Fetching data for company: Time Warner,
+ 	 with stock symbol: TWX,
+	 from date: 2018-06-18,
+	 to date: 2018-08-17, 
+[91mFetching failed...[0m
+[91mAn error occurred while trying to fetch for stock symbol: TWX[0m
+[91mCould not save stock info for symbol: TWX.[0m
+Saved stock info for symbol: ENDP.
+Saved stock info for symbol: HPQ.
+Saved stock info for symbol: HPQ.
+Saved stock info for symbol: MGM.
+Saved stock info for symbol: AMZN.
+Saved stock info for symbol: GPS.
+Saved stock info for symbol: ENDP.
+Import tries count: 5
+Fetching data for company: UDR,
+ 	 with stock symbol: UDR,
+	 from date: 2018-06-18,
+	 to date: 2018-08-17, 
+[92mFetching succeeded, saving to file: C:\Users\ohadv\Desktop\Project A\src\Preprocessor\../Databases/Stocks/UDR_2018-06-18_2018-08-17.csv[0m
+-----------------------------------------------------------
+Saved stock info for symbol: UDR.
+Import tries count: 6
+Fetching data for company:  name,
+ 	 with stock symbol: ticker,
+	 from date: 2018-06-19,
+	 to date: 2018-08-18, 
+[91mFetching failed...[0m
+[91mAn error occurred while trying to fetch for stock symbol: ticker[0m
+[91mCould not save stock info for symbol: ticker.[0m
+Import tries count: 7
+Fetching data for company: Northern,
+ 	 with stock symbol: NTRS,
+	 from date: 2018-06-19,
+	 to date: 2018-08-18, 
+[92mFetching succeeded, saving to file: C:\Users\ohadv\Desktop\Project A\src\Preprocessor\../Databases/Stocks/NTRS_2018-06-19_2018-08-18.csv[0m
+-----------------------------------------------------------
+Saved stock info for symbol: NTRS.
+Import tries count: 8
+Fetching data for company: CBS,
+ 	 with stock symbol: CBS,
+	 from date: 2018-06-19,
+	 to date: 2018-08-18, 
+[92mFetching succeeded, saving to file: C:\Users\ohadv\Desktop\Project A\src\Preprocessor\../Databases/Stocks/CBS_2018-06-19_2018-08-18.csv[0m
+-----------------------------------------------------------
+Saved stock info for symbol: CBS.
+Import tries count: 9
+Fetching data for company: BlackRock,
+ 	 with stock symbol: BLK,
+	 from date: 2018-06-19,
+	 to date: 2018-08-18, 
+[92mFetching succeeded, saving to file: C:\Users\ohadv\Desktop\Project A\src\Preprocessor\../Databases/Stocks/BLK_2018-06-19_2018-08-18.csv[0m
+-----------------------------------------------------------
+Saved stock info for symbol: BLK.
+Import tries count: 10
+Fetching data for company: Alphabet,
+ 	 with stock symbol: GOOGL,
+	 from date: 2018-06-19,
+	 to date: 2018-08-18, 
+[92mFetching succeeded, saving to file: C:\Users\ohadv\Desktop\Project A\src\Preprocessor\../Databases/Stocks/GOOGL_2018-06-19_2018-08-18.csv[0m
+-----------------------------------------------------------
+Saved stock info for symbol: GOOGL.
+[94mImport done. 5 passed out of 10.[0m
+[95mBuilding final Databases for learning algorithms...[0m
+[95mBuilding final Databases for learning algorithms...[0m
+Failed to fetch: company symbol: c, company name: o, from date: m, to date: p
+Failed to fetch: company symbol: s, company name: y, from date: m, to date: b
+Failed to fetch: company symbol: f, company name: r, from date: o, to date: m
