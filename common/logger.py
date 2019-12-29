@@ -12,14 +12,11 @@ class Logger:
     FAIL = '\033[91m'
     ENDC = '\033[0m'
 
-    internalLogFileDirectory = const.logsDirectory
-    internalLogFileName = "{}_{}.log".format(const.logNamePrefix, datetime.now().strftime("%d-%m-%Y_%H-%M-%S"))
-    internalLogFilePath = "{}/{}".format(internalLogFileDirectory, internalLogFileName)
-
     def __init__(self):
-        self.fileDirectory = Logger.internalLogFileDirectory
-        self.fileName = Logger.internalLogFileName
-        self.filePath = Logger.internalLogFilePath
+        self.loggerInitialDate = datetime.now().strftime("%d-%m-%Y_%H-%M-%S")
+        self.fileDirectory = const.logsDirectory
+        self.fileName = "{}_{}.log".format(const.logNamePrefix, self.loggerInitialDate)
+        self.filePath = "{}/{}".format(self.fileDirectory, self.fileName)
 
     def createLogFileIfNotExists(self):
         if not os.path.isdir(self.fileDirectory):
@@ -65,3 +62,6 @@ class Logger:
         self.printMessage(messageType, message)
         log_file.close()
         sys.stdout = old_stdout
+
+    def getLoggerDate(self):
+        return self.loggerInitialDate
