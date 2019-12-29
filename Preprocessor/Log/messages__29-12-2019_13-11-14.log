@@ -1,0 +1,97 @@
+[94mStarting pre data processing...[0m
+[95mLoading Databases files...[0m
+[95mBuilding local Databases...[0m
+[95mImporting Stocks Databases and analyzing Stocks...[0m
+Saved stock info for symbol: GS.
+Saved stock info for symbol: M.
+Saved stock info for symbol: AIG.
+Import tries count: 1
+Fetching data for company: Bitcoin,
+ 	 with stock symbol: BTC,
+	 from date: 2018-06-18,
+	 to date: 2018-08-17, 
+[91mFetching failed...[0m
+[91mAn error occurred while trying to fetch for stock symbol: BTC[0m
+[91mCould not save stock info for symbol: BTC.[0m
+Saved stock info for symbol: ORCL.
+Saved stock info for symbol: FB.
+Saved stock info for symbol: GOOGL.
+Saved stock info for symbol: GOOG.
+Import tries count: 2
+Fetching data for company: Harris,
+ 	 with stock symbol: HRS,
+	 from date: 2018-06-18,
+	 to date: 2018-08-17, 
+[91mFetching failed...[0m
+[91mAn error occurred while trying to fetch for stock symbol: HRS[0m
+[91mCould not save stock info for symbol: HRS.[0m
+Saved stock info for symbol: INTC.
+Saved stock info for symbol: USB.
+Import tries count: 3
+Fetching data for company: Netflix,
+ 	 with stock symbol: NFLX,
+	 from date: 2018-06-18,
+	 to date: 2018-08-17, 
+[92mFetching succeeded, saving to file: C:\Users\ohadv\Desktop\Project A\src\Preprocessor\../Databases/Stocks/NFLX_2018-06-18_2018-08-17.csv[0m
+-----------------------------------------------------------
+Saved stock info for symbol: NFLX.
+Import tries count: 4
+Fetching data for company: Bitcoin,
+ 	 with stock symbol: BTC,
+	 from date: 2018-06-18,
+	 to date: 2018-08-17, 
+[91mFetching failed...[0m
+[91mAn error occurred while trying to fetch for stock symbol: BTC[0m
+[91mCould not save stock info for symbol: BTC.[0m
+Import tries count: 5
+Fetching data for company: Time Warner,
+ 	 with stock symbol: TWX,
+	 from date: 2018-06-18,
+	 to date: 2018-08-17, 
+[91mFetching failed...[0m
+[91mAn error occurred while trying to fetch for stock symbol: TWX[0m
+[91mCould not save stock info for symbol: TWX.[0m
+Import tries count: 6
+Fetching data for company: Endo,
+ 	 with stock symbol: ENDP,
+	 from date: 2018-06-18,
+	 to date: 2018-08-17, 
+[92mFetching succeeded, saving to file: C:\Users\ohadv\Desktop\Project A\src\Preprocessor\../Databases/Stocks/ENDP_2018-06-18_2018-08-17.csv[0m
+-----------------------------------------------------------
+Saved stock info for symbol: ENDP.
+Import tries count: 7
+Fetching data for company: HP,
+ 	 with stock symbol: HPQ,
+	 from date: 2018-06-18,
+	 to date: 2018-08-17, 
+[92mFetching succeeded, saving to file: C:\Users\ohadv\Desktop\Project A\src\Preprocessor\../Databases/Stocks/HPQ_2018-06-18_2018-08-17.csv[0m
+-----------------------------------------------------------
+Saved stock info for symbol: HPQ.
+Saved stock info for symbol: HPQ.
+Import tries count: 8
+Fetching data for company: MGM Resorts,
+ 	 with stock symbol: MGM,
+	 from date: 2018-06-18,
+	 to date: 2018-08-17, 
+[92mFetching succeeded, saving to file: C:\Users\ohadv\Desktop\Project A\src\Preprocessor\../Databases/Stocks/MGM_2018-06-18_2018-08-17.csv[0m
+-----------------------------------------------------------
+Saved stock info for symbol: MGM.
+Import tries count: 9
+Fetching data for company: Amazon,
+ 	 with stock symbol: AMZN,
+	 from date: 2018-06-18,
+	 to date: 2018-08-17, 
+[92mFetching succeeded, saving to file: C:\Users\ohadv\Desktop\Project A\src\Preprocessor\../Databases/Stocks/AMZN_2018-06-18_2018-08-17.csv[0m
+-----------------------------------------------------------
+Saved stock info for symbol: AMZN.
+Import tries count: 10
+Fetching data for company: The Gap,
+ 	 with stock symbol: GPS,
+	 from date: 2018-06-18,
+	 to date: 2018-08-17, 
+[92mFetching succeeded, saving to file: C:\Users\ohadv\Desktop\Project A\src\Preprocessor\../Databases/Stocks/GPS_2018-06-18_2018-08-17.csv[0m
+-----------------------------------------------------------
+Saved stock info for symbol: GPS.
+[94mImport done. 6 passed out of 10.[0m
+[95mBuilding final Databases for learning algorithms...[0m
+[95mBuilding final Databases for learning algorithms...[0m

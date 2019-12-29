@@ -1,7 +1,7 @@
 from Common import Logger
 import Common.Constants as const
 import TwitterCrawler.Main as tc
-import Initializer.Main as init
+import Preprocessor.Main as init
 import MachineLearner.Main as learner
 
 
@@ -10,8 +10,6 @@ def main():
 
     logger.printAndLog(const.MessageType.Summarize, "Welcome to our project: \"Stock prediction by twitter\" :)")
     logger.printAndLog(const.MessageType.printLog, "")
-
-    # TODO : add colors
 
     tweetsCrawler = input(const.MAIN_HEADER + "Do you want to run the twitter crawler? \n"
                                               "Twitter crawler uses twitter's REST API "
@@ -23,19 +21,19 @@ def main():
     else:
         logger.printAndLog(const.MessageType.Summarize, "TweetsCrawler not ran")
 
-    runInitializer = input(const.MAIN_HEADER + "Do you want to run the Initializer? \n"
-                                               "Initializer uses fetched databases to build and analyze "
-                                               "stocks database prior the learning stage. \n"
-                                               "Type <yes/no>: " + const.MAIN_ENDC)
+    runPreProcessing = input(const.MAIN_HEADER + "Do you want to run the Preprocessor? \n"
+                                                 "Preprocessor uses fetched databases to build and analyze "
+                                                 "stocks database prior the learning stage. \n"
+                                                 "Type <yes/no>: " + const.MAIN_ENDC)
 
-    if runInitializer == "yes":
+    if runPreProcessing == "yes":
         init.main(logger)
     else:
-        logger.printAndLog(const.MessageType.Summarize, "Initializer not ran")
+        logger.printAndLog(const.MessageType.Summarize, "Preprocessor not ran")
 
     runMachineLearning = input(const.MAIN_HEADER + "Do you want to run the machine learner? \n"
-                               "description \n"
-                               "Type <yes/no>: " + const.MAIN_ENDC)
+                                                   "description \n"
+                                                   "Type <yes/no>: " + const.MAIN_ENDC)
 
     if runMachineLearning == "yes":
         learner.main(logger)

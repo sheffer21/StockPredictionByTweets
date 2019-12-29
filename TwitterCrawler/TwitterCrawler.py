@@ -48,7 +48,7 @@ class TwitterCrawler:
 
         # Get new Tweets
         dirname = os.path.dirname(__file__)
-        filename = os.path.join(dirname, const.companies_path)
+        filename = os.path.join(dirname, const.companiesPath)
         companies_data = pd.read_csv(filename)
         result = pd.DataFrame()
         for company in companies_data.values:

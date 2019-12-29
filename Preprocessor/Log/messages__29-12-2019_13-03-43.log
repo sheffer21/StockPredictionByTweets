@@ -1,0 +1,11 @@
+[94mStarting pre data processing...[0m
+[95mLoading Databases files...[0m
+[95mBuilding local Databases...[0m
+[95mImporting Stocks Databases and analyzing Stocks...[0m
+Import tries count: 1
+Fetching data for company: The Goldman Sachs,
+ 	 with stock symbol: GS,
+	 from date: 2018-06-18,
+	 to date: 2018-08-17, 
+[92mFetching succeeded, saving to file: C:\Users\ohadv\Desktop\Project A\src\Preprocessor\../Databases/Stocks/GS_2018-06-18_2018-08-17.csv[0m
+-----------------------------------------------------------
