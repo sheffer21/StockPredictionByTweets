@@ -1,13 +1,11 @@
 import torch
 import torchtext.vocab
 import spacy
-from Common import Constants as c
+from Common import Constants as const
 import re
-from Common.Logger import Logger as Log
 
 
 class NumericRepresentationService:
-
     batch_size = 64
     # To load english use 'python -m spacy download en'
     # init nlp - we only use the tokenizer
@@ -18,41 +16,43 @@ class NumericRepresentationService:
     # dim = The dimensionality of the vectors
     glove = torchtext.vocab.GloVe(name='6B', dim=100)
 
-    def __init__(self):
+    def __init__(self, logger):
         self.Text = []
         self.Label = []
 
-        Log.print_and_log(c.MessageType.Regular.value, f"Glove data base size: {len(self.glove.itos)}")
+        self.logger = logger
 
-    def get_numeric_representation_of_final_data(self):
+        self.logger.printAndLog(const.MessageType.Regular, f"Glove data base size: {len(self.glove.itos)}")
 
-        Log.print_and_log(c.MessageType.Regular.value, f"Converting final data base to numeric representation...")
+    def getNumericRepresentationOfFinalData(self):
+
+        self.logger.printAndLog(const.MessageType.Regular, f"Converting final data base to numeric representation...")
 
         # Defines a data type together with instructions for converting to Tensor.
         self.Text = torchtext.data.Field(tokenize=self.tokenizer)
         self.Label = torchtext.data.LabelField(dtype=torch.int)
 
         # Load data from csv
-        data_fields = [(c.PREDICTION_COLUMN, self.Label),
-                       (c.TEXT_COLUMN, self.Text)]
-        train, test = torchtext.data.TabularDataset.splits(path=c.FINAL_DATABASE_FOLDER,
-                                                           train=c.TrainFile,
-                                                           test=c.testFile,
+        data_fields = [(const.PREDICTION_COLUMN, self.Label),
+                       (const.TEXT_COLUMN, self.Text)]
+        train, test = torchtext.data.TabularDataset.splits(path=const.FINAL_DATABASE_FOLDER,
+                                                           train=const.TrainFile,
+                                                           test=const.testFile,
                                                            format='csv',
                                                            skip_header=True,
                                                            fields=data_fields)
-        Log.print_and_log(c.MessageType.Regular.value, f'Number of training examples: {len(train)}')
-        Log.print_and_log(c.MessageType.Regular.value, f'Number of testing examples: {len(test)}')
-        Log.print_and_log(c.MessageType.Regular.value, f'Train example: {train.examples[0].Tweet}')
+        self.logger.printAndLog(const.MessageType.Regular, f'Number of training examples: {len(train)}')
+        self.logger.printAndLog(const.MessageType.Regular, f'Number of testing examples: {len(test)}')
+        self.logger.printAndLog(const.MessageType.Regular, f'Train example: {train.examples[0].Tweet}')
 
         # Construct the Vocab object for this field from the data set
         # Words outside the 25000 words vector will be initialize
         # using torch.Tensor.normal (word mean and standard deviation)
         self.Text.build_vocab(train, max_size=25000, vectors="glove.6B.100d", unk_init=torch.Tensor.normal_)
         self.Label.build_vocab(train)
-        Log.print_and_log(c.MessageType.Regular.value, f"Pre trained embedding size{self.Text.vocab.vectors.shape}")
-        Log.print_and_log(c.MessageType.Regular.value,
-                          f'Most frequent word in vocabulary: {self.Text.vocab.freqs.most_common(10)}')
+        self.logger.printAndLog(const.MessageType.Regular, f"Pre trained embedding size{self.Text.vocab.vectors.shape}")
+        self.logger.printAndLog(const.MessageType.Regular,
+                                f'Most frequent word in vocabulary: {self.Text.vocab.freqs.most_common(10)}')
 
         # Defines an iterator that batches examples of similar lengths together.
         # Minimizes amount of padding needed while producing freshly shuffled batches for each new
@@ -62,7 +62,7 @@ class NumericRepresentationService:
             sort_key=lambda x: len(x.Tweet),
             sort_within_batch=False)
 
-        self.print_data_base(train_iterator, 1)
+        self.printDataBase(train_iterator, 1)
         return train_iterator, test_iterator
 
     # Clean text, tokenize with nlp and return with lower case characters
@@ -80,7 +80,7 @@ class NumericRepresentationService:
 
         return text.strip()
 
-    def print_data_base(self, iterator, num):
+    def printDataBase(self, iterator, num):
         count = 0
         for batch in iterator:
             if count == num:
@@ -88,25 +88,23 @@ class NumericRepresentationService:
             count += 1
 
             for tweet_index in range(len(batch.Tweet)):
-                print(f'Prediction in tensor: {batch.Prediction[tweet_index]}')
+                self.logger.printAndLog(f'Prediction in tensor: {batch.Prediction[tweet_index]}')
                 prediction_tensor = batch.Prediction[tweet_index].item()
                 prediction = self.Label.vocab.itos[prediction_tensor]
-                print(f'Translate Prediction: '
-                      f'{prediction}')
-                tweet = self.get_tweet_from_batch(batch.Tweet, tweet_index)
-                print(f'Tweet in tensor: {tweet}')
-                print(f'Translate Tweet: '
-                      f'{self.translate_vector_from_numeric(tweet, self.Text.vocab)}')
+                self.logger.printAndLog(f'Translate Prediction: '
+                                        f'{prediction}')
+                tweet = self.getTweetFromBatch(batch.Tweet, tweet_index)
+                self.logger.printAndLog(f'Tweet in tensor: {tweet}')
+                self.logger.printAndLog(f'Translate Tweet: '
+                                        f'{self.translateVectorFromNumeric(tweet, self.Text.vocab)}')
 
     @staticmethod
-    def get_tweet_from_batch(batch, tweet_index):
+    def getTweetFromBatch(batch, tweet_index):
         tweet = []
         for index in range(len(batch)):
             tweet.append(batch[index][tweet_index])
         return tweet
 
     @staticmethod
-    def translate_vector_from_numeric(vector, vocabulary):
+    def translateVectorFromNumeric(vector, vocabulary):
         return [vocabulary.itos[num] for num in vector]
-
-
