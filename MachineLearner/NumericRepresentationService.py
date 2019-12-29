@@ -35,8 +35,8 @@ class NumericRepresentationService:
         # Load data from csv
         data_fields = [(const.PREDICTION_COLUMN, self.Label),
                        (const.TEXT_COLUMN, self.Text)]
-        train, test = torchtext.data.TabularDataset.splits(path=const.FINAL_DATABASE_FOLDER,
-                                                           train=const.TrainFile,
+        train, test = torchtext.data.TabularDataset.splits(path=const.finalDatabaseFolder,
+                                                           train=const.trainFile,
                                                            test=const.testFile,
                                                            format='csv',
                                                            skip_header=True,

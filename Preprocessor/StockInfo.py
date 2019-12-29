@@ -1,5 +1,7 @@
 import csv
 import datetime
+import os
+
 import matplotlib.pyplot as plt
 import numpy as np
 from Common import Constants as const
@@ -12,7 +14,6 @@ def ListToFormattedString(alist):
 
 
 class StockInfo:
-
     columnColor = {
         "Open": "red",
         "High": "black",
@@ -33,6 +34,7 @@ class StockInfo:
         "Stock Splits": 6
     }
 
+    dirname = os.path.dirname(__file__)
     graphDaysInterval = const.graphDaysInterval
     effectiveDaysAfterPost = const.effectiveDaysAfterPost
     effectiveColumnIndex = columnIdx.get(const.effectiveColumnName)
@@ -51,6 +53,7 @@ class StockInfo:
         self.__s_averageChanges = []
         self.__s_averageValues = []
         self.__s_stockTag = 0
+        self.__s_graph_plot = None
 
         self.parseData()
         self.fillMissingData()
@@ -59,8 +62,8 @@ class StockInfo:
         self.calculateDeviations()
         self.calculateTag()
 
-        self.plotByColumnNames("Values", ["Open", "Close"])
-        self.plotByColumnNames("Change", ["Close"])
+        self.createPlotByColumnNames("Values", ["Open", "Close"], "yes")
+        self.createPlotByColumnNames("Change", ["Close"], "yes")
 
     @property
     def stockTag(self):
@@ -222,7 +225,7 @@ class StockInfo:
 
         self.__s_stockTag = tag
 
-    def plotByColumnNames(self, plotType, columnNames):
+    def createPlotByColumnNames(self, plotType, columnNames, showPlot="no"):
         x = []
         y = {}
         for columnName in columnNames:
@@ -286,13 +289,22 @@ class StockInfo:
                             self.__s_postOriginalDate))
 
         plt.legend(loc="upper left")
-        plt.show()
+        plt.tight_layout()
 
-        exit()
+        graphsDirectory = os.path.join(StockInfo.dirname, const.graphsPath)
+        if not os.path.isdir(graphsDirectory):
+            os.mkdir(graphsDirectory)
+
+        filePath = "{}/{}_{}_{}_{}_{}.{}".format(graphsDirectory, const.graphFileName, plotType, self.__s_stockSymbol,
+                                                 self.__s_infoStartDate, self.__s_infoEndDate, "png")
+        plt.savefig(filePath)
+
+        if showPlot == "yes":
+            plt.show()
 
     def plotAllSeparately(self):
-        self.plotByColumnNames("Values", "Open")
-        self.plotByColumnNames("Values", "High")
-        self.plotByColumnNames("Values", "Low")
-        self.plotByColumnNames("Values", "Close")
-        self.plotByColumnNames("Values", "Volume")
+        self.createPlotByColumnNames("Values", "Open")
+        self.createPlotByColumnNames("Values", "High")
+        self.createPlotByColumnNames("Values", "Low")
+        self.createPlotByColumnNames("Values", "Close")
+        self.createPlotByColumnNames("Values", "Volume")
