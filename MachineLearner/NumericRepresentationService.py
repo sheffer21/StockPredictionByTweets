@@ -3,11 +3,9 @@ import torchtext.vocab
 import spacy
 from Common import Constants as const
 import re
-from Common.Logger import Logger as Log
 
 
 class NumericRepresentationService:
-
     batch_size = 64
     # To load english use 'python -m spacy download en'
     # init nlp - we only use the tokenizer
@@ -26,7 +24,7 @@ class NumericRepresentationService:
 
         self.logger.printAndLog(const.MessageType.Regular, f"Glove data base size: {len(self.glove.itos)}")
 
-    def get_numeric_representation_of_final_data(self):
+    def getNumericRepresentationOfFinalData(self):
 
         self.logger.printAndLog(const.MessageType.Regular, f"Converting final data base to numeric representation...")
 
@@ -54,7 +52,7 @@ class NumericRepresentationService:
         self.Label.build_vocab(train)
         self.logger.printAndLog(const.MessageType.Regular, f"Pre trained embedding size{self.Text.vocab.vectors.shape}")
         self.logger.printAndLog(const.MessageType.Regular,
-                          f'Most frequent word in vocabulary: {self.Text.vocab.freqs.most_common(10)}')
+                                f'Most frequent word in vocabulary: {self.Text.vocab.freqs.most_common(10)}')
 
         # Defines an iterator that batches examples of similar lengths together.
         # Minimizes amount of padding needed while producing freshly shuffled batches for each new
@@ -64,7 +62,7 @@ class NumericRepresentationService:
             sort_key=lambda x: len(x.Tweet),
             sort_within_batch=False)
 
-        self.print_data_base(train_iterator, 1)
+        self.printDataBase(train_iterator, 1)
         return train_iterator, test_iterator
 
     # Clean text, tokenize with nlp and return with lower case characters
@@ -82,7 +80,7 @@ class NumericRepresentationService:
 
         return text.strip()
 
-    def print_data_base(self, iterator, num):
+    def printDataBase(self, iterator, num):
         count = 0
         for batch in iterator:
             if count == num:
@@ -90,25 +88,23 @@ class NumericRepresentationService:
             count += 1
 
             for tweet_index in range(len(batch.Tweet)):
-                print(f'Prediction in tensor: {batch.Prediction[tweet_index]}')
+                self.logger.printAndLog(f'Prediction in tensor: {batch.Prediction[tweet_index]}')
                 prediction_tensor = batch.Prediction[tweet_index].item()
                 prediction = self.Label.vocab.itos[prediction_tensor]
-                print(f'Translate Prediction: '
-                      f'{prediction}')
-                tweet = self.get_tweet_from_batch(batch.Tweet, tweet_index)
-                print(f'Tweet in tensor: {tweet}')
-                print(f'Translate Tweet: '
-                      f'{self.translate_vector_from_numeric(tweet, self.Text.vocab)}')
+                self.logger.printAndLog(f'Translate Prediction: '
+                                        f'{prediction}')
+                tweet = self.getTweetFromBatch(batch.Tweet, tweet_index)
+                self.logger.printAndLog(f'Tweet in tensor: {tweet}')
+                self.logger.printAndLog(f'Translate Tweet: '
+                                        f'{self.translateVectorFromNumeric(tweet, self.Text.vocab)}')
 
     @staticmethod
-    def get_tweet_from_batch(batch, tweet_index):
+    def getTweetFromBatch(batch, tweet_index):
         tweet = []
         for index in range(len(batch)):
             tweet.append(batch[index][tweet_index])
         return tweet
 
     @staticmethod
-    def translate_vector_from_numeric(vector, vocabulary):
+    def translateVectorFromNumeric(vector, vocabulary):
         return [vocabulary.itos[num] for num in vector]
-
-
