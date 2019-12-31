@@ -1,17 +1,19 @@
-from Common.Logger import Logger as Log
-import Common.Constants as const
+import logger as Log
+import constants as const
 from TwitterCrawler import TwitterCrawler
+from DataBaseOperationsService import DataBaseOperationsService
 
 
 def main(outsourcedLogger=None):
 
     if outsourcedLogger is None:
-        logger = Log()
+        logger = Log.Logger()
     else:
         logger = outsourcedLogger
 
     logger.printAndLog(const.MessageType.Summarize, "Gathering data...")
-    twitterService = TwitterCrawler.TwitterCrawler(logger)
+    twitterService = TwitterCrawler(logger)
+    operations = DataBaseOperationsService(logger)
 
     # Fetch tweets
     logger.printAndLog(const.MessageType.Header, "Collecting data from twitter...")
@@ -19,7 +21,7 @@ def main(outsourcedLogger=None):
 
     # Merge files
     logger.printAndLog(const.MessageType.Header, "Merging new data with current database...")
-    twitterService.merge()
+    operations.merge()
 
     # Done
     logger.printAndLog(const.MessageType.Summarize, "Gathering finished...")
