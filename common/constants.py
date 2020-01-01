@@ -22,6 +22,7 @@ DATE_COLUMN = "Date"
 ID_COLUMN = "ID"
 TWEET_COLUMN = "Tweet"
 USER_ID_COLUMN = "User id"
+USER_FOLLOWERS_COLUMN = "User followers"
 USER_NAME_COLUMN = "User name"
 USER_SCREEN_NAME_COLUMN = "User screen name"
 USER_LOCATION_COLUMN = "User location"
@@ -31,6 +32,9 @@ PLACE_COLUMN = "place"
 ENTITIES_COLUMN = "Entities"
 STOCK_SYMBOL_COLUMN = "Stock Symbol"
 COMPANY_COLUMN = "Company"
+SEARCH_KEYWORD_COLUMN = "Search Keyword"
+COMPANY_KEYWORDS_COLUMN = "Keywords"
+COMPANY_POSSIBLE_KEYWORDS_COLUMN = "Possible Keywords"
 
 POST_ID_COLUMN = 0
 POST_TEXT_COLUMN = 1
@@ -45,7 +49,6 @@ POST_VERIFIED_COLUMN = 7
 twitterCrawlerDataBaseDir = "../Databases/Tweets/"
 twitterCrawlerMergedFilesName = "Tweets-Merged.csv"
 twitterCrawlerFilesPrefix = "Tweets-"
-maximumSearchSize = 10
 
 # Pre processing configurations
 printPostsLimit = 10  # For debugging

@@ -1,13 +1,12 @@
 import tweepy
 import pandas as pd
-from datetime import datetime
-from Common import Constants as const
+from datetime import datetime, timedelta
+import constants as const
 import os
-from searchtweets import ResultStream, gen_rule_payload, load_credentials, collect_results
-
+from DataBaseOperationsService import DataBaseOperationsService as operations
+import numpy as np
 
 class TwitterCrawler:
-    # TODO : move to secrets file
     consumer_key = '991t554wZOqeYfIAWOxg4pRID'
     consumer_secret = 'PbQpvVZGfETYkMK4FWyv9pNPCb10lZwrrpPg3BRnoPm4u9JMh1'
     access_token = '1196704751641137152-IX9GPWlE1sJBX0q9PTk9yP8yAsiYIq'
@@ -24,18 +23,73 @@ class TwitterCrawler:
                const.USER_DESCRIPTION_COLUMN,
                const.PLACE_COLUMN,
                const.ENTITIES_COLUMN,
-               const.STOCK_SYMBOL_COLUMN]
+               const.STOCK_SYMBOL_COLUMN,
+               const.COMPANY_COLUMN,
+               const.COMPANY_KEYWORDS_COLUMN]
 
-    maximum_search_size = const.maximumSearchSize
+    maximumSearchSize = 100
+    maximumNumberOfRequestsPerWindow = 180
 
     def __init__(self, logger):
         self.logger = logger
+        self.numberOfSearches = 0
+        self.api = ""
 
     # noinspection PyBroadException
     def crawlTwitter(self):
         self.logger.printAndLog(const.MessageType.Header, "Start crawling Twitter...")
 
         # Connect to twitter
+        self.connectToTwitter()
+
+        # Get new Tweets
+        companiesFilePath = operations.GetCompaniesFilePath()
+        companies_data = pd.read_csv(companiesFilePath)
+        results = pd.DataFrame()
+
+        pd.concat([results, self.searchTwitterForKeyword(keyword, company[0], company[1])]
+                  for index, company in companies_data.iterrows()
+                  for keyword in self.GetCompanyKeywords(company))
+
+        results = operations.DropDataDuplicates(results, const.ID_COLUMN)
+
+        # Get users data
+        self.addUsersFollowers(results)
+
+        self.logger.printAndLog(const.MessageType.Regular, f"Total number of searches: {self.numberOfSearches}")
+        self.logger.printAndLog(const.MessageType.Regular, "Finish twitter search")
+
+        # Save new Tweets to file
+        self.saveTweetsToFile(results)
+
+    def addUsersFollowers(self, tweets):
+
+        self.logger.printAndLog(const.MessageType.Regular, "Looking for users followers...")
+
+        if self.api is "":
+            self.connectToTwitter()
+
+        # get unique user ids
+        usersID = tweets[const.USER_ID_COLUMN].unique()
+
+        # Create users id's to followers dictionary
+        idToFollowers = {}
+        for _id in usersID:
+            try:
+                self.logger.printAndLog(const.MessageType.Regular.value, f'Looking for {_id} followers count')
+                user = self.api.get_user(user_id=_id)
+            except:
+                self.logger.printAndLog(const.MessageType.Error.value, f"User {_id} doesnt exists")
+
+            idToFollowers[_id] = user.followers_count
+
+        # Add followers numbers to tweets
+        operations.AddColumnToDataByReferenceColumnValue(tweets,
+                                                         idToFollowers,
+                                                         const.USER_ID_COLUMN,
+                                                         const.USER_FOLLOWERS_COLUMN)
+
+    def connectToTwitter(self):
         auth = tweepy.OAuthHandler(TwitterCrawler.consumer_key, TwitterCrawler.consumer_secret)
         auth.set_access_token(TwitterCrawler.access_token, TwitterCrawler.access_token_secret)
         api = tweepy.API(auth, wait_on_rate_limit=True, wait_on_rate_limit_notify=True)
@@ -46,24 +100,20 @@ class TwitterCrawler:
         except:
             self.logger.printAndLog(const.MessageType.Error, "Error during twitter authentication")
 
-        # Get new Tweets
-        dirname = os.path.dirname(__file__)
-        filename = os.path.join(dirname, const.companiesPath)
-        companies_data = pd.read_csv(filename)
-        result = pd.DataFrame()
-        for company in companies_data.values:
-            result = pd.concat([result, self.searchTwitter(company[0], company[1], api)])
+        self.api = api
 
-        self.logger.printAndLog(const.MessageType.Regular, "Finish twitter search")
+    def searchTwitterForKeyword(self, keyword, company_name, company_symbol):
+        searchWord = f"{keyword.lower()}"
+        self.logger.printAndLog(
+            const.MessageType.Regular.value, f"Searching tweets for {keyword} in Company {company_name}")
 
-        # Save new Tweets to file
-        self.saveTweetsToFile(result)
+        resultsTypes = ['popular', 'mixed', 'recent']
+        results = []
+        for resultType in resultsTypes:
+            for dateIndex in range(7):
+                date = (datetime.now() - timedelta(days=dateIndex)).strftime("%Y-%m-%d")
+                results.append(self.searchInTwitter(searchWord, resultType, date))
 
-    def searchTwitter(self, keyword, company_symbol, api):
-        date = (datetime.now()).strftime("%Y-%m-%d")
-        searchWord = f"#{keyword.lower()}"
-        self.logger.printAndLog(const.MessageType.Regular, f"Searching tweets for {keyword}")
-        results = api.search(q=searchWord, lang="en", result_type='popular', until=date, rpp=TwitterCrawler.maximum_search_size)
         if len(results) == 0:
             return
 
@@ -79,49 +129,47 @@ class TwitterCrawler:
                             tweet.user.description,
                             tweet.place,
                             tweet.entities,
-                            company_symbol]],
+                            company_symbol,
+                            company_name,
+                            keyword]],
                           columns=TwitterCrawler.columns)
-             for tweet in results])
+             for result in results
+             for tweet in result])
+
+    def searchInTwitter(self, searchWord, resultType, date):
+        self.numberOfSearches += 1
+
+        try:
+            return self.api.search(q=searchWord, lang="en", result_type=resultType, until=date,
+                                   rpp=TwitterCrawler.maximumSearchSize)
+        except:
+            self.logger.printAndLog(const.MessageType.Error.value, f'Fail to search for {searchWord} '
+                                    f'with results type {resultType} till date {date}')
 
     def saveTweetsToFile(self, tweets):
         date_with_hour = datetime.now().strftime("%d-%m-%Y-%H%M")
-        dirname = os.path.dirname(__file__)
+        dirName = os.path.dirname(__file__)
         tweetsFile = f'{const.twitterCrawlerDataBaseDir}{const.twitterCrawlerFilesPrefix}{date_with_hour}.csv'
-        tweetsFile = os.path.join(dirname, tweetsFile)
+        tweetsFile = os.path.join(dirName, tweetsFile)
 
         if not os.path.isdir(const.twitterCrawlerDataBaseDir):
-            os.mkdir(os.path.join(dirname, const.twitterCrawlerDataBaseDir))
+            os.mkdir(os.path.join(dirName, const.twitterCrawlerDataBaseDir))
 
-        tweets.to_csv(tweetsFile, index=False)
+        operations.SaveToCsv(tweets, tweetsFile)
         self.logger.printAndLog(const.MessageType.Success, f"Saved new tweets to file {tweetsFile}")
 
-    def merge(self):
-        self.logger.printAndLog(const.MessageType.Regular, "Merging database files...")
-        dirname = os.path.dirname(__file__)
-        mergePath = f'{const.twitterCrawlerDataBaseDir}{const.twitterCrawlerMergedFilesName}'
-        mergePath = os.path.join(dirname, mergePath)
+    def GetCompanyKeywords(self, company):
+        keywords = [company[const.COMPANY_COLUMN]]
 
-        old_merge_count = 0
-        if os.path.exists(mergePath):
-            old_merge = pd.read_csv(mergePath)
-            old_merge_count = old_merge.shape[0]
+        TwitterCrawler.ExtendList(keywords, company[const.COMPANY_KEYWORDS_COLUMN])
+        TwitterCrawler.ExtendList(keywords, company[const.COMPANY_POSSIBLE_KEYWORDS_COLUMN])
 
-        result = pd.DataFrame()
+        self.logger.printAndLog(const.MessageType.Regular.value, f"Search keyword {str(keywords)}")
 
-        dirPath = os.path.join(dirname, const.twitterCrawlerDataBaseDir)
+        return keywords
 
-        # Load Tweets from all files
-        for file in os.listdir(dirPath):
-            if file == const.twitterCrawlerMergedFilesName:
-                break
-
-            path = os.path.join(dirPath, file)
-            self.logger.printAndLog(const.MessageType.Regular, f"Loading file: {path}")
-            result = pd.concat([result, pd.read_csv(path)], sort=True)
-
-        # Get all the unique Tweets
-        unique_result = result.drop_duplicates()
-        unique_result.to_csv(mergePath, index=False)
-        self.logger.printAndLog(const.MessageType.Regular,
-                                f"Added additional {unique_result.shape[0] - old_merge_count} to merge file")
-        self.logger.printAndLog(const.MessageType.Success, "Successfully created a final merged database of Tweets")
+    @staticmethod
+    def ExtendList(list_, values):
+        if not pd.isnull(values):
+            values_array = values.split(", ")
+            list_.extend(values_array)
