@@ -61,12 +61,6 @@ class DataBaseOperationsService:
         self.logger.printAndLog(
             const.MessageType.Regular, f'Merge all deleted files data to last one of them {finalPath}')
 
-    @staticmethod
-    def DeleteFiles(self, files):
-        for file in files:
-            self.logger.printAndLog(const.MessageType.Regular, f'Delete file {file}')
-            os.remove(file)
-
     def AddCompanyNameToFiles(self):
         symbol_to_company = DataBaseOperationsService.GetSymbolToCompanyDictionary()
         for file in DataBaseOperationsService.GetAllDataBaseFilesPaths():
@@ -81,6 +75,24 @@ class DataBaseOperationsService:
             self.SaveToCsv(data, file)
             self.logger.printAndLog(const.MessageType.Regular, f"Add company name to file {os.path.basename(file)}")
 
+    def AddKeywordColumnToFiles(self):
+        companyToKeyword = {}
+        companiesData = pd.read_csv(DataBaseOperationsService.GetCompaniesFilePath())
+        for idx, company in companiesData.iterrows():
+            companyToKeyword[company[const.COMPANY_COLUMN]] = company[const.COMPANY_COLUMN]
+
+        for file in DataBaseOperationsService.GetAllDataBaseFilesPaths():
+            data = pd.read_csv(file)
+            if const.SEARCH_KEYWORD_COLUMN in data.columns:
+                continue
+
+            self.AddColumnToDataByReferenceColumnValue(data,
+                                                       companyToKeyword,
+                                                       const.COMPANY_COLUMN,
+                                                       const.SEARCH_KEYWORD_COLUMN)
+            self.SaveToCsv(data, file)
+            self.logger.printAndLog(const.MessageType.Regular, f"Add company keyword to file {os.path.basename(file)}")
+
     def AddFollowersCountToFiles(self, crawler):
         for file in DataBaseOperationsService.GetAllDataBaseFilesPaths():
             data = pd.read_csv(file)
@@ -89,6 +101,11 @@ class DataBaseOperationsService:
             crawler.addUsersFollowers(tweets=data)
             DataBaseOperationsService.SaveToCsv(data=data, path=file)
             self.logger.printAndLog(const.MessageType.Regular, f"Add followers count to file {os.path.basename(file)}")
+
+    def DeleteFiles(self, files):
+        for file in files:
+            self.logger.printAndLog(const.MessageType.Regular, f'Delete file {file}')
+            os.remove(file)
 
     @staticmethod
     def AddColumnToDataByReferenceColumnValue(data, referenceToValue, referenceColumn, destinationColumn):
