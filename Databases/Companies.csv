@@ -1,6 +1,6 @@
 Company,Stock Symbol,Keywords,Possible Keywords
 Google,"GOOG, GOOGL","Chrome, Fiber, Google Maps, Google Docs, Google Analytics, Google AdWords, Google Drive","Maps, Docs, Drive"
-Microsoft,MSFT,"Internet Explorer, Microsoft Office, Xbox 360, Visual Studio, Bing, Xbox, XP, Vista, Microsoft Windows 7, Microsoft Windows 8, Microsoft Windows 10","Office, Windows, Windows 7, Windows 8, Windows 10"
+Microsoft,MSFT,"Internet Explorer, Microsoft Office, Xbox 360, Visual Studio, Bing, Xbox, XP, Vista, Microsoft Windows 7, Microsoft Windows 8, Microsoft Windows 10, Azure","Office, Windows, Windows 7, Windows 8, Windows 10"
 Intel,INTC,"Pentium, Intel Inside, Intel SSD, Core 2 Duo, Mobileye, Core I9, Core I7, Core I5, Core I5, Intel Celeron",Celeron
 Adobe,ADBE,"Photoshop, Adobe Illustrator, Adobe InDesign, Adobe Acrobat, Adobe Flash, Dreamweaver","Illustrator, InDesign, Flash"
 Apple,AAPL,"Apple Watch, IPhone,  Apple TV, iPad, Macintosh, iOS, IPod, HomePod, macOS",

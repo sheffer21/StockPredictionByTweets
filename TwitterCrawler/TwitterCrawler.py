@@ -45,23 +45,28 @@ class TwitterCrawler:
         # Get new Tweets
         companiesFilePath = operations.GetCompaniesFilePath()
         companies_data = pd.read_csv(companiesFilePath)
-        results = pd.DataFrame()
 
-        pd.concat([results, self.searchTwitterForKeyword(keyword, company[0], company[1])]
-                  for index, company in companies_data.iterrows()
-                  if index == 0
-                  for keyword in TwitterCrawler.GetCompanyKeywords(company))
+        results = []
+        for index, company in companies_data.iterrows():
+            for keyword in TwitterCrawler.GetCompanyKeywords(company):
+                res = self.searchTwitterForKeyword(keyword, company[0], company[1])
+                if res is not None:
+                    results.append(res)
 
-        results = operations.DropDataDuplicates(results, const.ID_COLUMN)
+        if not results:
+            return
 
-        # Get users data
-        self.addUsersFollowers(results)
+        data = pd.concat([result for result in results])
+        data = operations.DropDataDuplicates(data, const.ID_COLUMN)
+
+        # Get users followers
+        self.addUsersFollowers(data)
 
         self.logger.printAndLog(const.MessageType.Regular, f"Total number of searches: {self.numberOfSearches}")
         self.logger.printAndLog(const.MessageType.Regular, "Finish twitter search")
 
         # Save new Tweets to file
-        self.saveTweetsToFile(results)
+        self.saveTweetsToFile(data)
 
     def addUsersFollowers(self, tweets):
 
@@ -106,22 +111,20 @@ class TwitterCrawler:
     def searchTwitterForKeyword(self, keyword, company_name, company_symbol):
         searchWord = f"{keyword.lower().strip()}"
         self.logger.printAndLog(
-            const.MessageType.Regular.value, f'Searching tweets for "{keyword}" in Company {company_name}')
+            const.MessageType.Regular.value, f'Searching tweets containing "{keyword}" for Company {company_name}')
 
+        date = datetime.now().strftime("%Y-%m-%d")
         resultsTypes = ['popular', 'mixed', 'recent']
         results = []
         for resultType in resultsTypes:
-            for dateIndex in range(7):
-                date = (datetime.now() - timedelta(days=dateIndex)).strftime("%Y-%m-%d")
-                result = self.searchInTwitter(searchWord, resultType, date)
-                self.logger.printAndLog(const.MessageType.Regular.value, f'Found {len(result)} results')
-                if len(result) != 0:
-                    results.append(result)
+            result = self.searchInTwitter(searchWord, resultType, date)
+            if len(result) != 0:
+                results.append(result)
 
         if len(results) == 0:
-            return
+            return None
 
-        return pd.concat(
+        data = pd.concat(
             [pd.DataFrame([[tweet.created_at,
                             tweet.id_str,
                             tweet.text,
@@ -140,6 +143,9 @@ class TwitterCrawler:
              for result in results
              for tweet in result])
 
+        data = operations.DropDataDuplicates(data, const.ID_COLUMN)
+        return data
+
     def searchInTwitter(self, searchWord, resultType, date):
         self.numberOfSearches += 1
 
@@ -148,7 +154,7 @@ class TwitterCrawler:
                                    rpp=TwitterCrawler.maximumSearchSize)
         except:
             self.logger.printAndLog(const.MessageType.Error.value, f'Fail to search for {searchWord} '
-                                    f'with results type {resultType} till date {date}')
+            f'with results type {resultType} till date {date}')
 
     def saveTweetsToFile(self, tweets):
         date_with_hour = datetime.now().strftime("%d-%m-%Y-%H%M")
