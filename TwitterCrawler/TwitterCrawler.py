@@ -4,8 +4,7 @@ from datetime import datetime, timedelta
 import constants as const
 import os
 from DataBaseOperationsService import DataBaseOperationsService as operations
-import time
-
+import numpy as np
 
 class TwitterCrawler:
     consumer_key = '991t554wZOqeYfIAWOxg4pRID'
@@ -25,7 +24,8 @@ class TwitterCrawler:
                const.PLACE_COLUMN,
                const.ENTITIES_COLUMN,
                const.STOCK_SYMBOL_COLUMN,
-               const.COMPANY_COLUMN]
+               const.COMPANY_COLUMN,
+               const.COMPANY_KEYWORDS_COLUMN]
 
     maximumSearchSize = 100
     maximumNumberOfRequestsPerWindow = 180
@@ -47,10 +47,11 @@ class TwitterCrawler:
         companies_data = pd.read_csv(companiesFilePath)
         results = pd.DataFrame()
 
-        pd.concat([results, self.searchTwitterForKeyword(company[0], company[0], company[1])]
-                  for company in companies_data.values)
+        pd.concat([results, self.searchTwitterForKeyword(keyword, company[0], company[1])]
+                  for index, company in companies_data.iterrows()
+                  for keyword in self.GetCompanyKeywords(company))
 
-        results = operations.DropDataDuplicates(results)
+        results = operations.DropDataDuplicates(results, const.ID_COLUMN)
 
         # Get users data
         self.addUsersFollowers(results)
@@ -102,8 +103,9 @@ class TwitterCrawler:
         self.api = api
 
     def searchTwitterForKeyword(self, keyword, company_name, company_symbol):
-        searchWord = f"#{keyword.lower()}"
-        self.logger.printAndLog(const.MessageType.Regular.value, f"Searching tweets for {keyword}")
+        searchWord = f"{keyword.lower()}"
+        self.logger.printAndLog(
+            const.MessageType.Regular.value, f"Searching tweets for {keyword} in Company {company_name}")
 
         resultsTypes = ['popular', 'mixed', 'recent']
         results = []
@@ -128,7 +130,8 @@ class TwitterCrawler:
                             tweet.place,
                             tweet.entities,
                             company_symbol,
-                            company_name]],
+                            company_name,
+                            keyword]],
                           columns=TwitterCrawler.columns)
              for result in results
              for tweet in result])
@@ -154,3 +157,19 @@ class TwitterCrawler:
 
         operations.SaveToCsv(tweets, tweetsFile)
         self.logger.printAndLog(const.MessageType.Success, f"Saved new tweets to file {tweetsFile}")
+
+    def GetCompanyKeywords(self, company):
+        keywords = [company[const.COMPANY_COLUMN]]
+
+        TwitterCrawler.ExtendList(keywords, company[const.COMPANY_KEYWORDS_COLUMN])
+        TwitterCrawler.ExtendList(keywords, company[const.COMPANY_POSSIBLE_KEYWORDS_COLUMN])
+
+        self.logger.printAndLog(const.MessageType.Regular.value, f"Search keyword {str(keywords)}")
+
+        return keywords
+
+    @staticmethod
+    def ExtendList(list_, values):
+        if not pd.isnull(values):
+            values_array = values.split(", ")
+            list_.extend(values_array)
