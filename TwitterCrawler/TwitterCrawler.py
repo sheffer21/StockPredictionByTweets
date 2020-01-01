@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 import constants as const
 import os
 from DataBaseOperationsService import DataBaseOperationsService as operations
-import numpy as np
+
 
 class TwitterCrawler:
     consumer_key = '991t554wZOqeYfIAWOxg4pRID'
@@ -49,7 +49,8 @@ class TwitterCrawler:
 
         pd.concat([results, self.searchTwitterForKeyword(keyword, company[0], company[1])]
                   for index, company in companies_data.iterrows()
-                  for keyword in self.GetCompanyKeywords(company))
+                  if index == 0
+                  for keyword in TwitterCrawler.GetCompanyKeywords(company))
 
         results = operations.DropDataDuplicates(results, const.ID_COLUMN)
 
@@ -103,16 +104,19 @@ class TwitterCrawler:
         self.api = api
 
     def searchTwitterForKeyword(self, keyword, company_name, company_symbol):
-        searchWord = f"{keyword.lower()}"
+        searchWord = f"{keyword.lower().strip()}"
         self.logger.printAndLog(
-            const.MessageType.Regular.value, f"Searching tweets for {keyword} in Company {company_name}")
+            const.MessageType.Regular.value, f'Searching tweets for "{keyword}" in Company {company_name}')
 
         resultsTypes = ['popular', 'mixed', 'recent']
         results = []
         for resultType in resultsTypes:
             for dateIndex in range(7):
                 date = (datetime.now() - timedelta(days=dateIndex)).strftime("%Y-%m-%d")
-                results.append(self.searchInTwitter(searchWord, resultType, date))
+                result = self.searchInTwitter(searchWord, resultType, date)
+                self.logger.printAndLog(const.MessageType.Regular.value, f'Found {len(result)} results')
+                if len(result) != 0:
+                    results.append(result)
 
         if len(results) == 0:
             return
@@ -158,18 +162,16 @@ class TwitterCrawler:
         operations.SaveToCsv(tweets, tweetsFile)
         self.logger.printAndLog(const.MessageType.Success, f"Saved new tweets to file {tweetsFile}")
 
-    def GetCompanyKeywords(self, company):
+    @staticmethod
+    def GetCompanyKeywords(company):
         keywords = [company[const.COMPANY_COLUMN]]
 
         TwitterCrawler.ExtendList(keywords, company[const.COMPANY_KEYWORDS_COLUMN])
         TwitterCrawler.ExtendList(keywords, company[const.COMPANY_POSSIBLE_KEYWORDS_COLUMN])
-
-        self.logger.printAndLog(const.MessageType.Regular.value, f"Search keyword {str(keywords)}")
 
         return keywords
 
     @staticmethod
     def ExtendList(list_, values):
         if not pd.isnull(values):
-            values_array = values.split(", ")
-            list_.extend(values_array)
+            list_.extend(values.split(", "))
