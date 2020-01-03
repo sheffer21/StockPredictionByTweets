@@ -1,6 +1,7 @@
 import pandas as pd
 import os
 import constants as const
+from datetime import datetime
 
 
 class DataBaseOperationsService:
@@ -20,7 +21,7 @@ class DataBaseOperationsService:
         result = pd.DataFrame()
 
         # Load tweets from all files
-        for file in self.GetAllDataBaseFilesPaths():
+        for file in self.GetAllDataBaseFilesPaths(include_trail_file=True):
             self.logger.printAndLog(const.MessageType.Regular.value, f"Loading file: {os.path.basename(file)}")
             data = pd.read_csv(file)
             result = pd.concat([result, data], sort=False)
@@ -41,25 +42,30 @@ class DataBaseOperationsService:
         if len(files) <= 10:
             return
 
-        files.sort(reverse=True)
+        files.sort(reverse=True, key=lambda f: datetime.strptime(f[-19:-4], '%d-%m-%Y-%H%M'))
         data = pd.DataFrame()
-        finalPath = ""
         filesToRemove = []
         for index, file in enumerate(files):
-            if index < num - 1:
+            if index < num:
                 continue
-
-            if index == num - 1:
-                finalPath = file
 
             filesToRemove.append(file)
             data = pd.concat([data, pd.read_csv(file)], sort=False)
 
-        self.DeleteFiles(filesToRemove)
+        # Merge with trail data
+        trailDataPath = DataBaseOperationsService.GetTrailDataBaseFilePath()
+        if os.path.exists(trailDataPath):
+            data = pd.concat([data, pd.read_csv(trailDataPath)], sort=False)
+
         unique_data = self.DropDataDuplicates(data, const.ID_COLUMN)
-        self.SaveToCsv(unique_data, finalPath)
+
+        # Save to trail data file
+        self.SaveToCsv(unique_data, trailDataPath)
         self.logger.printAndLog(
-            const.MessageType.Regular, f'Merge all deleted files data to last one of them {finalPath}')
+                const.MessageType.Regular, f'Merge all deleted files data to {trailDataPath}')
+
+        # Delete old files
+        self.DeleteFiles(filesToRemove)
 
     def AddCompanyNameToFiles(self):
         symbol_to_company = DataBaseOperationsService.GetSymbolToCompanyDictionary()
@@ -128,10 +134,12 @@ class DataBaseOperationsService:
         return companies_dictionary
 
     @staticmethod
-    def GetAllDataBaseFilesPaths(include_merge_file=False):
+    def GetAllDataBaseFilesPaths(include_merge_file=False, include_trail_file=False):
         files = []
         for file in os.listdir(DataBaseOperationsService.GetDataBaseDir()):
             if (not include_merge_file) and file == const.twitterCrawlerMergedFilesName:
+                continue
+            if (not include_trail_file) and file == const.twitterCrawlerTrailDataFilesName:
                 continue
             files.append(os.path.join(DataBaseOperationsService.GetDataBaseDir(), file))
 
@@ -155,6 +163,12 @@ class DataBaseOperationsService:
         dirName = DataBaseOperationsService.GetDataBaseDir()
         mergePath = f'{const.twitterCrawlerMergedFilesName}'
         return os.path.join(dirName, mergePath)
+
+    @staticmethod
+    def GetTrailDataBaseFilePath():
+        dirName = DataBaseOperationsService.GetDataBaseDir()
+        trailPath = f'{const.twitterCrawlerTrailDataFilesName}'
+        return os.path.join(dirName, trailPath)
 
     @staticmethod
     def GetDataBaseDir():

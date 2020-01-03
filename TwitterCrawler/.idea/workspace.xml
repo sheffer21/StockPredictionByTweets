@@ -2,17 +2,13 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="66dbe842-3b1a-4197-abde-d0cccd3f9d74" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/../Databases/Companies.csv" beforeDir="false" afterPath="$PROJECT_DIR$/../Databases/Companies.csv" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Databases/Tweets/Tweets-Merged.csv" beforeDir="false" afterPath="$PROJECT_DIR$/../Databases/Tweets/Tweets-Merged.csv" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../MachineLearner/.idea/MachineLearner.iml" beforeDir="false" afterPath="$PROJECT_DIR$/../MachineLearner/.idea/MachineLearner.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../MachineLearner/.idea/inspectionProfiles/profiles_settings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../MachineLearner/.idea/inspectionProfiles/profiles_settings.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../MachineLearner/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../MachineLearner/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../MachineLearner/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../MachineLearner/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../MachineLearner/Main.py" beforeDir="false" afterPath="$PROJECT_DIR$/../MachineLearner/Main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Preprocessor/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../Preprocessor/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../MachineLearner/NumericRepresentationService.py" beforeDir="false" afterPath="$PROJECT_DIR$/../MachineLearner/NumericRepresentationService.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DataBaseOperationsService.py" beforeDir="false" afterPath="$PROJECT_DIR$/DataBaseOperationsService.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/TwitterCrawler.py" beforeDir="false" afterPath="$PROJECT_DIR$/TwitterCrawler.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../common/constants.py" beforeDir="false" afterPath="$PROJECT_DIR$/../common/constants.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -25,8 +21,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/TwitterCrawler.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="132">
-              <caret line="114" lean-forward="true" selection-start-line="114" selection-end-line="114" />
+            <state relative-caret-position="118">
+              <caret line="120" column="15" lean-forward="true" selection-start-line="120" selection-start-column="15" selection-end-line="120" selection-end-column="15" />
               <folding>
                 <element signature="e#0#13#0" expanded="true" />
               </folding>
@@ -35,10 +31,19 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/../common/constants.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="103">
+              <caret line="49" column="51" lean-forward="true" selection-start-line="49" selection-start-column="51" selection-end-line="49" selection-end-column="51" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/DataBaseOperationsService.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="102">
-              <caret line="110" column="8" selection-start-line="110" selection-start-column="8" selection-end-line="110" selection-end-column="8" />
+            <state relative-caret-position="125">
+              <caret line="22" column="73" selection-start-line="22" selection-start-column="73" selection-end-line="22" selection-end-column="73" />
               <folding>
                 <element signature="e#0#19#0" expanded="true" />
               </folding>
@@ -49,8 +54,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/DataBaseStatistics.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1364">
-              <caret line="62" column="19" selection-start-line="62" selection-start-column="19" selection-end-line="62" selection-end-column="19" />
+            <state relative-caret-position="125">
+              <caret line="12" column="8" selection-start-line="12" selection-start-column="8" selection-end-line="12" selection-end-column="8" />
               <folding>
                 <element signature="e#0#25#0" expanded="true" />
               </folding>
@@ -61,10 +66,22 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/main.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="223">
-              <caret line="35" selection-start-line="35" selection-end-line="35" />
+            <state relative-caret-position="220">
+              <caret line="22" column="42" lean-forward="true" selection-start-line="22" selection-start-column="42" selection-end-line="22" selection-end-column="42" />
               <folding>
                 <element signature="e#0#20#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/../common/logger.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="333">
+              <caret line="50" column="34" selection-start-line="50" selection-start-column="34" selection-end-line="50" selection-end-column="34" />
+              <folding>
+                <element signature="e#0#29#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -129,19 +146,19 @@
         <option value="$PROJECT_DIR$/mergeService.py" />
         <option value="$PROJECT_DIR$/dataBaseOperationsService.py" />
         <option value="$PROJECT_DIR$/../common/logger.py" />
+        <option value="$PROJECT_DIR$/DataBaseStatistics.py" />
         <option value="$PROJECT_DIR$/../common/constants.py" />
         <option value="$PROJECT_DIR$/DataBaseOperationsService.py" />
-        <option value="$PROJECT_DIR$/DataBaseStatistics.py" />
         <option value="$PROJECT_DIR$/main.py" />
         <option value="$PROJECT_DIR$/TwitterCrawler.py" />
       </list>
     </option>
   </component>
   <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="951" />
-    <option name="y" value="-9" />
-    <option name="width" value="978" />
-    <option name="height" value="1048" />
+    <option name="x" value="-10" />
+    <option name="y" value="-10" />
+    <option name="width" value="1940" />
+    <option name="height" value="1050" />
   </component>
   <component name="ProjectId" id="1VOSj7jhVjCjpuyAJ4MvVfCarMk" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
@@ -180,7 +197,7 @@
   </component>
   <component name="PropertiesComponent">
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../MachineLearner" />
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PythonContentEntriesConfigurable" />
   </component>
   <component name="RunDashboard">
@@ -269,7 +286,7 @@
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
-      <window_info anchor="bottom" id="Find" order="1" weight="0.32936078" />
+      <window_info anchor="bottom" id="Find" order="1" weight="0.3281471" />
       <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.42998585" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.39886847" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
@@ -291,6 +308,11 @@
           <url>file://$PROJECT_DIR$/TwitterCrawler.py</url>
           <line>55</line>
           <option name="timeStamp" value="1" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/DataBaseOperationsService.py</url>
+          <line>11</line>
+          <option name="timeStamp" value="4" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
@@ -377,13 +399,6 @@
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/mergeService.py" />
-    <entry file="file://$PROJECT_DIR$/../common/logger.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-88">
-          <caret line="2" column="10" selection-start-line="2" selection-start-column="10" selection-end-line="2" selection-end-column="10" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$USER_HOME$/Anaconda3/Lib/site-packages/tweepy/api.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="726">
@@ -402,13 +417,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="190">
           <caret line="2880" column="8" selection-start-line="2880" selection-start-column="8" selection-end-line="2880" selection-end-column="8" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../common/constants.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="190">
-          <caret line="35" selection-start-line="35" selection-end-line="35" />
         </state>
       </provider>
     </entry>
@@ -447,36 +455,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/DataBaseStatistics.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1364">
-          <caret line="62" column="19" selection-start-line="62" selection-start-column="19" selection-end-line="62" selection-end-column="19" />
-          <folding>
-            <element signature="e#0#25#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/DataBaseOperationsService.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="102">
-          <caret line="110" column="8" selection-start-line="110" selection-start-column="8" selection-end-line="110" selection-end-column="8" />
-          <folding>
-            <element signature="e#0#19#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/main.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="223">
-          <caret line="35" selection-start-line="35" selection-end-line="35" />
-          <folding>
-            <element signature="e#0#20#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$USER_HOME$/Anaconda3/Lib/codecs.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="133">
@@ -491,10 +469,57 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/DataBaseStatistics.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="125">
+          <caret line="12" column="8" selection-start-line="12" selection-start-column="8" selection-end-line="12" selection-end-column="8" />
+          <folding>
+            <element signature="e#0#25#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../common/logger.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="333">
+          <caret line="50" column="34" selection-start-line="50" selection-start-column="34" selection-end-line="50" selection-end-column="34" />
+          <folding>
+            <element signature="e#0#29#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../common/constants.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="103">
+          <caret line="49" column="51" lean-forward="true" selection-start-line="49" selection-start-column="51" selection-end-line="49" selection-end-column="51" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/DataBaseOperationsService.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="125">
+          <caret line="22" column="73" selection-start-line="22" selection-start-column="73" selection-end-line="22" selection-end-column="73" />
+          <folding>
+            <element signature="e#0#19#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/main.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="220">
+          <caret line="22" column="42" lean-forward="true" selection-start-line="22" selection-start-column="42" selection-end-line="22" selection-end-column="42" />
+          <folding>
+            <element signature="e#0#20#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/TwitterCrawler.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="132">
-          <caret line="114" lean-forward="true" selection-start-line="114" selection-end-line="114" />
+        <state relative-caret-position="118">
+          <caret line="120" column="15" lean-forward="true" selection-start-line="120" selection-start-column="15" selection-end-line="120" selection-end-column="15" />
           <folding>
             <element signature="e#0#13#0" expanded="true" />
           </folding>
