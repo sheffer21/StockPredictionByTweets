@@ -1,6 +1,6 @@
 import tweepy
 import pandas as pd
-from datetime import datetime, timedelta
+from datetime import datetime
 import constants as const
 import os
 from DataBaseOperationsService import DataBaseOperationsService as operations
@@ -14,7 +14,7 @@ class TwitterCrawler:
 
     columns = [const.DATE_COLUMN,
                const.ID_COLUMN,
-               const.TWEET_COLUMN,
+               const.TEXT_COLUMN,
                const.USER_ID_COLUMN,
                const.USER_NAME_COLUMN,
                const.USER_SCREEN_NAME_COLUMN,
@@ -25,7 +25,7 @@ class TwitterCrawler:
                const.ENTITIES_COLUMN,
                const.STOCK_SYMBOL_COLUMN,
                const.COMPANY_COLUMN,
-               const.COMPANY_KEYWORDS_COLUMN]
+               const.SEARCH_KEYWORD_COLUMN]
 
     maximumSearchSize = 100
     maximumNumberOfRequestsPerWindow = 180
@@ -118,7 +118,7 @@ class TwitterCrawler:
         results = []
         for resultType in resultsTypes:
             result = self.searchInTwitter(searchWord, resultType, date)
-            if len(result) != 0:
+            if result and len(result) != 0:
                 results.append(result)
 
         if len(results) == 0:

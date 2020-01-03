@@ -2,7 +2,8 @@ import logger as Log
 import constants as const
 from TwitterCrawler import TwitterCrawler
 from DataBaseOperationsService import DataBaseOperationsService
-from DataBaseStatistics import  DataBaseStatistics
+from DataBaseStatistics import DataBaseStatistics
+
 
 def main(outsourcedLogger=None):
 
@@ -11,16 +12,16 @@ def main(outsourcedLogger=None):
     else:
         logger = outsourcedLogger
 
-    logger.printAndLog(const.MessageType.Summarize, "Gathering data...")
+    logger.printAndLog(const.MessageType.Summarize.value, "Gathering data...")
     twitterService = TwitterCrawler(logger)
 
     # Fetch tweets
-    logger.printAndLog(const.MessageType.Header, "Collecting data from twitter...")
+    logger.printAndLog(const.MessageType.Header.value, "Collecting data from twitter...")
     twitterService.crawlTwitter()
 
     # Merge files
     operations = DataBaseOperationsService(logger)
-    logger.printAndLog(const.MessageType.Header, "Merging new data with current database...")
+    logger.printAndLog(const.MessageType.Header.value, "Merging new data with current database...")
     operations.merge()
 
     # Plot statistics
@@ -29,7 +30,7 @@ def main(outsourcedLogger=None):
     statistics.PublishDataBaseCompaniesKeywordsGraph()
 
     # Done
-    logger.printAndLog(const.MessageType.Summarize, "Gathering finished...")
+    logger.printAndLog(const.MessageType.Summarize.value, "Gathering finished...")
 
 
 if __name__ == "__main__":

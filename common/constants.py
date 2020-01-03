@@ -16,13 +16,12 @@ trainFile = "train_tweets.csv"
 testFile = "test_tweets.csv"
 
 # Data base column names
-PREDICTION_COLUMN = "Prediction"
-TEXT_COLUMN = "Tweet"
+
+# Tweets Data base
 DATE_COLUMN = "Date"
 ID_COLUMN = "ID"
-TWEET_COLUMN = "Tweet"
+TEXT_COLUMN = "Tweet"
 USER_ID_COLUMN = "User id"
-USER_FOLLOWERS_COLUMN = "User followers"
 USER_NAME_COLUMN = "User name"
 USER_SCREEN_NAME_COLUMN = "User screen name"
 USER_LOCATION_COLUMN = "User location"
@@ -33,6 +32,14 @@ ENTITIES_COLUMN = "Entities"
 STOCK_SYMBOL_COLUMN = "Stock Symbol"
 COMPANY_COLUMN = "Company"
 SEARCH_KEYWORD_COLUMN = "Search Keyword"
+USER_FOLLOWERS_COLUMN = "User followers"
+
+# Final data base
+PREDICTION_COLUMN = "Prediction"
+# TEXT_COLUMN = "Tweet"
+
+# Companies data file
+# COMPANY_COLUMN = "Company"
 COMPANY_KEYWORDS_COLUMN = "Keywords"
 COMPANY_POSSIBLE_KEYWORDS_COLUMN = "Possible Keywords"
 
@@ -48,6 +55,7 @@ POST_VERIFIED_COLUMN = 7
 # Twitter crawler configurations
 twitterCrawlerDataBaseDir = "../Databases/Tweets/"
 twitterCrawlerMergedFilesName = "Tweets-Merged.csv"
+twitterCrawlerTrailDataFilesName = "Tweets-TrailData.csv"
 twitterCrawlerFilesPrefix = "Tweets-"
 
 # Pre processing configurations
