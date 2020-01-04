@@ -1,0 +1,122 @@
+[94mStarting machine learning algorithms...[0m
+Glove data base size: 400000
+[95mExporting data to numeric representation...[0m
+Converting final data base to numeric representation...
+Number of training examples: 5732
+Number of testing examples: 1433
+Train example: ['larry', 'smoove', 'clownin', 'at', 'walmart', 'larrysmoove3']
+Pre trained embedding sizetorch.Size([16043, 100])
+Most frequent word in vocabulary: [('the', 3100), ('.', 2395), ('to', 1968), ('rt', 1917), ('a', 1712), ('of', 1575), ('and', 1510), ('in', 1316), ('i', 1204), ('for', 1103)]
+Prediction in tensor: 11
+Translate Prediction: -6.899809064869447
+Tweet in tensor: [tensor(52), tensor(1157), tensor(6), tensor(150), tensor(9), tensor(34), tensor(272), tensor(172), tensor(847), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1)]
+Translate Tweet: ['just', 'closed', 'a', 'deal', 'in', '2', 'hours', 'using', 'adobesign', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>']
+Prediction in tensor: 0
+Translate Prediction: -6.112046610141572
+Tweet in tensor: [tensor(1440), tensor(471), tensor(39), tensor(3), tensor(50), tensor(2), tensor(2573), tensor(14), tensor(74), tensor(13), tensor(1514), tensor(4924), tensor(2), tensor(1405), tensor(73), tensor(49), tensor(3), tensor(8), tensor(2834), tensor(4), tensor(30), tensor(17), tensor(170), tensor(3), tensor(244), tensor(3281), tensor(1), tensor(1)]
+Translate Tweet: ['okay', 'y', 'all', '.', 'so', 'the', 'nigga', 'on', 'facebook', 'is', 'apparently', 'busting', 'the', 'girl', 'windows', 'now', '.', 'and', 'begging', 'to', 'be', 'with', 'her', '.', 'she', 'sa', '<pad>', '<pad>']
+Prediction in tensor: 3
+Translate Prediction: -10.269848435348148
+Tweet in tensor: [tensor(92), tensor(147), tensor(34), tensor(2281), tensor(1113), tensor(6284), tensor(11968), tensor(76), tensor(402), tensor(21), tensor(158), tensor(121), tensor(10), tensor(3230), tensor(15), tensor(10), tensor(211), tensor(4870), tensor(56), tensor(14), tensor(285), tensor(402), tensor(10), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1)]
+Translate Tweet: ['black', 'ops', '2', 'trending', 'possible', 'remaster', 'mane', 'they', 'bring', 'that', 'game', 'back', 'i', 'promise', 'you', 'i', 'll', 'blow', 'up', 'on', 'youtube', 'bring', 'i', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>']
+Prediction in tensor: 129
+Translate Prediction: 3.197950103396015
+Tweet in tensor: [tensor(5), tensor(12353), tensor(10659), tensor(731), tensor(10796), tensor(5398), tensor(557), tensor(9), tensor(689), tensor(3934), tensor(1983), tensor(28), tensor(661), tensor(692), tensor(70), tensor(281), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1)]
+Translate Tweet: ['rt', 'mrsyiswhy', 'hackread', 'system', 'hijacking', 'flaws', 'found', 'in', 'pre', 'installed', 'acer', 'amp', 'asus', 'software', 'more', 'security', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>']
+Prediction in tensor: 0
+Translate Prediction: -6.112046610141572
+Tweet in tensor: [tensor(5), tensor(1221), tensor(1154), tensor(385), tensor(13), tensor(2), tensor(1203), tensor(171), tensor(9), tensor(2), tensor(167), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1)]
+Translate Tweet: ['rt', 'scenesofriends', 'chandler', 'bing', 'is', 'the', 'luckiest', 'man', 'in', 'the', 'world', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>']
+Prediction in tensor: 155
+Translate Prediction: -5.329574687716937
+Tweet in tensor: [tensor(118), tensor(51), tensor(86), tensor(1305), tensor(2863), tensor(19), tensor(316), tensor(14775), tensor(5229), tensor(3), tensor(580), tensor(1397), tensor(3602), tensor(162), tensor(191), tensor(11), tensor(249), tensor(3), tensor(11894), tensor(6), tensor(13735), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1)]
+Translate Tweet: ['walmart', 'will', 'no', 'longer', 'carry', 'my', 'life', 'survivor', 'dolls', '.', 'children', 'fighting', 'cancer', 'use', 'them', 'for', 'support', '.', 'lynne', 'a', 'reti', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>']
+Prediction in tensor: 5
+Translate Prediction: -7.352974106426314
+Tweet in tensor: [tensor(5), tensor(8745), tensor(14904), tensor(1190), tensor(12777), tensor(4061), tensor(1398), tensor(17), tensor(5157), tensor(4173), tensor(480), tensor(8158), tensor(8), tensor(2851), tensor(7510), tensor(8744), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1)]
+Translate Tweet: ['rt', 'charsfavorite', 'teardrop', 'glass', 'orb', 'necklace', 'filled', 'with', 'delicate', 'purple', 'fiber', 'beads', 'and', 'bronze', 'accents', 'charsfav', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>']
+Prediction in tensor: 5
+Translate Prediction: -7.352974106426314
+Tweet in tensor: [tensor(5), tensor(4929), tensor(16), tensor(12), tensor(401), tensor(88), tensor(11), tensor(268), tensor(12), tensor(4929), tensor(1868), tensor(643), tensor(7401), tensor(28), tensor(9069), tensor(599), tensor(15122), tensor(4930), tensor(17), tensor(830), tensor(1803), tensor(15679), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1)]
+Translate Tweet: ['rt', 'cafemutant', 'it', 's', 'almost', 'time', 'for', 'tonight', 's', 'cafemutant', 'newyearseve', 'episode', '7et', 'amp', 'cook', 'along', 'tipsey', 'cake', 'with', 'special', 'guest', 'warnimon', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>']
+Prediction in tensor: 0
+Translate Prediction: -6.112046610141572
+Tweet in tensor: [tensor(14106), tensor(124), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1)]
+Translate Tweet: ['sendcats', 'xbox', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>']
+Prediction in tensor: 180
+Translate Prediction: -2.10406711153547
+Tweet in tensor: [tensor(148), tensor(4), tensor(797), tensor(417), tensor(6529), tensor(2377), tensor(17), tensor(2871), tensor(2391), tensor(148), tensor(281), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1)]
+Translate Tweet: ['qualcomm', 'to', 'build', 'azure', 'sphere', 'chips', 'with', 'cellular', 'connectivity', 'qualcomm', 'security', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>']
+Prediction in tensor: 171
+Translate Prediction: -3.7255023979696165
+Tweet in tensor: [tensor(74), tensor(41), tensor(6), tensor(880), tensor(3), tensor(2), tensor(1446), tensor(8), tensor(15362), tensor(442), tensor(203), tensor(1111), tensor(13), tensor(15794), tensor(5291), tensor(678), tensor(3006), tensor(15751), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1)]
+Translate Tweet: ['facebook', 'has', 'a', 'problem', '.', 'the', 'powerful', 'and', 'ubiquitous', 'social', 'media', 'platform', 'is', 'willingly', 'enabling', 'hate', 'groups', 'whi', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>']
+Prediction in tensor: 34
+Translate Prediction: -6.2097870875000165
+Tweet in tensor: [tensor(39), tensor(353), tensor(133), tensor(7), tensor(440), tensor(80), tensor(7), tensor(107), tensor(4507), tensor(687), tensor(84), tensor(394), tensor(2628), tensor(3199), tensor(2), tensor(11828), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1)]
+Translate Tweet: ['all', 'those', 'years', 'of', 'playing', 'call', 'of', 'duty', 'zombies', 'paid', 'off', 'via', 'reddit', 'paul', 'the', 'lodestar', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>']
+Prediction in tensor: 22
+Translate Prediction: -8.609309695358194
+Tweet in tensor: [tensor(10739), tensor(10463), tensor(29), tensor(618), tensor(3986), tensor(11), tensor(53), tensor(3), tensor(76), tensor(1497), tensor(20), tensor(15652), tensor(6), tensor(430), tensor(1985), tensor(10104), tensor(50), tensor(10), tensor(378), tensor(106), tensor(4763), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1)]
+Translate Tweet: ['havokyourway', 'getspectrum', 'was', 'pretty', 'legit', 'for', 'me', '.', 'they', 'wouldn', 't', 'waive', 'a', 'change', 'address', 'fee', 'so', 'i', 'left', 'their', 'asses', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>']
+Prediction in tensor: 10
+Translate Prediction: -1.6659346674789823
+Tweet in tensor: [tensor(11797), tensor(11500), tensor(75), tensor(14696), tensor(78), tensor(1187), tensor(3054), tensor(2), tensor(136), tensor(222), tensor(1656), tensor(160), tensor(9282), tensor(7767), tensor(165), tensor(62), tensor(71), tensor(3054), tensor(43), tensor(265), tensor(43), tensor(139), tensor(205), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1)]
+Translate Tweet: ['livecholfc', 'keita', 'or', 'sturridge', 'who', 'gets', 'injured', 'the', 'most', 'old', 'sick', 'note', 'darren', 'anderton', 'did', 'not', 'get', 'injured', 'as', 'much', 'as', 'these', 'two', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>']
+Prediction in tensor: 21
+Translate Prediction: -12.831934276610689
+Tweet in tensor: [tensor(71), tensor(32), tensor(2401), tensor(4048), tensor(334), tensor(330), tensor(596), tensor(13), tensor(4145), tensor(11), tensor(1868), tensor(151), tensor(9), tensor(443), tensor(1039), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1)]
+Translate Tweet: ['get', 'your', 'dance', 'moves', 'ready', 'bts', 'twt', 'is', 'preparing', 'for', 'newyearseve', 'live', 'in', 'times', 'square', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>']
+Prediction in tensor: 25
+Translate Prediction: -7.138090448375376
+Tweet in tensor: [tensor(5), tensor(3177), tensor(224), tensor(3), tensor(10), tensor(654), tensor(87), tensor(161), tensor(193), tensor(180), tensor(6), tensor(2238), tensor(2089), tensor(3149), tensor(16), tensor(1657), tensor(1008), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1)]
+Translate Tweet: ['rt', 'oblivionbay', '15', '.', 'i', 'wish', 'home', 'depot', 'really', 'made', 'a', 'science', 'fiction', 'musical', 'it', 'sounds', 'incredible', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>']
+Prediction in tensor: 3
+Translate Prediction: -10.269848435348148
+Tweet in tensor: [tensor(3213), tensor(1487), tensor(11), tensor(145), tensor(109), tensor(3882), tensor(13), tensor(151), tensor(1655), tensor(307), tensor(577), tensor(100), tensor(13), tensor(121), tensor(8), tensor(70), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1)]
+Translate Tweet: ['playlist', 'updates', 'for', 'modern', 'warfare', 'grind', 'is', 'live', 'shoot', 'house', '24', '7', 'is', 'back', 'and', 'more', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>']
+Prediction in tensor: 188
+Translate Prediction: -3.3574847246671737
+Tweet in tensor: [tensor(10), tensor(31), tensor(10870), tensor(212), tensor(4), tensor(413), tensor(3), tensor(19), tensor(3698), tensor(13339), tensor(5088), tensor(9135), tensor(3), tensor(10), tensor(85), tensor(20), tensor(111), tensor(58), tensor(18), tensor(1414), tensor(3), tensor(16), tensor(52), tensor(14425), tensor(1), tensor(1), tensor(1), tensor(1)]
+Translate Tweet: ['i', 'have', 'horrible', 'news', 'to', 'report', '.', 'my', 'daughter', 'pronounces', 'crayon', 'cran', '.', 'i', 'don', 't', 'know', 'how', 'this', 'happened', '.', 'it', 'just', 'snuck', '<pad>', '<pad>', '<pad>', '<pad>']
+Prediction in tensor: 98
+Translate Prediction: -3.8210183033545158
+Tweet in tensor: [tensor(5), tensor(8283), tensor(789), tensor(14125), tensor(8), tensor(8157), tensor(11212), tensor(667), tensor(9354), tensor(1663), tensor(6231), tensor(1280), tensor(2347), tensor(9968), tensor(789), tensor(1644), tensor(3781), tensor(9955), tensor(1508), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1)]
+Translate Tweet: ['rt', 'bjaycee', 'vintage', 'sequin', 'and', 'bead', 'ivory', 'color', 'deco', 'style', 'purse', 'evening', 'bag', 'eveningbag', 'vintage', 'retro', 'etsy', 'etsymntt', 'accessories', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>']
+Prediction in tensor: 73
+Translate Prediction: -3.544146701097002
+Tweet in tensor: [tensor(117), tensor(35), tensor(18), tensor(5044), tensor(7), tensor(101), tensor(7), tensor(67), tensor(466), tensor(1611), tensor(24), tensor(18), tensor(25), tensor(12), tensor(1707), tensor(1541), tensor(9), tensor(2921), tensor(295), tensor(295), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1)]
+Translate Tweet: ['check', 'out', 'this', 'compilation', 'of', 'some', 'of', 'our', 'favorite', 'moments', 'from', 'this', 'year', 's', 'annual', 'conference', 'in', 'detroit', 'gt', 'gt', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>']
+Prediction in tensor: 10
+Translate Prediction: -1.6659346674789823
+Tweet in tensor: [tensor(2371), tensor(10), tensor(31), tensor(6), tensor(44), tensor(8516), tensor(8), tensor(44), tensor(97), tensor(8), tensor(16), tensor(169), tensor(30), tensor(534), tensor(46), tensor(10), tensor(31), tensor(6), tensor(160), tensor(54), tensor(52), tensor(4), tensor(858), tensor(2), tensor(42), tensor(1), tensor(1), tensor(1)]
+Translate Tweet: ['celcom', 'i', 'have', 'a', 'galaxy', 'buds', 'and', 'galaxy', 'watch', 'and', 'it', 'would', 'be', 'nice', 'if', 'i', 'have', 'a', 'note', '10', 'just', 'to', 'complete', 'the', 'samsung', '<pad>', '<pad>', '<pad>']
+Prediction in tensor: 1
+Translate Prediction: 0.9187144756259555
+Tweet in tensor: [tensor(377), tensor(89), tensor(96), tensor(12), tensor(6), tensor(490), tensor(320), tensor(7), tensor(6), tensor(6732), tensor(10570), tensor(124), tensor(881), tensor(1054), tensor(2898), tensor(583), tensor(7), tensor(124), tensor(4659), tensor(9059), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1)]
+Translate Tweet: ['hi', 'twitter', 'there', 's', 'a', 'tweet', 'around', 'of', 'a', 'troll', 'googling', 'xbox', 'r', 'word', 'controller', 'instead', 'of', 'xbox', 'adaptive', 'controlle', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>']
+Prediction in tensor: 3
+Translate Prediction: -10.269848435348148
+Tweet in tensor: [tensor(5), tensor(854), tensor(19), tensor(340), tensor(1214), tensor(7), tensor(18), tensor(103), tensor(54), tensor(560), tensor(109), tensor(242), tensor(145), tensor(109), tensor(94), tensor(1684), tensor(100), tensor(92), tensor(147), tensor(64), tensor(144), tensor(429), tensor(109), tensor(72), tensor(1089), tensor(64), tensor(1), tensor(1)]
+Translate Tweet: ['rt', 'censor', 'my', 'cod', 'rankings', 'of', 'this', 'decade', '10', 'infinite', 'warfare', '9', 'modern', 'warfare', '8', 'ww2', '7', 'black', 'ops', '4', '6', 'advanced', 'warfare', '5', 'ghosts', '4', '<pad>', '<pad>']
+Prediction in tensor: 12
+Translate Prediction: -1.271524552376369
+Tweet in tensor: [tensor(5), tensor(1764), tensor(10), tensor(1891), tensor(1864), tensor(9), tensor(18), tensor(260), tensor(589), tensor(278), tensor(152), tensor(121), tensor(626), tensor(3), tensor(24), tensor(791), tensor(1754), tensor(1813), tensor(4), tensor(1705), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1)]
+Translate Tweet: ['rt', 'dasucakies', 'i', 'produced', 'nakakapagpabagabag', 'in', 'this', '200', 'pentium', 'laptop', 'way', 'back', '2016', '.', 'from', 'writing', 'composing', 'illustrating', 'to', 'animatin', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>']
+Prediction in tensor: 179
+Translate Prediction: -1.3483598199832165
+Tweet in tensor: [tensor(201), tensor(212), tensor(82), tensor(422), tensor(996), tensor(140), tensor(14), tensor(1185), tensor(41), tensor(1462), tensor(114), tensor(869), tensor(2), tensor(82), tensor(10173), tensor(25), tensor(61), tensor(301), tensor(8), tensor(861), tensor(12756), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1)]
+Translate Tweet: ['great', 'news', 'us', 'president', 'donald', 'trump', 'on', 'friday', 'has', 'signed', 'into', 'law', 'the', 'us', 'fiscal', 'year', '2020', 'state', 'and', 'foreign', 'opera', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>']
+Prediction in tensor: 21
+Translate Prediction: -12.831934276610689
+Tweet in tensor: [tensor(149), tensor(2), tensor(803), tensor(358), tensor(12681), tensor(4736), tensor(126), tensor(2107), tensor(14), tensor(963), tensor(10), tensor(52), tensor(1681), tensor(5338), tensor(16), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1)]
+Translate Tweet: ['why', 'the', 'fuck', 'does', 'oddshot', 'appear', 'over', 'gifs', 'on', 'tweetdeck', 'i', 'just', 'wanna', 'expand', 'it', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>']
+Prediction in tensor: 171
+Translate Prediction: -3.7255023979696165
+Tweet in tensor: [tensor(74), tensor(12), tensor(1603), tensor(2307), tensor(396), tensor(20), tensor(784), tensor(4), tensor(2), tensor(5511), tensor(3), tensor(50), tensor(27), tensor(2968), tensor(450), tensor(69), tensor(308), tensor(114), tensor(38), tensor(7687), tensor(2364), tensor(6), tensor(16037), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1)]
+Translate Tweet: ['facebook', 's', 'mark', 'zuckerberg', 'won', 't', 'talk', 'to', 'the', 'guardian', '.', 'so', 'we', 'fed', 'everything', 'he', 'says', 'into', 'an', 'algorithm', 'built', 'a', 'zuck', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>']
+Prediction in tensor: 48
+Translate Prediction: 8.905845979216291
+Tweet in tensor: [tensor(42), tensor(1432), tensor(30), tensor(68), tensor(4), tensor(80), tensor(106), tensor(262), tensor(2456), tensor(44), tensor(2647), tensor(583), tensor(7), tensor(44), tensor(2233), tensor(3), tensor(14), tensor(37), tensor(610), tensor(6), tensor(368), tensor(508), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1), tensor(1)]
+Translate Tweet: ['samsung', 'might', 'be', 'about', 'to', 'call', 'their', 'next', 'flagship', 'galaxy', 's20', 'instead', 'of', 'galaxy', 's11', '.', 'on', 'one', 'hand', 'a', 'high', 'number', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>', '<pad>']
+[94mLearning stage finished...[0m

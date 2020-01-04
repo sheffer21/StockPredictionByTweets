@@ -1,5 +1,5 @@
 from datetime import datetime
-from Common import Constants as const
+import constants as const
 
 
 def getPostTimeFromTimeStamp(timeStamp):  # Return time in format: 'HH-MM-SS'
@@ -14,14 +14,12 @@ def getPostDateFromTimeStamp(timeStamp):  # Return date in format: 'YY-MM-DD'
 
 class Post:
 
-    def __init__(self, postId, text, timeStamp, source, companies, url, verified):
+    def __init__(self, postId, text, timeStamp, followers, companies):
         self.__p_id = postId
         self.__p_text = text
         self.__p_timeStamp = timeStamp
-        self.__p_source = source
         self.__p_companies = companies
-        self.__p_url = url
-        self.__p_verified = verified
+        self.__p_followers = followers
         self.__p_date = getPostDateFromTimeStamp(timeStamp)
         self.__p_time = getPostTimeFromTimeStamp(timeStamp)
         self.__p_post_stocks_info = {}
@@ -56,14 +54,10 @@ class Post:
 
     @property
     def description(self):
-        postDescription = "Post id: {},\n" \
-                          "\t text: {},\n" \
-                          "\t date: {},\n" \
-                          "\t source: {},\n" \
-                          "\t url: {},\n" \
-                          "\t verified: {},\n" \
-                          "".format(self.__p_id, self.__p_text, self.__p_timeStamp, self.__p_source,
-                                    self.__p_url, self.__p_verified)
+        postDescription = f"Post id: {self.__p_id},\n" \
+                          f"\t text: {self.__p_text},\n" \
+                          f"\t date: {self.__p_timeStamp},\n" \
+                          f"\t user followers: {self.__p_followers},\n"
 
         companiesDescription = "This post is associated with the following companies:\n"
 

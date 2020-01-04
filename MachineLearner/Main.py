@@ -1,14 +1,14 @@
-import Common.Constants as const
-from Common.Logger import Logger as Log
-from MachineLearner import NumericRepresentationService
+import constants as const
+from logger import Logger as Log
+import NumericRepresentationService
 
 
-def main(outsourcedLogger=None):
+def main(outSourcedLogger=None):
 
-    if outsourcedLogger is None:
+    if outSourcedLogger is None:
         logger = Log()
     else:
-        logger = outsourcedLogger
+        logger = outSourcedLogger
 
     logger.printAndLog(const.MessageType.Summarize, "Starting machine learning algorithms...")
     numericRepresentationService = NumericRepresentationService.NumericRepresentationService(logger)
