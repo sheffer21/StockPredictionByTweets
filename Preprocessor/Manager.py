@@ -1,34 +1,35 @@
 import os
 from datetime import datetime, timedelta
-from Common import Constants as const
+import constants as const
 import yfinance as yf
-from Preprocessor.Company import Company
-from Preprocessor.Post import Post
-from Preprocessor.StockInfo import StockInfo
-from Preprocessor.Statistics import Statistics
+from Company import Company
+from Post import Post
+from StockInfo import StockInfo
+from Statistics import Statistics
 import pandas as pd
 from sklearn.model_selection import train_test_split
 
 
 class PreProcessor:
     postsList = []
-    initialDatabase = {}
+    initialDatabase = pd.DataFrame()
     companiesDict = {}
     failedSymbolsImports = pd.DataFrame(columns=['company', 'symbol', 'from', 'to'])
     finalDatabase = pd.DataFrame(columns=[const.PREDICTION_COLUMN, const.TEXT_COLUMN])
     statistics = Statistics(datetime.now())
-    dirname = os.path.dirname(__file__)
+    dirName = os.path.dirname(__file__)
 
     def __init__(self, logger):
-        if not os.path.isdir(os.path.join(PreProcessor.dirname, const.stocksBasePath)):
-            os.mkdir(os.path.join(PreProcessor.dirname, const.stocksBasePath))
+        if not os.path.isdir(os.path.join(PreProcessor.dirName, const.stocksBasePath)):
+            os.mkdir(os.path.join(PreProcessor.dirName, const.stocksBasePath))
 
         self.logger = logger
 
     @staticmethod
     def openAndPrepareRawDatabase():
-        originalDatabasePath = os.path.join(PreProcessor.dirname, const.originalDatabasePath)
-        PreProcessor.initialDatabase = pd.read_csv(originalDatabasePath)
+        databasePath = os.path.join(
+            PreProcessor.dirName, f"{const.databaseLocationPath}/{const.twitterCrawlerMergedFilesName}")
+        PreProcessor.initialDatabase = pd.read_csv(databasePath)
 
     @staticmethod
     def exportDataFrame(dataFrame, exportPath):
@@ -76,10 +77,11 @@ class PreProcessor:
                 break
 
     def printDelimiter(self):
-        self.logger.printAndLog(const.MessageType.Regular, "-----------------------------------------------------------")
+        self.logger.printAndLog(const.MessageType.Regular,
+                                "-----------------------------------------------------------")
 
     def printAndExportFailedImports(self):
-        failedImportsDirectory = os.path.join(PreProcessor.dirname, const.failedImportsPath)
+        failedImportsDirectory = os.path.join(PreProcessor.dirName, const.failedImportsPath)
         if not os.path.isdir(failedImportsDirectory):
             os.mkdir(failedImportsDirectory)
 
@@ -96,7 +98,7 @@ class PreProcessor:
     # noinspection PyBroadException
     def getPostStocksFilePath(self, companyName, stockSymbol, infoStartDate, infoEndDate):
         filePath = "{}/{}_{}_{}.{}".format(const.stocksBasePath, stockSymbol, infoStartDate, infoEndDate, "csv")
-        filePath = os.path.join(PreProcessor.dirname, filePath)
+        filePath = os.path.join(PreProcessor.dirName, filePath)
 
         if not os.path.isfile(filePath):
             PreProcessor.statistics.increaseTotalImportCount()
@@ -136,17 +138,15 @@ class PreProcessor:
 
     # noinspection PyTypeChecker
     def prepareLocalDatabase(self):
-        for databaseRow in PreProcessor.initialDatabase.values:
+        for idx, databaseRow in PreProcessor.initialDatabase.iterrows():
 
             # Update after database changes
-            postId = databaseRow[const.POST_ID_COLUMN]
-            postText = databaseRow[const.POST_TEXT_COLUMN]
-            postTimestamp = databaseRow[const.POST_TIMESTAMP_COLUMN]
-            postSource = databaseRow[const.POST_SOURCE_COLUMN]
-            postSymbols = databaseRow[const.POST_SYMBOLS_COLUMN]
-            postCompany = databaseRow[const.POST_COMPANY_COLUMN]
-            postUrl = databaseRow[const.POST_URL_COLUMN]
-            postVerified = databaseRow[const.POST_VERIFIED_COLUMN]
+            postId = databaseRow[const.ID_COLUMN]
+            postText = databaseRow[const.TEXT_COLUMN]
+            postDate = databaseRow[const.DATE_COLUMN]
+            postUserFollowers = databaseRow[const.USER_FOLLOWERS_COLUMN]
+            postSymbols = databaseRow[const.STOCK_SYMBOL_COLUMN]
+            postCompany = databaseRow[const.COMPANY_COLUMN]
 
             postCompaniesList = []
             postSymbolsParsed = postSymbols.split('-')
@@ -157,7 +157,7 @@ class PreProcessor:
                 postCompaniesList.append(newCompany)
                 self.companiesDict[postSymbolsParsed[companiesArrayIndex]] = postCompaniesParsed[companiesArrayIndex]
 
-            newPost = Post(postId, postText, postTimestamp, postSource, postCompaniesList, postUrl, postVerified)
+            newPost = Post(postId, postText, postDate, postUserFollowers, postCompaniesList)
 
             self.postsList.append(newPost)
 
@@ -169,32 +169,33 @@ class PreProcessor:
             postDateEnd = self.getEndDate(post.date)
 
             for company in postCompanies:
-                # Fetch database for each company the post effected on
-                stockFilePath = self.getPostStocksFilePath(company.name,
-                                                           company.stockSymbol,
-                                                           postDateStart,
-                                                           postDateEnd)
+                for symbol in self.GetCompanySymbols(company):
+                    # Fetch database for each company the post effected on
+                    stockFilePath = self.getPostStocksFilePath(company.name,
+                                                               symbol,
+                                                               postDateStart,
+                                                               postDateEnd)
 
-                if not stockFilePath == "":
-                    newStockInfo = StockInfo(company.name,
-                                             company.stockSymbol,
-                                             post.date,
-                                             postDateStart,
-                                             postDateEnd,
-                                             stockFilePath)
+                    if not stockFilePath == "":
+                        newStockInfo = StockInfo(company.name,
+                                                 company.stockSymbol,
+                                                 post.date,
+                                                 postDateStart,
+                                                 postDateEnd,
+                                                 stockFilePath)
 
-                    post.addStockInfo(company.stockSymbol, newStockInfo)
-                    self.logger.printAndLog(const.MessageType.Regular,
-                                            "Saved stock info for symbol: {}.".format(company.stockSymbol))
-                else:
-                    self.logger.printAndLog(const.MessageType.Error,
-                                            "Could not save stock info for symbol: {}.".format(company.stockSymbol))
+                        post.addStockInfo(company.stockSymbol, newStockInfo)
+                        self.logger.printAndLog(const.MessageType.Regular,
+                                                "Saved stock info for symbol: {}.".format(company.stockSymbol))
+                    else:
+                        self.logger.printAndLog(const.MessageType.Error,
+                                                "Could not save stock info for symbol: {}.".format(company.stockSymbol))
 
-                if PreProcessor.statistics.totalImportCount == const.maxImportsAtOnce:
-                    break
+                    # if PreProcessor.statistics.totalImportCount == const.maxImportsAtOnce:
+                    #     break
 
-            if PreProcessor.statistics.totalImportCount == const.maxImportsAtOnce:
-                break
+            # if PreProcessor.statistics.totalImportCount == const.maxImportsAtOnce:
+            #    break
 
         self.logger.printAndLog(const.MessageType.Summarize, "Import done. {} passed out of {}.".format(
             PreProcessor.statistics.successfulImportCount,
@@ -216,7 +217,7 @@ class PreProcessor:
     def saveSplitDataBaseToCsv():
         train, test = train_test_split(PreProcessor.finalDatabase, test_size=0.2, random_state=42)
 
-        databaseDirectory = os.path.join(PreProcessor.dirname, const.finalDatabaseFolder)
+        databaseDirectory = os.path.join(PreProcessor.dirName, const.finalDatabaseFolder)
         if not os.path.isdir(databaseDirectory):
             os.mkdir(databaseDirectory)
 
@@ -235,3 +236,6 @@ class PreProcessor:
              for stockInfo in post.stocksInfo.values()], ignore_index=True)
 
         PreProcessor.saveSplitDataBaseToCsv()
+
+    def GetCompanySymbols(self, company):
+        return company.stockSymbol.split(", ")
