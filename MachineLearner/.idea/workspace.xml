@@ -2,19 +2,23 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="1e29b1d2-b6d7-4f21-9e93-28d3e178e893" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/../TwitterCrawler/DataBaseStatistics.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Databases/Database/test_tweets.csv" beforeDir="false" afterPath="$PROJECT_DIR$/../Databases/Database/test_tweets.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Databases/Database/train_tweets.csv" beforeDir="false" afterPath="$PROJECT_DIR$/../Databases/Database/train_tweets.csv" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../Databases/Tweets/Tweets-Merged.csv" beforeDir="false" afterPath="$PROJECT_DIR$/../Databases/Tweets/Tweets-Merged.csv" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/MachineLearner.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/MachineLearner.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Databases/Tweets/Tweets-TrailData.csv" beforeDir="false" afterPath="$PROJECT_DIR$/../Databases/Tweets/Tweets-TrailData.csv" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Main.py" beforeDir="false" afterPath="$PROJECT_DIR$/Main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/NumericRepresentationService.py" beforeDir="false" afterPath="$PROJECT_DIR$/NumericRepresentationService.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Preprocessor/.idea/Initializer.iml" beforeDir="false" afterPath="$PROJECT_DIR$/../Preprocessor/.idea/Initializer.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Preprocessor/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../Preprocessor/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../Preprocessor/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../Preprocessor/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../TwitterCrawler/.idea/inspectionProfiles/Project_Default.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../TwitterCrawler/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Preprocessor/Main.py" beforeDir="false" afterPath="$PROJECT_DIR$/../Preprocessor/Main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Preprocessor/Manager.py" beforeDir="false" afterPath="$PROJECT_DIR$/../Preprocessor/Manager.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Preprocessor/Post.py" beforeDir="false" afterPath="$PROJECT_DIR$/../Preprocessor/Post.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Preprocessor/StockInfo.py" beforeDir="false" afterPath="$PROJECT_DIR$/../Preprocessor/StockInfo.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../TwitterCrawler/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../TwitterCrawler/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../TwitterCrawler/DataBaseOperationsService.py" beforeDir="false" afterPath="$PROJECT_DIR$/../TwitterCrawler/DataBaseOperationsService.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../TwitterCrawler/TwitterCrawler.py" beforeDir="false" afterPath="$PROJECT_DIR$/../TwitterCrawler/TwitterCrawler.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../TwitterCrawler/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/../TwitterCrawler/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../TwitterCrawler/DataBaseStatistics.py" beforeDir="false" afterPath="$PROJECT_DIR$/../TwitterCrawler/DataBaseStatistics.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../common/constants.py" beforeDir="false" afterPath="$PROJECT_DIR$/../common/constants.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -24,10 +28,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/NumericRepresentationService.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state>
+            <state relative-caret-position="418">
+              <caret line="82" column="28" lean-forward="true" selection-start-line="82" selection-start-column="28" selection-end-line="82" selection-end-column="28" />
               <folding>
                 <element signature="e#0#12#0" expanded="true" />
               </folding>
@@ -35,10 +40,19 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/../common/constants.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="308">
+              <caret line="14" selection-start-line="14" selection-end-line="14" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Main.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="286">
+            <state relative-caret-position="242">
               <caret line="13" column="96" selection-start-line="13" selection-start-column="96" selection-end-line="13" selection-end-column="96" />
               <folding>
                 <element signature="e#0#25#0" expanded="true" />
@@ -56,13 +70,14 @@
     <option name="CHANGED_PATHS">
       <list>
         <option value="$PROJECT_DIR$/Main.py" />
+        <option value="$PROJECT_DIR$/NumericRepresentationService.py" />
       </list>
     </option>
   </component>
   <component name="ProjectFrameBounds" extendedState="6">
     <option name="x" value="-10" />
     <option name="y" value="-10" />
-    <option name="width" value="1939" />
+    <option name="width" value="1940" />
     <option name="height" value="1050" />
   </component>
   <component name="ProjectId" id="1VZnNuXUYvv75CHbglCi52dQDqG" />
@@ -93,7 +108,7 @@
   </component>
   <component name="PropertiesComponent">
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../TwitterCrawler" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PythonContentEntriesConfigurable" />
   </component>
   <component name="RunDashboard">
@@ -145,15 +160,16 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-7" y="-7" width="1550" height="838" extended-state="6" />
+    <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
+    <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.31241745" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.24341412" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
-      <window_info anchor="bottom" id="Find" order="1" />
-      <window_info anchor="bottom" id="Run" order="2" />
-      <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
+      <window_info active="true" anchor="bottom" id="Find" order="1" visible="true" weight="0.32956153" />
+      <window_info anchor="bottom" id="Run" order="2" weight="0.32936078" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.36916548" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" />
@@ -166,19 +182,47 @@
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
     </layout>
   </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/NumericRepresentationService.py</url>
+          <line>64</line>
+          <option name="timeStamp" value="1" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+  </component>
+  <component name="debuggerHistoryManager">
+    <expressions id="evaluateExpression">
+      <expression>
+        <expression-string>len(batch.Tweet)</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+    </expressions>
+  </component>
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/NumericRepresentationService.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state>
+        <state relative-caret-position="418">
+          <caret line="82" column="28" lean-forward="true" selection-start-line="82" selection-start-column="28" selection-end-line="82" selection-end-column="28" />
           <folding>
             <element signature="e#0#12#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/../common/constants.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="308">
+          <caret line="14" selection-start-line="14" selection-end-line="14" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/Main.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="286">
+        <state relative-caret-position="242">
           <caret line="13" column="96" selection-start-line="13" selection-start-column="96" selection-end-line="13" selection-end-column="96" />
           <folding>
             <element signature="e#0#25#0" expanded="true" />

@@ -1,0 +1,38 @@
+[94mStarting pre data processing...[0m
+[95mLoading Databases files...[0m
+[95mBuilding local Databases...[0m
+[95mImporting Stocks Databases and analyzing Stocks...[0m
+Saved stock info for symbol: GOOG, GOOGL.
+Saved stock info for symbol: GOOG, GOOGL.
+Saved stock info for symbol: GOOG, GOOGL.
+Saved stock info for symbol: GOOG, GOOGL.
+Import tries count: 1
+Fetching data for company: Google,
+ 	 with stock symbol: GOOG,
+	 from date: 2019-12-02,
+	 to date: 2020-01-31, 
+[92mFetching succeeded, saving to file: C:\ProjectA\StockPredictionByTweets\Preprocessor\../Databases/Stocks/GOOG_2019-12-02_2020-01-31.csv[0m
+-----------------------------------------------------------
+Saved stock info for symbol: GOOG, GOOGL.
+Import tries count: 2
+Fetching data for company: Google,
+ 	 with stock symbol: GOOGL,
+	 from date: 2019-12-02,
+	 to date: 2020-01-31, 
+[92mFetching succeeded, saving to file: C:\ProjectA\StockPredictionByTweets\Preprocessor\../Databases/Stocks/GOOGL_2019-12-02_2020-01-31.csv[0m
+-----------------------------------------------------------
+Saved stock info for symbol: GOOG, GOOGL.
+Saved stock info for symbol: GOOG, GOOGL.
+Saved stock info for symbol: GOOG, GOOGL.
+Saved stock info for symbol: GOOG, GOOGL.
+Saved stock info for symbol: GOOG, GOOGL.
+Saved stock info for symbol: GOOG, GOOGL.
+Saved stock info for symbol: GOOG, GOOGL.
+Saved stock info for symbol: GOOG, GOOGL.
+Saved stock info for symbol: GOOG, GOOGL.
+Saved stock info for symbol: GOOG, GOOGL.
+Saved stock info for symbol: GOOG, GOOGL.
+Saved stock info for symbol: GOOG, GOOGL.
+Saved stock info for symbol: GOOG, GOOGL.
+Saved stock info for symbol: GOOG, GOOGL.
+Saved stock info for symbol: GOOG, GOOGL.

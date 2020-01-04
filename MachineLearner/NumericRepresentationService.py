@@ -1,7 +1,7 @@
 import torch
 import torchtext.vocab
 import spacy
-from Common import Constants as const
+import constants as const
 import re
 
 
@@ -88,14 +88,15 @@ class NumericRepresentationService:
             count += 1
 
             for tweet_index in range(len(batch.Tweet)):
-                self.logger.printAndLog(f'Prediction in tensor: {batch.Prediction[tweet_index]}')
+                self.logger.printAndLog(const.MessageType.Regular.value,
+                                        f'Prediction in tensor: {batch.Prediction[tweet_index]}')
                 prediction_tensor = batch.Prediction[tweet_index].item()
                 prediction = self.Label.vocab.itos[prediction_tensor]
-                self.logger.printAndLog(f'Translate Prediction: '
+                self.logger.printAndLog(const.MessageType.Regular.value, f'Translate Prediction: '
                                         f'{prediction}')
                 tweet = self.getTweetFromBatch(batch.Tweet, tweet_index)
-                self.logger.printAndLog(f'Tweet in tensor: {tweet}')
-                self.logger.printAndLog(f'Translate Tweet: '
+                self.logger.printAndLog(const.MessageType.Regular.value, f'Tweet in tensor: {tweet}')
+                self.logger.printAndLog(const.MessageType.Regular.value, f'Translate Tweet: '
                                         f'{self.translateVectorFromNumeric(tweet, self.Text.vocab)}')
 
     @staticmethod

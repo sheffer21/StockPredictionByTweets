@@ -3,8 +3,8 @@ import enum
 # Global configurations
 logsDirectory = "Log"
 logNamePrefix = "messages_"
-originalDatabasePath = "../Databases/stockerbot-export.csv"
-databaseDateFormat = "%a %b %d %H:%M:%S +0000 %Y"
+databaseLocationPath = "../Databases/Tweets/"
+databaseDateFormat = "%Y-%m-%d %H:%M:%S"
 stocksBasePath = "../Databases/Stocks"
 failedImportsPath = "../Databases/Stocks/FailedImports"
 failedImportsFileName = "failedImports"
@@ -43,24 +43,18 @@ PREDICTION_COLUMN = "Prediction"
 COMPANY_KEYWORDS_COLUMN = "Keywords"
 COMPANY_POSSIBLE_KEYWORDS_COLUMN = "Possible Keywords"
 
-POST_ID_COLUMN = 0
-POST_TEXT_COLUMN = 1
-POST_TIMESTAMP_COLUMN = 2
-POST_SOURCE_COLUMN = 3
-POST_SYMBOLS_COLUMN = 4
-POST_COMPANY_COLUMN = 5
-POST_URL_COLUMN = 6
-POST_VERIFIED_COLUMN = 7
-
 # Twitter crawler configurations
 twitterCrawlerDataBaseDir = "../Databases/Tweets/"
 twitterCrawlerMergedFilesName = "Tweets-Merged.csv"
 twitterCrawlerTrailDataFilesName = "Tweets-TrailData.csv"
 twitterCrawlerFilesPrefix = "Tweets-"
+twitterCrawlerStatisticsFolder = "Statistics"
+twitterCrawlerCompaniesStatistics = "TweetsByCompany.png"
+twitterCrawlerPossibleKeywordsStatistics = "TweetsByPossibleKeywords.png"
 
 # Pre processing configurations
 printPostsLimit = 10  # For debugging
-printCompaniesLimit = 10  # For debugging
+printCompaniesLimit = 20  # For debugging
 maxImportsAtOnce = 10
 importDaysBeforePostDate = 30
 importDaysAfterPostDate = 30

@@ -28,7 +28,7 @@ class DataBaseStatistics:
         for item in (ax.get_xticklabels()):
             item.set_fontsize(9)
 
-        plt.show()
+        self.SavePlotToFile(const.twitterCrawlerCompaniesStatistics)
 
     def PublishDataBaseCompaniesKeywordsGraph(self):
         self.logger.printAndLog(const.MessageType.Regular.value, "Plotting crawler companies keywords statistics...")
@@ -57,7 +57,13 @@ class DataBaseStatistics:
         for item in (ax.get_xticklabels()):
             item.set_fontsize(9)
 
-        plt.show()
+        self.SavePlotToFile(const.twitterCrawlerPossibleKeywordsStatistics)
+
+    def SavePlotToFile(self, plotPath):
+        figure = plt.gcf()  # get current figure
+        figure.set_size_inches(18, 10)
+        plt.savefig(f"{const.twitterCrawlerStatisticsFolder}/{plotPath}", dpi=500)
+        self.logger.printAndLog(const.MessageType.Regular.value, f"Saved plot {plotPath}")
 
     @staticmethod
     def autoLabel(rect, ax):
@@ -121,4 +127,3 @@ class DataBaseStatistics:
                     company[const.COMPANY_POSSIBLE_KEYWORDS_COLUMN].split(", ")
 
         return companies, keywords, possibleKeywords
-

@@ -4,7 +4,7 @@ import os
 
 import matplotlib.pyplot as plt
 import numpy as np
-from Common import Constants as const
+import constants as const
 
 
 def ListToFormattedString(alist):
@@ -62,8 +62,8 @@ class StockInfo:
         self.calculateDeviations()
         self.calculateTag()
 
-        self.createPlotByColumnNames("Values", ["Open", "Close"], "yes")
-        self.createPlotByColumnNames("Change", ["Close"], "yes")
+        # self.createPlotByColumnNames("Values", ["Open", "Close"], "yes")
+        # self.createPlotByColumnNames("Change", ["Close"], "yes")
 
     @property
     def stockTag(self):
