@@ -119,8 +119,13 @@ class DataBaseStatistics:
         companies = []
         for idx, company in companiesData.iterrows():
             companies.append(company[const.COMPANY_COLUMN])
+            key = []
             if not pd.isnull(company[const.COMPANY_KEYWORDS_COLUMN]):
-                keywords[company[const.COMPANY_COLUMN]] = company[const.COMPANY_KEYWORDS_COLUMN].split(", ")
+                key.extend(company[const.COMPANY_KEYWORDS_COLUMN].split(", "))
+            if not pd.isnull(company[const.STOCK_SYMBOL_COLUMN]):
+                key.extend(company[const.STOCK_SYMBOL_COLUMN].split(", "))
+
+            keywords[company[const.COMPANY_COLUMN]] = key
 
             if not pd.isnull(company[const.COMPANY_POSSIBLE_KEYWORDS_COLUMN]):
                 possibleKeywords[company[const.COMPANY_COLUMN]] = \
