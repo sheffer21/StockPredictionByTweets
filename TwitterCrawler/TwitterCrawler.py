@@ -173,6 +173,7 @@ class TwitterCrawler:
         keywords = [company[const.COMPANY_COLUMN]]
 
         TwitterCrawler.ExtendList(keywords, company[const.COMPANY_KEYWORDS_COLUMN])
+        TwitterCrawler.ExtendList(keywords, company[const.STOCK_SYMBOL_COLUMN])
         TwitterCrawler.ExtendList(keywords, company[const.COMPANY_POSSIBLE_KEYWORDS_COLUMN])
 
         return keywords
