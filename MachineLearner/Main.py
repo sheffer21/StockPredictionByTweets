@@ -1,6 +1,7 @@
-import constants as const
-from logger import Logger as Log
-import NumericRepresentationService
+import common.constants as const
+from common.logger import Logger as Log
+from MachineLearner.NumericRepresentationService import NumericRepresentationService
+from MachineLearner.ModelTrainer import ModelTrainer
 
 
 def main(outSourcedLogger=None):
@@ -11,11 +12,16 @@ def main(outSourcedLogger=None):
         logger = outSourcedLogger
 
     logger.printAndLog(const.MessageType.Summarize, "Starting machine learning algorithms...")
-    numericRepresentationService = NumericRepresentationService.NumericRepresentationService(logger)
 
-    # NLP database process
-    logger.printAndLog(const.MessageType.Header, "Exporting data to numeric representation...")
-    train_iterator, test_iterator = numericRepresentationService.getNumericRepresentationOfFinalData()
+    # Perform word embedding
+    # numericRepresentationService = NumericRepresentationService(logger)
+    # train_iterator, test_iterator, vocab_size, prediction_vocab_size \
+    #    = numericRepresentationService.getNumericRepresentationOfFinalData()
+
+    # Train the model
+    model = ModelTrainer(logger)
+    model.Train()
+    model.Test()
 
     # Done
     logger.printAndLog(const.MessageType.Summarize, "Learning stage finished...")
