@@ -1,7 +1,7 @@
 import torch
 import torchtext.vocab
 import spacy
-import constants as const
+import common.constants as const
 import re
 
 
@@ -29,18 +29,21 @@ class NumericRepresentationService:
         self.logger.printAndLog(const.MessageType.Regular, f"Converting final data base to numeric representation...")
 
         # Defines a data type together with instructions for converting to Tensor.
-        self.Text = torchtext.data.Field(tokenize=self.tokenizer)
-        self.Label = torchtext.data.LabelField(dtype=torch.int)
+        self.Text = torchtext.data.Field(tokenize=self.tokenizer, dtype=torch.int64)
+        self.Label = torchtext.data.LabelField(dtype=torch.int64)
 
-        # Load data from csv
         data_fields = [(const.PREDICTION_COLUMN, self.Label),
                        (const.TEXT_COLUMN, self.Text)]
+
         train, test = torchtext.data.TabularDataset.splits(path=const.finalDatabaseFolder,
-                                                           train=const.trainFile,
-                                                           test=const.testFile,
+                                                           train=const.trainFileDebug,
+                                                           # train=const.trainFile,
+                                                           test=const.testFileDebug,
+                                                           # test=const.testFile,
                                                            format='csv',
                                                            skip_header=True,
                                                            fields=data_fields)
+
         self.logger.printAndLog(const.MessageType.Regular, f'Number of training examples: {len(train)}')
         self.logger.printAndLog(const.MessageType.Regular, f'Number of testing examples: {len(test)}')
         self.logger.printAndLog(const.MessageType.Regular, f'Train example: {train.examples[0].Tweet}')
@@ -50,7 +53,9 @@ class NumericRepresentationService:
         # using torch.Tensor.normal (word mean and standard deviation)
         self.Text.build_vocab(train, max_size=25000, vectors="glove.6B.100d", unk_init=torch.Tensor.normal_)
         self.Label.build_vocab(train)
-        self.logger.printAndLog(const.MessageType.Regular, f"Pre trained embedding size{self.Text.vocab.vectors.shape}")
+        vocab_size = len(self.Text.vocab.vectors)
+        prediction_vocab_size = len(self.Label.vocab)
+        self.logger.printAndLog(const.MessageType.Regular, f"Pre trained embedding size{vocab_size}")
         self.logger.printAndLog(const.MessageType.Regular,
                                 f'Most frequent word in vocabulary: {self.Text.vocab.freqs.most_common(10)}')
 
@@ -63,7 +68,7 @@ class NumericRepresentationService:
             sort_within_batch=False)
 
         self.printDataBase(train_iterator, 1)
-        return train_iterator, test_iterator
+        return train_iterator, test_iterator, vocab_size, prediction_vocab_size
 
     # Clean text, tokenize with nlp and return with lower case characters
     @staticmethod
@@ -93,11 +98,11 @@ class NumericRepresentationService:
                 prediction_tensor = batch.Prediction[tweet_index].item()
                 prediction = self.Label.vocab.itos[prediction_tensor]
                 self.logger.printAndLog(const.MessageType.Regular.value, f'Translate Prediction: '
-                                        f'{prediction}')
+                                                                         f'{prediction}')
                 tweet = self.getTweetFromBatch(batch.Tweet, tweet_index)
                 self.logger.printAndLog(const.MessageType.Regular.value, f'Tweet in tensor: {tweet}')
                 self.logger.printAndLog(const.MessageType.Regular.value, f'Translate Tweet: '
-                                        f'{self.translateVectorFromNumeric(tweet, self.Text.vocab)}')
+                                                                         f'{self.translateVectorFromNumeric(tweet, self.Text.vocab)}')
 
     @staticmethod
     def getTweetFromBatch(batch, tweet_index):
