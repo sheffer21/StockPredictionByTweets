@@ -14,6 +14,8 @@ companiesPath = '../Databases/Companies.csv'
 finalDatabaseFolder = "../Databases/Database/"
 trainFile = "train_tweets.csv"
 testFile = "test_tweets.csv"
+trainFileDebug = "train_tweetsDebug.csv"
+testFileDebug = "test_tweetsDebug.csv"
 
 # Data base column names
 
