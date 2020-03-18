@@ -3,6 +3,7 @@ from TwitterCrawler.DataBaseOperationsService import DataBaseOperationsService a
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
+import os
 
 
 class DataBaseStatistics:
@@ -62,6 +63,9 @@ class DataBaseStatistics:
     def SavePlotToFile(self, plotPath):
         figure = plt.gcf()  # get current figure
         figure.set_size_inches(18, 10)
+        if not os.path.exists(const.twitterCrawlerStatisticsFolder):
+            os.makedirs(const.twitterCrawlerStatisticsFolder)
+
         plt.savefig(f"{const.twitterCrawlerStatisticsFolder}/{plotPath}", dpi=500)
         self.logger.printAndLog(const.MessageType.Regular.value, f"Saved plot {plotPath}")
 

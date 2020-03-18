@@ -185,8 +185,8 @@ class PreProcessor:
                                                  stockFilePath)
 
                         post.addStockInfo(company.stockSymbol, newStockInfo)
-                        self.logger.printAndLog(const.MessageType.Regular,
-                                                "Saved stock info for symbol: {}.".format(company.stockSymbol))
+                        # self.logger.printAndLog(const.MessageType.Regular,
+                        #                        "Saved stock info for symbol: {}.".format(company.stockSymbol))
                     else:
                         self.logger.printAndLog(const.MessageType.Error,
                                                 "Could not save stock info for symbol: {}.".format(company.stockSymbol))
