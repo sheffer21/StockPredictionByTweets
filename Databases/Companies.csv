@@ -1,0 +1,21 @@
+Company,Stock Symbol,Keywords,Possible Keywords
+Google,"GOOG, GOOGL","Chrome, Fiber, Google Maps, Google Docs, Google Analytics, Google AdWords, Google Drive","Maps, Docs, Drive"
+Microsoft,MSFT,"Internet Explorer, Microsoft Office, Xbox 360, Visual Studio, Xbox, XP, Vista, Microsoft Windows 7, Microsoft Windows 8, Microsoft Windows 10, Azure","Office, Windows, Windows 7, Windows 8, Windows 10, Bing"
+Intel,INTC,"Pentium, Intel Inside, Intel SSD, Core 2 Duo, Mobileye, Core I9, Core I7, Core I5, Core I5, Intel Celeron",Celeron
+Adobe,ADBE,"Photoshop, Adobe Illustrator, Adobe InDesign, Adobe Acrobat, Adobe Flash, Dreamweaver","Illustrator, InDesign, Flash"
+Apple,AAPL,"Apple Watch, IPhone,  Apple TV, iPad, Macintosh, iOS, IPod, HomePod, macOS",
+Amazon,AMZN,"Amazon Prime, Amazon Garage",Prime
+Facebook,FB,"Facebook Messenger,  Whatsapp, Instagram",Messenger
+Twitter,TWTR,"Tweets, Tweetbot, TweetDeck",
+Ebay,EBAY,"eBay Deal Finder,  eBay MapIt",
+Qualcomm,QCOM,"Snapdragon,  Qualcomm Semiconductors ",
+Samsung,005930.KS,"Samsung Galaxy, Galaxy S10, Galaxy S9, Galaxy S8, Galaxy S7, Samsung TV, Note 10, Samsung SSD, Galaxy Nexus, Galaxy Note, Galaxy Fold",Galaxy
+Activision,ATVI,"Blood Stone, Angry Birds, Band Hero, Blade 2, Call of Duty, Call of Duty 2, Call of Duty 3, Call of Duty Black Ops","The Amazing Spider-Man, The Amazing Spider-Man 2, Legends, Animal Planet, Battleship, Blade, Modern Warfare, Advanced Warfare, Infinite Warfare, Black Ops"
+Alibaba,BABA,AliExpress,
+Johnson & Johnson,JNJ,"Acuvue, Band-Aid, Aveeno, Bactidol, Benadryl, Bengay, Complera, Remicade, Stelara",
+JPMorgan,JPM,,
+WalMart,WMT,,
+Visa,V,,
+AT&T,T,AT&T Wireless,
+Home Depot,HD,"Chem-Dry, Behr paints, Homelite, Martha Stewart Living Omnimedia, Ryobi and Ridgid, American Woodmark cabinetry",
+Verizon,VZ,,
