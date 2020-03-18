@@ -1,2 +1,14 @@
 MachineLearner/.vector_cache
 MainProgram/.vector_cache
+Databases/Tweets/
+TwitterCrawler/__pycache__/
+TwitterCrawler/__pycache__/main.cpython-37.pyc
+TwitterCrawler/__pycache__/TwitterCrawler.cpython-37.pyc
+.vector_cache/
+MainProgram/Log/
+MainProgram/cola_public
+MainProgram/cola_public_1.1.zip
+TwitterCrawler/Log/
+TwitterCrawler/Statistics/
+databases/Database/
+databases/
