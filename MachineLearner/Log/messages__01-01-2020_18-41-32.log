@@ -1,9 +1,0 @@
-[94mStarting machine learning algorithms...[0m
-Glove data base size: 400000
-[95mExporting data to numeric representation...[0m
-Converting final data base to numeric representation...
-Number of training examples: 6
-Number of testing examples: 2
-Train example: ['video', 'i', 'was', 'in', 'my', 'office', '.', 'i', 'was', 'minding', 'my', 'own', 'david', 'solomon', 'tells', 'gs', 'interns', 'how', 'he', 'learned', 'he', 'wa']
-Pre trained embedding sizetorch.Size([58, 100])
-Most frequent word in vocabulary: [('s', 4), ('.', 3), ('david', 3), ('i', 2), ('was', 2), ('my', 2), ('how', 2), ('he', 2), ('the', 2), ('realmoney', 2)]

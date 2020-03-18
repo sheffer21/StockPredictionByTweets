@@ -1,9 +1,9 @@
 import tweepy
 import pandas as pd
 from datetime import datetime
-import constants as const
+from common import constants as const
 import os
-from DataBaseOperationsService import DataBaseOperationsService as operations
+from TwitterCrawler.DataBaseOperationsService import DataBaseOperationsService as operations
 
 
 class TwitterCrawler:
@@ -173,6 +173,7 @@ class TwitterCrawler:
         keywords = [company[const.COMPANY_COLUMN]]
 
         TwitterCrawler.ExtendList(keywords, company[const.COMPANY_KEYWORDS_COLUMN])
+        TwitterCrawler.ExtendList(keywords, company[const.STOCK_SYMBOL_COLUMN])
         TwitterCrawler.ExtendList(keywords, company[const.COMPANY_POSSIBLE_KEYWORDS_COLUMN])
 
         return keywords

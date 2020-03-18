@@ -4,7 +4,7 @@ import os
 
 import matplotlib.pyplot as plt
 import numpy as np
-import constants as const
+from common import constants as const
 
 
 def ListToFormattedString(alist):
