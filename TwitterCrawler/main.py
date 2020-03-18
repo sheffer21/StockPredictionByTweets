@@ -1,6 +1,6 @@
-from common import logger as Logger
+from common import logger as Log
 from common import constants as const
-from TwitterCrawler import TwitterCrawler
+from TwitterCrawler.TwitterCrawler import TwitterCrawler
 from TwitterCrawler.DataBaseOperationsService import DataBaseOperationsService
 from TwitterCrawler.DataBaseStatistics import DataBaseStatistics
 

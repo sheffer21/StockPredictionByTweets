@@ -1,6 +1,6 @@
-import Preprocessor.Manager
-from common import logger as Logger
-from common import constants as const
+import Preprocessor.Manager as Manager
+from common.logger import Logger
+import common.constants as const
 
 
 def main(outsourcedLogger=None):

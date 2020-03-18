@@ -48,7 +48,7 @@ twitterCrawlerDataBaseDir = "../Databases/Tweets/"
 twitterCrawlerMergedFilesName = "Tweets-Merged.csv"
 twitterCrawlerTrailDataFilesName = "Tweets-TrailData.csv"
 twitterCrawlerFilesPrefix = "Tweets-"
-twitterCrawlerStatisticsFolder = "Statistics"
+twitterCrawlerStatisticsFolder = "../TwitterCrawler/Statistics"
 twitterCrawlerCompaniesStatistics = "TweetsByCompany.png"
 twitterCrawlerPossibleKeywordsStatistics = "TweetsByPossibleKeywords.png"
 
