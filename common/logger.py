@@ -1,7 +1,7 @@
 from datetime import datetime
 import os
 import sys
-import constants as const
+from common import constants as const
 
 
 class Logger:

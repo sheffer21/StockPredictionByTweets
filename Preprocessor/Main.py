@@ -1,12 +1,12 @@
-import Manager
-from logger import Logger as Log
-import constants as const
+import Preprocessor.Manager
+from common import logger as Logger
+from common import constants as const
 
 
 def main(outsourcedLogger=None):
 
     if outsourcedLogger is None:
-        logger = Log()
+        logger = Logger()
     else:
         logger = outsourcedLogger
 

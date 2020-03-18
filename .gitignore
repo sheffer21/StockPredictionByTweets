@@ -13,3 +13,13 @@ TwitterCrawler/Statistics/
 databases/Database/
 databases/
 MainProgram/.vector_cache
+.idea/
+MachineLearner/.idea/
+MachineLearner/Log/
+MachineLearner/__pycache__/
+Preprocessor/__pycache__/
+Preprocessor/.idea/
+Preprocessor/Log/
+TwitterCrawler/.idea/
+__pycache__/
+common/__pycache__/

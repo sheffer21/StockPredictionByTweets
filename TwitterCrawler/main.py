@@ -1,8 +1,8 @@
-import logger as Log
-import constants as const
+from common import logger as Logger
+from common import constants as const
 from TwitterCrawler import TwitterCrawler
-from DataBaseOperationsService import DataBaseOperationsService
-from DataBaseStatistics import DataBaseStatistics
+from TwitterCrawler.DataBaseOperationsService import DataBaseOperationsService
+from TwitterCrawler.DataBaseStatistics import DataBaseStatistics
 
 
 def main(outsourcedLogger=None):

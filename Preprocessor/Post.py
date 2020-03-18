@@ -1,5 +1,5 @@
 from datetime import datetime
-import constants as const
+from common import constants as const
 
 
 def getPostTimeFromTimeStamp(timeStamp):  # Return time in format: 'HH-MM-SS'

@@ -1,5 +1,5 @@
-import constants as const
-from DataBaseOperationsService import DataBaseOperationsService as operation
+from common import constants as const
+from TwitterCrawler.DataBaseOperationsService import DataBaseOperationsService as operation
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np

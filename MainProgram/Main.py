@@ -1,6 +1,6 @@
-from Common import Logger
-import Common.Constants as const
-import TwitterCrawler.Main as tc
+from common import logger as Logger
+from common import constants as const
+import TwitterCrawler.main as tc
 import Preprocessor.Main as init
 import MachineLearner.Main as learner
 
