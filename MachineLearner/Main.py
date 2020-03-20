@@ -1,7 +1,9 @@
 import common.constants as const
 from common.logger import Logger as Log
-from MachineLearner.NumericRepresentationService import NumericRepresentationService
 from MachineLearner.ModelTrainer import ModelTrainer
+
+PositiveThreshold = 1
+NegativeThreshold = 1
 
 
 def main(outSourcedLogger=None):
@@ -19,9 +21,9 @@ def main(outSourcedLogger=None):
     #    = numericRepresentationService.getNumericRepresentationOfFinalData()
 
     # Train the model
-    model = ModelTrainer(logger)
-    model.Train()
-    model.Test()
+    model = ModelTrainer(logger, 3, lambda x: classify(x))
+    model.Train(f'{const.finalDatabaseFolder}{const.trainFileDebug}')
+    model.Test(f'{const.finalDatabaseFolder}{const.testFileDebug}')
 
     # Done
     logger.printAndLog(const.MessageType.Summarize, "Learning stage finished...")
@@ -30,3 +32,11 @@ def main(outSourcedLogger=None):
 # Run project
 if __name__ == "__main__":
     main()
+
+
+def classify(label):
+    if label > PositiveThreshold:
+        return 2
+    if label < -NegativeThreshold:
+        return 1
+    return 0
