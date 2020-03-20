@@ -2,8 +2,8 @@ import common.constants as const
 from common.logger import Logger as Log
 from MachineLearner.ModelTrainer import ModelTrainer
 
-PositiveThreshold = 1
-NegativeThreshold = 1
+PositiveThreshold = 0
+NegativeThreshold = 0
 
 
 def main(outSourcedLogger=None):
@@ -21,7 +21,7 @@ def main(outSourcedLogger=None):
     #    = numericRepresentationService.getNumericRepresentationOfFinalData()
 
     # Train the model
-    model = ModelTrainer(logger, 3, lambda x: classify(x))
+    model = ModelTrainer(logger, 3, lambda x: classify(x), "3 Classes Training")
     model.Train(f'{const.finalDatabaseFolder}{const.trainFileDebug}')
     model.Test(f'{const.finalDatabaseFolder}{const.testFileDebug}')
 

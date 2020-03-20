@@ -28,12 +28,13 @@ batch_size = 16
 
 class ModelTrainer:
 
-    def __init__(self, logger, num_labels, classify):
+    def __init__(self, logger, num_labels, classify, runName):
         self.logger = logger
         self.classify = classify
         self.device = self.GetGPUDevice()
         self.tokenizer = self.Load_Tokenizer()
         self.model = self.Load_BERT(num_labels)
+        self.runName = runName
 
     def Train(self, trainDataSetPath):
         # Load train
@@ -540,8 +541,7 @@ class ModelTrainer:
 
         return model
 
-    @staticmethod
-    def Plot_Training_Loss(loss_values):
+    def Plot_Training_Loss(self, loss_values):
         # Use plot styling from seaborn.
         sns.set(style='darkgrid')
 
@@ -558,17 +558,16 @@ class ModelTrainer:
         plt.ylabel("Loss")
 
         # plt.show()
-        ModelTrainer.Save_Plot(const.MachineLearnerStatisticsFolder, const.MachineLearnerTrainPlot)
+        self.Save_Plot(const.MachineLearnerStatisticsFolder, const.MachineLearnerTrainPlot)
 
-    @staticmethod
-    def Save_Plot(directory, name):
+    def Save_Plot(self, directory, fileName):
         figure = plt.gcf()  # get current figure
         figure.set_size_inches(18, 10)
         if not os.path.exists(directory):
             os.makedirs(directory)
 
         date = datetime.datetime.now().strftime("%d-%m-%Y_%H-%M-%S")
-        plt.savefig(f"{directory}/{name}_{date}.png", dpi=500)
+        plt.savefig(f"{directory}/{fileName}_{self.runName}_{date}.png", dpi=500)
 
     def Get_MCC(self, true_labels, predictions):
         matthews_set = []

@@ -201,18 +201,6 @@ class PreProcessor:
             PreProcessor.statistics.successfulImportCount,
             PreProcessor.statistics.totalImportCount))
 
-    # TODO : delete
-    def add_false_stocks_to_data_base(self):
-        count = 0
-        result = 0
-        for post in self.postsList:
-            stock_info = StockInfo("", "", "", "", "", "")
-            stock_info.finalResult = result
-            post.addStockInfo("Symbol", stock_info)
-            count += 1
-            if count % 50 == 0:
-                result += 0.1
-
     @staticmethod
     def saveSplitDataBaseToCsv():
         train, test = train_test_split(PreProcessor.finalDatabase, test_size=0.2, random_state=42)
@@ -229,7 +217,7 @@ class PreProcessor:
 
     def buildFinalDatabase(self):
         PreProcessor.finalDatabase = pd.concat(
-            [pd.DataFrame([[stockInfo.stockTag, post.text]],
+            [pd.DataFrame([[stockInfo.stockTag, self.clean_post(post.text)]],
                           columns=[const.PREDICTION_COLUMN,
                                    const.TEXT_COLUMN])
              for post in self.postsList
@@ -239,3 +227,13 @@ class PreProcessor:
 
     def GetCompanySymbols(self, company):
         return company.stockSymbol.split(", ")
+
+    @staticmethod
+    def clean_post(text):
+        # Get rid of urls
+        text = re.sub(r'(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)', '', text)
+
+        # Get rid of all non letters or numbers
+        text = re.sub(r'[^A-Za-z0-9.]+', ' ', text)
+
+        return text.strip()
