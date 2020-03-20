@@ -21,7 +21,7 @@ epochs = 4
 
 # For fine-tuning BERT on a specific task, the authors recommend a batch size of
 # 16 or 32.
-batch_size = 32
+batch_size = 16
 
 
 class ModelTrainer:
@@ -38,6 +38,7 @@ class ModelTrainer:
         self.Convert_To_PyTorch()
         self.train_dataloader, self.validation_dataloader = self.Create_Iterator()
         self.model = self.Load_BERT()
+        self.optimizer, self.scheduler = self.Get_Optimizer()
 
     def Get_Optimizer(self):
         # Note: AdamW is a class from the huggingface library (as opposed to pytorch)
@@ -54,6 +55,8 @@ class ModelTrainer:
         scheduler = get_linear_schedule_with_warmup(optimizer,
                                                     num_warmup_steps=0,  # Default value in run_glue.py
                                                     num_training_steps=total_steps)
+
+        return optimizer, scheduler
 
     def Split_DataSet(self):
         # Use 90% for training and 10% for validation.
@@ -103,8 +106,8 @@ class ModelTrainer:
         # Pad our input tokens with value 0.
         # "post" indicates that we want to pad and truncate at the end of the sequence,
         # as opposed to the beginning.
-        self.input_ids = pad_sequences(self.input_ids, dtype='long', maxlen=MAX_LEN,
-                                       value=np.long(0), truncating="post", padding="post")
+        self.input_ids = pad_sequences(self.input_ids, dtype='int64', maxlen=MAX_LEN,
+                                       value=0, truncating="post", padding="post")
 
         self.logger.printAndLog(const.MessageType.Regular, '\nDone.')
 
@@ -162,11 +165,15 @@ class ModelTrainer:
         self.logger.printAndLog(const.MessageType.Regular, f'Loading data set')
 
         # Load the dataset into a pandas dataframe.
-        df = pd.read_csv(f'{const.finalDatabaseFolder}{const.testFileDebug}')
+        # df = pd.read_csv(f'{const.finalDatabaseFolder}{const.testFileDebug}')
+        df = pd.read_csv("./cola_public/raw/in_domain_train.tsv", delimiter='\t', header=None,
+                         names=['sentence_source', 'label', 'label_notes', 'sentence'])
 
         # Get the lists of sentences and their labels.
-        sentences = df.Tweet.values
-        labels = df.Prediction.values
+        # sentences = df.Tweet.values
+        # labels = df.Prediction.values
+        sentences = df.sentence.values
+        labels = df.label.values
 
         # Report the number of sentences.
         self.logger.printAndLog(const.MessageType.Regular, 'Number of training sentences: {:,}\n'.format(df.shape[0]))
@@ -202,6 +209,8 @@ class ModelTrainer:
             self.logger.printAndLog(const.MessageType.Regular, 'No GPU available, using the CPU instead.')
             device = torch.device("cpu")
 
+        return device
+
     def Create_Iterator(self):
         # The DataLoader needs to know our batch size for training, so we specify it
         # here.
@@ -222,7 +231,7 @@ class ModelTrainer:
         # linear classification layer on top.
         model = BertForSequenceClassification.from_pretrained(
             "bert-base-uncased",  # Use the 12-layer BERT model, with an uncased vocab.
-            num_labels=1,  # The number of output labels--2 for binary classification.
+            num_labels=2,  # The number of output labels--2 for binary classification.
             # You can increase this for multi-class tasks.
             output_attentions=False,  # Whether the model returns attentions weights.
             output_hidden_states=False,  # Whether the model returns all hidden-states.
@@ -485,8 +494,8 @@ class ModelTrainer:
             input_ids.append(encoded_sent)
 
         # Pad our input tokens
-        input_ids = pad_sequences(input_ids, maxlen=MAX_LEN,
-                                  dtype="long", truncating="post", padding="post")
+        self.input_ids = pad_sequences(self.input_ids, maxlen=MAX_LEN,
+                                       dtype="long", truncating="post", padding="post")
 
         # Create attention masks
         attention_masks = []
