@@ -25,7 +25,7 @@ def main():
     #                                              "Preprocessor uses fetched databases to build and analyze "
     #                                              "stocks database prior the learning stage. \n"
     #                                              "Type <yes/no>: " + const.MAIN_ENDC)
-
+#
     # if runPreProcessing == "yes":
     #     init.main(logger)
     # else:

@@ -65,6 +65,10 @@ effectiveDaysAfterPost = 6
 effectiveColumnName = "Open"
 
 # Machine learning configurations
+MachineLearnerStatisticsFolder = "../MachineLearner/Statistics"
+MachineLearnerTrainPlot = "Train_Plot"
+TrainedModelDirectory = "../MachineLearner/TrainedModel"
+TrainedModelFile = "Trained_Model"
 
 # Main program console colors
 MAIN_HEADER = '\033[95m'
