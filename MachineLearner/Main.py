@@ -28,12 +28,12 @@ def main(outSourcedLogger=None):
     #    = numericRepresentationService.getNumericRepresentationOfFinalData()
 
     # Train the model
-    classificationAnalyzer = ClassificationResultAnalyzer(logger)
-    classification_model = ModelTrainer(logger, 3, lambda x: classify_3classes(x), "3_Classes_Training", MAX_LEN,
-                                        epochs, batch_size,
-                                        classificationAnalyzer)
-    classification_model.Train(f'{const.finalDatabaseFolder}{const.trainFile}')
-    classification_model.Test(f'{const.finalDatabaseFolder}{const.testFile}')
+    # classificationAnalyzer = ClassificationResultAnalyzer(logger)
+    # classification_model = ModelTrainer(logger, 3, lambda x: classify_3classes(x), "3_Classes_Training", MAX_LEN,
+    #                                     epochs, batch_size,
+    #                                     classificationAnalyzer)
+    # classification_model.Train(f'{const.finalDatabaseFolder}{const.trainFile}')
+    # classification_model.Test(f'{const.finalDatabaseFolder}{const.testFile}')
 
     linearResultAnalyzer = LinearResultAnalyzer(logger)
     linear_model = ModelTrainer(logger, 1, lambda x: classify_linear(x), "Linear_Classification", MAX_LEN, epochs,

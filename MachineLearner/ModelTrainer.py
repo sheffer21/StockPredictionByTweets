@@ -453,8 +453,8 @@ class ModelTrainer(ABC):
         self.logger.printAndLog(const.MessageType.Regular, 'Number of training sentences: {:,}'.format(df.shape[0]))
         self.logger.printAndLog(const.MessageType.Regular, "Examples from the dataSet:")
         # Display 10 random rows from the data.
-        for sample in df.sample(10):
-            self.logger.printAndLog(const.MessageType.Regular, f'{sample.to_string()}')
+        # for sample in enumerate(df.sample(10)):
+        #     self.logger.printAndLog(const.MessageType.Regular, f'{sample.to_string()}')
         return df, sentences, labels
 
     def GetGPUDevice(self):
@@ -591,7 +591,7 @@ class ModelTrainer(ABC):
         if not os.path.exists(directory):
             os.makedirs(directory)
 
-        plt.savefig(f"{directory}/{fileName}_{self.runName}.png", dpi=500)
+        plt.savefig(f"{directory}/{fileName}_{self.runName}.png", dpi=700)
 
     def Save_Model(self):
         output_path = f"{const.TrainedModelDirectory}/{self.runName}"
