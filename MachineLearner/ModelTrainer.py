@@ -170,6 +170,7 @@ class ModelTrainer(ABC):
         self.logger.printAndLog(const.MessageType.Regular, "")
         self.logger.printAndLog(const.MessageType.Regular, "Training complete!")
         self.Plot_Training_Loss(loss_values)
+        self.Save_Model()
 
     def PerformValidation(self, validation_dataLoader):
         # ========================================
@@ -363,7 +364,8 @@ class ModelTrainer(ABC):
         return attention_masks
 
     def Pad_Sequences(self, input_ids, tokenizer):
-        self.logger.printAndLog(const.MessageType.Regular, f'\nPadding/truncating all sentences to {self.MAX_LEN} values...')
+        self.logger.printAndLog(const.MessageType.Regular,
+                                f'\nPadding/truncating all sentences to {self.MAX_LEN} values...')
 
         self.logger.printAndLog(const.MessageType.Regular,
                                 f'\nPadding token: "{tokenizer.pad_token}", ID: {tokenizer.pad_token_id}')
@@ -588,6 +590,27 @@ class ModelTrainer(ABC):
 
         plt.savefig(f"{directory}/{fileName}_{self.runName}.png", dpi=500)
 
+    def Save_Model(self):
+        output_path = f"{const.TrainedModelDirectory}/{self.runName}"
+
+        # Create output directory if needed
+        if not os.path.exists(output_path):
+            os.makedirs(output_path)
+
+        self.logger.printAndLog(const.MessageType.Regular, f"Saving model to {output_path}")
+
+        # Save a trained model, configuration and tokenizer using `save_pretrained()`.
+        # They can then be reloaded using `from_pretrained()`
+        model_to_save = self.model.module if hasattr(self.model,
+                                                     # Take care of distributed/parallel training
+                                                     'module') else self.model
+
+        model_to_save.save_pretrained(output_path)
+        self.tokenizer.save_pretrained(output_path)
+
+        # Good practice: save your training arguments together with the trained model
+        # torch.save(self.runName, os.path.join(const.TrainedModelDirectory, 'training_args.bin'))
+
     @staticmethod
     def format_time(elapsed):
         '''
@@ -598,4 +621,3 @@ class ModelTrainer(ABC):
 
         # Format as hh:mm:ss
         return str(datetime.timedelta(seconds=elapsed_rounded))
-

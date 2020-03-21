@@ -66,7 +66,9 @@ effectiveColumnName = "Open"
 
 # Machine learning configurations
 MachineLearnerStatisticsFolder = "../MachineLearner/Statistics"
-MachineLearnerTrainPlot = "trainPlot"
+MachineLearnerTrainPlot = "Train_Plot"
+TrainedModelDirectory = "../MachineLearner/TrainedModel"
+TrainedModelFile = "Trained_Model"
 
 # Main program console colors
 MAIN_HEADER = '\033[95m'

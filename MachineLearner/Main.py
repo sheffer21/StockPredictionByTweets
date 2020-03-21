@@ -1,7 +1,7 @@
 import common.constants as const
 from common.logger import Logger as Log
 from MachineLearner.ModelTrainer import ModelTrainer
-# from MachineLearner.ResultAnalyzer.ClassficationResultAnalyzer import ClassificationResultAnalyzer
+from MachineLearner.ResultAnalyzer.ClassficationResultAnalyzer import ClassificationResultAnalyzer
 from MachineLearner.ResultAnalyzer.LinearResultAnalyzer import LinearResultAnalyzer
 
 PositiveThreshold = 0
@@ -29,11 +29,12 @@ def main(outSourcedLogger=None):
     #    = numericRepresentationService.getNumericRepresentationOfFinalData()
 
     # Train the model
-    # model = ModelTrainer(logger, 3, lambda x: classify_3classes(x), "3_Classes_Training", MAX_LEN, epochs, batch_size)
-    # classificationAnalyzer = ClassificationResultAnalyzer()
-    linearResultAnalyzer = LinearResultAnalyzer(logger)
-    model = ModelTrainer(logger, 1, lambda x: classify_linear(x), "Linear_Classification", MAX_LEN, epochs, batch_size,
-                         linearResultAnalyzer)
+    classificationAnalyzer = ClassificationResultAnalyzer(logger)
+    model = ModelTrainer(logger, 3, lambda x: classify_3classes(x), "3_Classes_Training", MAX_LEN, epochs, batch_size
+                         , classificationAnalyzer)
+    # linearResultAnalyzer = LinearResultAnalyzer(logger)
+    # model = ModelTrainer(logger, 1, lambda x: classify_linear(x), "Linear_Classification", MAX_LEN, epochs, batch_size,
+    #                     linearResultAnalyzer)
     model.Train(f'{const.finalDatabaseFolder}{const.trainFileDebug}')
     model.Test(f'{const.finalDatabaseFolder}{const.testFileDebug}')
 
