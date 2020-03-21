@@ -98,7 +98,7 @@ class ModelTrainer(ABC):
 
                     # Report progress.
                     self.logger.printAndLog(const.MessageType.Regular,
-                                            f'Batch {step > 5,}  of  {len(train_dataLoader) > 5,}.    Elapsed: {elapsed}.')
+                                            f'Batch {step}  of  {len(train_dataLoader)}.    Elapsed: {elapsed}.')
 
                 # Unpack this training batch from our dataLoader.
                 #
@@ -408,6 +408,7 @@ class ModelTrainer(ABC):
             input_ids.append(encoded_sent)
 
         # Print sentence 0, now as a list of IDs.
+        self.logger.printAndLog(const.MessageType.Regular, "Tokenized input example:")
         self.logger.printAndLog(const.MessageType.Regular, f'Original: {sentences[0]}')
         self.logger.printAndLog(const.MessageType.Regular, f'Token IDs: {input_ids[0]}')
         self.logger.printAndLog(const.MessageType.Regular,
@@ -449,11 +450,11 @@ class ModelTrainer(ABC):
         # labels = df.label.values
 
         # Report the number of sentences.
-        self.logger.printAndLog(const.MessageType.Regular, 'Number of training sentences: {:,}\n'.format(df.shape[0]))
-
+        self.logger.printAndLog(const.MessageType.Regular, 'Number of training sentences: {:,}'.format(df.shape[0]))
+        self.logger.printAndLog(const.MessageType.Regular, "Examples from the dataSet:")
         # Display 10 random rows from the data.
         for sample in df.sample(10):
-            self.logger.printAndLog(const.MessageType.Regular, f'{sample}')
+            self.logger.printAndLog(const.MessageType.Regular, f'{sample.to_string()}')
         return df, sentences, labels
 
     def GetGPUDevice(self):
