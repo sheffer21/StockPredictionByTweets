@@ -441,9 +441,9 @@ class ModelTrainer(ABC):
         #                 names=['sentence_source', 'label', 'label_notes', 'sentence'])
 
         # Get the lists of sentences and their labels.
-        sentences = df.Tweet.values
+        sentences, labels = zip(*((s, self.classify(l)) for s, l in zip(df.Tweet.values, df.Prediction.values) if type(s) is str))
         # labels = [float(i) for i in df.Prediction.values]
-        labels = [self.classify(i) for i in df.Prediction.values]
+        # labels = [self.classify(i) for i in df.Prediction.values]
 
         # sentences = df.sentence.values
         # labels = df.label.values

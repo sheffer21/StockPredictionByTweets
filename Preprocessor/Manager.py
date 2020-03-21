@@ -222,7 +222,8 @@ class PreProcessor:
                           columns=[const.PREDICTION_COLUMN,
                                    const.TEXT_COLUMN])
              for post in self.postsList
-             for stockInfo in post.stocksInfo.values()], ignore_index=True)
+             for stockInfo in post.stocksInfo.values()
+             if type(post) is str], ignore_index=True)
 
         PreProcessor.saveSplitDataBaseToCsv()
 
