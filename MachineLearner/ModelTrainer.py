@@ -609,7 +609,8 @@ class ModelTrainer(ABC):
         self.tokenizer.save_pretrained(output_path)
 
         # Good practice: save your training arguments together with the trained model
-        # torch.save(self.runName, os.path.join(const.TrainedModelDirectory, 'training_args.bin'))
+        args = f"Run {self.runName} with Epochs: {self.epochs}, MAX_LEN: {self.MAX_LEN}, Batch_size: {self.batch_size}"
+        torch.save(args, os.path.join(output_path, 'training_args.bin'))
 
     @staticmethod
     def format_time(elapsed):
