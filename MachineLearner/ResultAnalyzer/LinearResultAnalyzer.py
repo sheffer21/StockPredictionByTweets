@@ -25,9 +25,9 @@ class LinearResultAnalyzer(ResultAnalyzer.ResultAnalyzer):
         super().FinishValidation()
 
         self.logger.printAndLog(const.MessageType.Regular,
-                                f"Coefficient: {self.coefficient / self.nb_eval_steps:.2f}")
+                                f"  Coefficient: {self.coefficient / self.nb_eval_steps:.2f}")
         self.logger.printAndLog(const.MessageType.Regular,
-                                f"Mean Square: {self.eval_meanSquare / self.nb_eval_steps:.2f}")
+                                f"  Mean Square: {self.eval_meanSquare / self.nb_eval_steps:.2f}")
 
     def PrintTestResult(self, true_labels, predictions):
         pass

@@ -22,7 +22,7 @@ class ClassificationResultAnalyzer(ResultAnalyzer.ResultAnalyzer):
     def FinishValidation(self):
         super().FinishValidation()
         self.logger.printAndLog(const.MessageType.Regular,
-                                "Accuracy: {0:.2f}".format(self.eval_accuracy / self.nb_eval_steps))
+                                "   Accuracy: {0:.2f}".format(self.eval_accuracy / self.nb_eval_steps))
 
     def PrintTestResult(self, true_labels, predictions):
         self.Get_MCC(true_labels, predictions)
