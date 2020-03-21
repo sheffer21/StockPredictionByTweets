@@ -14,27 +14,24 @@ from transformers import get_linear_schedule_with_warmup
 import numpy as np
 import time
 import datetime
-from sklearn.metrics import matthews_corrcoef
 import os
-
-MAX_LEN = 64
-# Number of training epochs (authors recommend between 2 and 4)
-epochs = 4
-
-# For fine-tuning BERT on a specific task, the authors recommend a batch size of
-# 16 or 32.
-batch_size = 16
+from abc import ABC
 
 
-class ModelTrainer:
+class ModelTrainer(ABC):
 
-    def __init__(self, logger, num_labels, classify, runName):
+    def __init__(self, logger, num_labels, classify, runName, MAX_LEN, epochs, batch_size, resultAnalyzer):
+        self.resultAnalyzer = resultAnalyzer
+        self.batch_size = batch_size
+        self.epochs = epochs
+        self.MAX_LEN = MAX_LEN
         self.logger = logger
         self.classify = classify
         self.device = self.GetGPUDevice()
         self.tokenizer = self.Load_Tokenizer()
         self.model = self.Load_BERT(num_labels)
-        self.runName = runName
+        dateTime = datetime.datetime.now().strftime("%d-%m-%Y_%H-%M-%S")
+        self.runName = f'{runName}_{dateTime}'
 
     def Train(self, trainDataSetPath):
         # Load train
@@ -67,7 +64,7 @@ class ModelTrainer:
         loss_values = []
 
         # For each epoch...
-        for epoch_i in range(0, epochs):
+        for epoch_i in range(0, self.epochs):
 
             # ========================================
             #               Training
@@ -76,7 +73,7 @@ class ModelTrainer:
             # Perform one full pass over the training set.
 
             self.logger.printAndLog(const.MessageType.Regular, "")
-            self.logger.printAndLog(const.MessageType.Regular, f'======== Epoch {epoch_i + 1} / {epochs} ========')
+            self.logger.printAndLog(const.MessageType.Regular, f'======== Epoch {epoch_i + 1} / {self.epochs} ========')
             self.logger.printAndLog(const.MessageType.Regular, 'Training...')
 
             # Measure how long the training epoch takes.
@@ -168,72 +165,69 @@ class ModelTrainer:
             self.logger.printAndLog(const.MessageType.Regular,
                                     f"  Training epcoh took: {self.format_time(time.time() - t0)}")
 
-            # ========================================
-            #               Validation
-            # ========================================
-            # After the completion of each training epoch, measure our performance on
-            # our validation set.
-
-            self.logger.printAndLog(const.MessageType.Regular, "")
-            self.logger.printAndLog(const.MessageType.Regular, "Running Validation...")
-
-            t0 = time.time()
-
-            # Put the model in evaluation mode--the dropout layers behave differently
-            # during evaluation.
-            self.model.eval()
-
-            # Tracking variables
-            eval_loss, eval_accuracy = 0, 0
-            nb_eval_steps, nb_eval_examples = 0, 0
-
-            # Evaluate data for one epoch
-            for batch in validation_dataLoader:
-                # Add batch to GPU
-                batch = tuple(t.to(self.device) for t in batch)
-
-                # Unpack the inputs from our dataLoader
-                b_input_ids, b_input_mask, b_labels = batch
-
-                # Telling the model not to compute or store gradients, saving memory and
-                # speeding up validation
-                with torch.no_grad():
-                    # Forward pass, calculate logit predictions.
-                    # This will return the logits rather than the loss because we have
-                    # not provided labels.
-                    # token_type_ids is the same as the "segment ids", which
-                    # differentiates sentence 1 and 2 in 2-sentence tasks.
-                    # The documentation for this `model` function is here:
-                    # https://huggingface.co/transformers/v2.2.0/model_doc/bert.html#transformers.BertForSequenceClassification
-                    outputs = self.model(b_input_ids,
-                                         token_type_ids=None,
-                                         attention_mask=b_input_mask)
-
-                # Get the "logits" output by the model. The "logits" are the output
-                # values prior to applying an activation function like the softmax.
-                logits = outputs[0]
-
-                # Move logits and labels to CPU
-                logits = logits.detach().cpu().numpy()
-                label_ids = b_labels.to('cpu').numpy()
-
-                # Calculate the accuracy for this batch of test sentences.
-                tmp_eval_accuracy = self.flat_accuracy(logits, label_ids)
-
-                # Accumulate the total accuracy.
-                eval_accuracy += tmp_eval_accuracy
-
-                # Track the number of batches
-                nb_eval_steps += 1
-
-            # Report the final accuracy for this validation run.
-            self.logger.printAndLog(const.MessageType.Regular, f"  Accuracy: {eval_accuracy / nb_eval_steps:.2f}")
-            self.logger.printAndLog(const.MessageType.Regular,
-                                    f"  Validation took: {self.format_time(time.time() - t0)}")
+            self.PerformValidation(validation_dataLoader)
 
         self.logger.printAndLog(const.MessageType.Regular, "")
         self.logger.printAndLog(const.MessageType.Regular, "Training complete!")
         self.Plot_Training_Loss(loss_values)
+
+    def PerformValidation(self, validation_dataLoader):
+        # ========================================
+        #               Validation
+        # ========================================
+        # After the completion of each training epoch, measure our performance on
+        # our validation set.
+
+        self.logger.printAndLog(const.MessageType.Regular, "")
+        self.logger.printAndLog(const.MessageType.Regular, "Running Validation...")
+        self.resultAnalyzer.StartValidation()
+
+        t0 = time.time()
+
+        # Put the model in evaluation mode--the dropout layers behave differently
+        # during evaluation.
+        self.model.eval()
+
+        # Tracking variables
+        eval_loss, coefficient, eval_meanSquare = 0, 0, 0
+        nb_eval_steps, nb_eval_examples = 0, 0
+
+        # Evaluate data for one epoch
+        for batch in validation_dataLoader:
+            # Add batch to GPU
+            batch = tuple(t.to(self.device) for t in batch)
+
+            # Unpack the inputs from our dataLoader
+            b_input_ids, b_input_mask, b_labels = batch
+
+            # Telling the model not to compute or store gradients, saving memory and
+            # speeding up validation
+            with torch.no_grad():
+                # Forward pass, calculate logit predictions.
+                # This will return the logits rather than the loss because we have
+                # not provided labels.
+                # token_type_ids is the same as the "segment ids", whichyes
+                # differentiates sentence 1 and 2 in 2-sentence tasks.
+                # The documentation for this `model` function is here:
+                # https://huggingface.co/transformers/v2.2.0/model_doc/bert.html#transformers.BertForSequenceClassification
+                outputs = self.model(b_input_ids,
+                                     token_type_ids=None,
+                                     attention_mask=b_input_mask)
+
+            # Get the "logits" output by the model. The "logits" are the output
+            # values prior to applying an activation function like the softmax.
+            logits = outputs[0]
+
+            # Move logits and labels to CPU
+            logits = logits.detach().cpu().numpy()
+            label_ids = b_labels.to('cpu').numpy()
+
+            self.resultAnalyzer.PerformValidationStep(logits, label_ids)
+
+        self.resultAnalyzer.FinishValidation()
+        # Report the final accuracy for this validation run.
+        self.logger.printAndLog(const.MessageType.Regular,
+                                f"  Validation took: {self.format_time(time.time() - t0)}")
 
     def Test(self, testPath):
         self.logger.printAndLog(const.MessageType.Regular, "Start testing result on test data set")
@@ -264,7 +258,7 @@ class ModelTrainer:
         # Create the DataLoader.
         prediction_data = TensorDataset(prediction_inputs, prediction_masks, prediction_labels)
         prediction_sampler = SequentialSampler(prediction_data)
-        prediction_dataLoader = DataLoader(prediction_data, sampler=prediction_sampler, batch_size=batch_size)
+        prediction_dataLoader = DataLoader(prediction_data, sampler=prediction_sampler, batch_size=self.batch_size)
 
         # Prediction on test set
 
@@ -303,10 +297,9 @@ class ModelTrainer:
             true_labels.append(label_ids)
 
         self.logger.printAndLog(const.MessageType.Regular, '    DONE.')
-        self.Get_MCC(true_labels, predictions)
+        self.resultAnalyzer.PrintTestResult(true_labels, predictions)
 
-    @staticmethod
-    def Get_Optimizer(model, train_dataLoader):
+    def Get_Optimizer(self, model, train_dataLoader):
         # Note: AdamW is a class from the huggingface library (as opposed to pytorch)
         # I believe the 'W' stands for 'Weight Decay fix"
         optimizer = AdamW(model.parameters(),
@@ -315,7 +308,7 @@ class ModelTrainer:
                           )
 
         # Total number of training steps is number of batches * number of epochs.
-        total_steps = len(train_dataLoader) * epochs
+        total_steps = len(train_dataLoader) * self.epochs
 
         # Create the learning rate scheduler.
         scheduler = get_linear_schedule_with_warmup(optimizer,
@@ -370,7 +363,7 @@ class ModelTrainer:
         return attention_masks
 
     def Pad_Sequences(self, input_ids, tokenizer):
-        self.logger.printAndLog(const.MessageType.Regular, f'\nPadding/truncating all sentences to {MAX_LEN} values...')
+        self.logger.printAndLog(const.MessageType.Regular, f'\nPadding/truncating all sentences to {self.MAX_LEN} values...')
 
         self.logger.printAndLog(const.MessageType.Regular,
                                 f'\nPadding token: "{tokenizer.pad_token}", ID: {tokenizer.pad_token_id}')
@@ -378,7 +371,7 @@ class ModelTrainer:
         # Pad our input tokens with value 0.
         # "post" indicates that we want to pad and truncate at the end of the sequence,
         # as opposed to the beginning.
-        input_ids = pad_sequences(input_ids, dtype='int64', maxlen=MAX_LEN,
+        input_ids = pad_sequences(input_ids, dtype='int64', maxlen=self.MAX_LEN,
                                   value=0, truncating="post", padding="post")
 
         self.logger.printAndLog(const.MessageType.Regular, '\nDone.')
@@ -487,22 +480,21 @@ class ModelTrainer:
 
         return device
 
-    @staticmethod
-    def Create_Iterator(train_inputs, train_masks, train_labels, validation_inputs, validation_masks,
+    def Create_Iterator(self, train_inputs, train_masks, train_labels, validation_inputs, validation_masks,
                         validation_labels):
         # The DataLoader needs to know our batch size for training, so we specify it
         # here.
         # Create the DataLoader for our training set.
         train_data = TensorDataset(train_inputs, train_masks, train_labels)
         train_sampler = RandomSampler(train_data)
-        train_dataloader = DataLoader(train_data, sampler=train_sampler, batch_size=batch_size)
+        train_dataLoader = DataLoader(train_data, sampler=train_sampler, batch_size=self.batch_size)
 
         # Create the DataLoader for our validation set.
         validation_data = TensorDataset(validation_inputs, validation_masks, validation_labels)
         validation_sampler = SequentialSampler(validation_data)
-        validation_dataloader = DataLoader(validation_data, sampler=validation_sampler, batch_size=batch_size)
+        validation_dataLoader = DataLoader(validation_data, sampler=validation_sampler, batch_size=self.batch_size)
 
-        return train_dataloader, validation_dataloader
+        return train_dataLoader, validation_dataLoader
 
     def Load_BERT(self, num_labels):
         # Load BertForSequenceClassification, the pretrained BERT model with a single
@@ -541,6 +533,34 @@ class ModelTrainer:
 
         return model
 
+    def Plot_Training_Labels(self):
+        companiesKeywords, companiesPossibleKeywords = self.GetCompaniesKeywordsDataCount()
+        labels = list(key.split(" ", 2)[0] for key in companiesKeywords.keys())
+        xCoordinates = np.arange(len(labels))
+        keywordsHeights = companiesKeywords.values()
+        possibleKeywordsHeights = companiesPossibleKeywords.values()
+
+        fig, ax = plt.subplots()
+        width = 0.35
+        rect1 = ax.bar(xCoordinates - width / 2, keywordsHeights, width, label=const.COMPANY_KEYWORDS_COLUMN)
+        rect2 = ax.bar(xCoordinates + width / 2, possibleKeywordsHeights, width,
+                       label=const.COMPANY_POSSIBLE_KEYWORDS_COLUMN)
+
+        ax.set_ylabel('Tweets')
+        ax.set_title('Number of Tweets by Company')
+        ax.set_xticks(xCoordinates)
+        ax.set_xticklabels(labels)
+        ax.legend()
+
+        DataBaseStatistics.autoLabel(rect1, ax)
+        DataBaseStatistics.autoLabel(rect2, ax)
+
+        # Arrange labels
+        for item in (ax.get_xticklabels()):
+            item.set_fontsize(9)
+
+        self.SavePlotToFile(const.twitterCrawlerPossibleKeywordsStatistics)
+
     def Plot_Training_Loss(self, loss_values):
         # Use plot styling from seaborn.
         sns.set(style='darkgrid')
@@ -566,55 +586,7 @@ class ModelTrainer:
         if not os.path.exists(directory):
             os.makedirs(directory)
 
-        date = datetime.datetime.now().strftime("%d-%m-%Y_%H-%M-%S")
-        plt.savefig(f"{directory}/{fileName}_{self.runName}_{date}.png", dpi=500)
-
-    def Get_MCC(self, true_labels, predictions):
-        matthews_set = []
-
-        # Evaluate each test batch using Matthew's correlation coefficient
-        self.logger.printAndLog(const.MessageType.Regular, 'Calculating Matthews Corr. Coef. for each batch...')
-
-        # For each input batch...
-        for i in range(len(true_labels)):
-            # The predictions for this batch are a 2-column ndarray (one column for "0"
-            # and one column for "1"). Pick the label with the highest value and turn this
-            # in to a list of 0s and 1s.
-            pred_labels_i = np.argmax(predictions[i], axis=1).flatten()
-
-            # Calculate and store the coef for this batch.
-            matthews = matthews_corrcoef(true_labels[i], pred_labels_i)
-            matthews_set.append(matthews)
-
-        # Combine the predictions for each batch into a single list of 0s and 1s.
-        flat_predictions = [item for sublist in predictions for item in sublist]
-        flat_predictions = np.argmax(flat_predictions, axis=1).flatten()
-
-        # Combine the correct labels for each batch into a single list.
-        flat_true_labels = [item for sublist in true_labels for item in sublist]
-
-        predictions_differences = self.difference(flat_true_labels, flat_predictions)
-        total = len(flat_true_labels)
-        correct_predictions = len(flat_true_labels) - len(predictions_differences)
-        self.logger.printAndLog(const.MessageType.Regular,
-                                f"Positive samples: {correct_predictions} of {total} "
-                                f"({(correct_predictions / total * 100.0)})")
-
-        # Calculate the MCC
-        mcc = matthews_corrcoef(flat_true_labels, flat_predictions)
-        self.logger.printAndLog(const.MessageType.Regular, 'MCC: %.3f' % mcc)
-
-    @staticmethod
-    def difference(list1, list2):
-        list_dif = [i for i in list1 + list2 if i not in list1 or i not in list2]
-        return list_dif
-
-    # Function to calculate the accuracy of our predictions vs labels
-    @staticmethod
-    def flat_accuracy(preds, labels):
-        pred_flat = np.argmax(preds, axis=1).flatten()
-        labels_flat = labels.flatten()
-        return np.sum(pred_flat == labels_flat) / len(labels_flat)
+        plt.savefig(f"{directory}/{fileName}_{self.runName}.png", dpi=500)
 
     @staticmethod
     def format_time(elapsed):
@@ -626,3 +598,4 @@ class ModelTrainer:
 
         # Format as hh:mm:ss
         return str(datetime.timedelta(seconds=elapsed_rounded))
+
