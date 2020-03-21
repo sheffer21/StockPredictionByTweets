@@ -386,6 +386,8 @@ class ModelTrainer(ABC):
 
         # For every sentence...
         for sent in sentences:
+            if type(sent) is not str:
+                continue
             # `encode` will:
             #   (1) Tokenize the sentence.
             #   (2) Prepend the `[CLS]` token to the start.
