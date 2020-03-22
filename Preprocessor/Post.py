@@ -41,6 +41,10 @@ class Post:
         return self.__p_text
 
     @property
+    def followers(self):
+        return self.__p_followers
+
+    @property
     def date(self):
         return self.__p_date
 

@@ -20,7 +20,8 @@ from abc import ABC
 
 class ModelTrainer(ABC):
 
-    def __init__(self, logger, num_labels, classify, runName, MAX_LEN, epochs, batch_size, resultAnalyzer):
+    def __init__(self, logger, num_labels, classify, runName, MAX_LEN, epochs, batch_size, resultAnalyzer, dataFilter):
+        self.filter = dataFilter
         self.resultAnalyzer = resultAnalyzer
         self.batch_size = batch_size
         self.epochs = epochs
@@ -442,7 +443,9 @@ class ModelTrainer(ABC):
         #                 names=['sentence_source', 'label', 'label_notes', 'sentence'])
 
         # Get the lists of sentences and their labels.
-        sentences, labels = zip(*((s, self.classify(l)) for s, l in zip(df.Tweet.values, df.Prediction.values) if type(s) is str))
+        sentences, labels = zip(*((d.Tweet, self.classify(d.Prediction))
+                                  for d in df.values
+                                  if type(d.Tweet) is str and self.filter(d)))
         # labels = [float(i) for i in df.Prediction.values]
         # labels = [self.classify(i) for i in df.Prediction.values]
 

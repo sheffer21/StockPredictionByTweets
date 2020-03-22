@@ -218,12 +218,16 @@ class PreProcessor:
 
     def buildFinalDatabase(self):
         PreProcessor.finalDatabase = pd.concat(
-            [pd.DataFrame([[stockInfo.stockTag, self.clean_post(post.text)]],
+            [pd.DataFrame([[stockInfo.stockTag,
+                            self.clean_post(post.text),
+                            print(','.join(post.companiesList)),
+                            post.followers]],
                           columns=[const.PREDICTION_COLUMN,
-                                   const.TEXT_COLUMN])
+                                   const.TEXT_COLUMN,
+                                   const.COMPANY_COLUMN])
              for post in self.postsList
              for stockInfo in post.stocksInfo.values()
-             if type(post) is str], ignore_index=True)
+             if type(post.text) is str], ignore_index=True)
 
         PreProcessor.saveSplitDataBaseToCsv()
 
