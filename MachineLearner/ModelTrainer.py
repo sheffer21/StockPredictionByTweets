@@ -1,8 +1,7 @@
 import tensorflow as tf
 import random
 import torch
-import matplotlib.pyplot as plt
-import seaborn as sns
+import MachineLearner.DataAnalyzer.StatisticsProvider as stat
 import common.constants as const
 import pandas as pd
 from transformers import BertTokenizer
@@ -20,18 +19,26 @@ from abc import ABC
 
 class ModelTrainer(ABC):
 
-    def __init__(self, logger, num_labels, classify, runName, MAX_LEN, epochs, batch_size, resultAnalyzer):
+    def __init__(self, logger, num_labels, classify, runName, MAX_LEN, epochs, batch_size, resultAnalyzer, dataFilter,
+                 loadFromPreTrained=False, preTrainedSourceDir=""):
+        # Save parameter
+        self.filter = dataFilter
         self.resultAnalyzer = resultAnalyzer
         self.batch_size = batch_size
         self.epochs = epochs
         self.MAX_LEN = MAX_LEN
         self.logger = logger
         self.classify = classify
+        self.runName = f'{runName}_{datetime.datetime.now().strftime("%d-%m-%Y_%H-%M-%S")}'
+
+        # Load model
         self.device = self.GetGPUDevice()
-        self.tokenizer = self.Load_Tokenizer()
-        self.model = self.Load_BERT(num_labels)
-        dateTime = datetime.datetime.now().strftime("%d-%m-%Y_%H-%M-%S")
-        self.runName = f'{runName}_{dateTime}'
+
+        if loadFromPreTrained:
+            self.model, self.tokenizer = self.Load_From_PreTrained(preTrainedSourceDir)
+        else:
+            self.tokenizer = self.Load_Tokenizer()
+            self.model = self.Load_BERT(num_labels)
 
     def Train(self, trainDataSetPath):
         # Load train
@@ -169,7 +176,7 @@ class ModelTrainer(ABC):
 
         self.logger.printAndLog(const.MessageType.Regular, "")
         self.logger.printAndLog(const.MessageType.Regular, "Training complete!")
-        self.Plot_Training_Loss(loss_values)
+        stat.Plot_Training_Loss(loss_values)
         self.Save_Model()
 
     def PerformValidation(self, validation_dataLoader):
@@ -231,6 +238,7 @@ class ModelTrainer(ABC):
                                 f"  Validation took: {self.format_time(time.time() - t0)}")
 
     def Test(self, testPath):
+        self.logger.printAndLog(const.MessageType.Regular, '---------------------------------------------')
         self.logger.printAndLog(const.MessageType.Regular, "Start testing result on test data set")
 
         # Load the dataset into a pandas dataframe.
@@ -300,163 +308,6 @@ class ModelTrainer(ABC):
         self.logger.printAndLog(const.MessageType.Regular, '    DONE.')
         self.resultAnalyzer.PrintTestResult(true_labels, predictions)
 
-    def Get_Optimizer(self, model, train_dataLoader):
-        # Note: AdamW is a class from the huggingface library (as opposed to pytorch)
-        # I believe the 'W' stands for 'Weight Decay fix"
-        optimizer = AdamW(model.parameters(),
-                          lr=2e-5,  # args.learning_rate - default is 5e-5, our notebook had 2e-5
-                          eps=1e-8  # args.adam_epsilon  - default is 1e-8.
-                          )
-
-        # Total number of training steps is number of batches * number of epochs.
-        total_steps = len(train_dataLoader) * self.epochs
-
-        # Create the learning rate scheduler.
-        scheduler = get_linear_schedule_with_warmup(optimizer,
-                                                    num_warmup_steps=0,  # Default value in run_glue.py
-                                                    num_training_steps=total_steps)
-
-        return optimizer, scheduler
-
-    @staticmethod
-    def Split_DataSet(input_ids, labels, attention_mask):
-        # Use 90% for training and 10% for validation.
-        train_inputs, validation_inputs, train_labels, validation_labels = train_test_split(input_ids, labels,
-                                                                                            random_state=2018,
-                                                                                            test_size=0.1)
-        # Do the same for the masks.
-        train_masks, validation_masks, _, _ = train_test_split(attention_mask, labels,
-                                                               random_state=2018, test_size=0.1)
-
-        return train_inputs, validation_inputs, train_labels, validation_labels, train_masks, validation_masks
-
-    @staticmethod
-    def Convert_To_PyTorch(train_inputs, validation_inputs, train_labels, validation_labels, train_masks,
-                           validation_masks):
-        # Convert all inputs and labels into torch tensors, the required datatype
-        # for our model.
-        train_inputs = torch.tensor(train_inputs)
-        validation_inputs = torch.tensor(validation_inputs)
-
-        train_labels = torch.tensor(train_labels)
-        validation_labels = torch.tensor(validation_labels)
-
-        train_masks = torch.tensor(train_masks)
-        validation_masks = torch.tensor(validation_masks)
-
-        return train_inputs, train_labels, train_masks, validation_inputs, validation_labels, validation_masks
-
-    @staticmethod
-    def Get_Attention_Mask(input_ids):
-        # Create attention masks
-        attention_masks = []
-
-        # For each sentence...
-        for sent in input_ids:
-            # Create the attention mask.
-            #   - If a token ID is 0, then it's padding, set the mask to 0.
-            #   - If a token ID is > 0, then it's a real token, set the mask to 1.
-            att_mask = [int(token_id > 0) for token_id in sent]
-
-            # Store the attention mask for this sentence.
-            attention_masks.append(att_mask)
-
-        return attention_masks
-
-    def Pad_Sequences(self, input_ids, tokenizer):
-        self.logger.printAndLog(const.MessageType.Regular,
-                                f'\nPadding/truncating all sentences to {self.MAX_LEN} values...')
-
-        self.logger.printAndLog(const.MessageType.Regular,
-                                f'\nPadding token: "{tokenizer.pad_token}", ID: {tokenizer.pad_token_id}')
-
-        # Pad our input tokens with value 0.
-        # "post" indicates that we want to pad and truncate at the end of the sequence,
-        # as opposed to the beginning.
-        input_ids = pad_sequences(input_ids, dtype='int64', maxlen=self.MAX_LEN,
-                                  value=0, truncating="post", padding="post")
-
-        self.logger.printAndLog(const.MessageType.Regular, '\nDone.')
-
-        return input_ids
-
-    def Tokenize_Sentences(self, sentences, tokenizer):
-        # Tokenize all of the sentences and map the tokens to their word IDs.
-        input_ids = []
-
-        # For every sentence...
-        for sent in sentences:
-            if type(sent) is not str:
-                continue
-            # `encode` will:
-            #   (1) Tokenize the sentence.
-            #   (2) Prepend the `[CLS]` token to the start.
-            #   (3) Append the `[SEP]` token to the end.
-            #   (4) Map tokens to their IDs.
-            encoded_sent = tokenizer.encode(
-                sent,  # Sentence to encode.
-                add_special_tokens=True,  # Add '[CLS]' and '[SEP]'
-
-                # This function also supports truncation and conversion
-                # to pytorch tensors, but we need to do padding, so we
-                # can't use these features :( .
-                # max_length = 128,          # Truncate all sentences.
-                # return_tensors = 'pt',     # Return pytorch tensors.
-            )
-
-            # Add the encoded sentence to the list.
-            input_ids.append(encoded_sent)
-
-        # Print sentence 0, now as a list of IDs.
-        self.logger.printAndLog(const.MessageType.Regular, "Tokenized input example:")
-        self.logger.printAndLog(const.MessageType.Regular, f'Original: {sentences[0]}')
-        self.logger.printAndLog(const.MessageType.Regular, f'Token IDs: {input_ids[0]}')
-        self.logger.printAndLog(const.MessageType.Regular,
-                                f'Max sentence length: {max([len(sen) for sen in input_ids])}')
-
-        return input_ids
-
-    def Load_Tokenizer(self):
-        # Load the BERT tokenizer.
-        self.logger.printAndLog(const.MessageType.Regular, 'Loading BERT tokenizer...')
-        tokenizer = BertTokenizer.from_pretrained('bert-base-uncased', do_lower_case=True)
-
-        # Print the original sentence.
-        # self.logger.printAndLog(const.MessageType.Regular, f' Original: {sentences[0]}')
-
-        # Print the sentence split into tokens.
-        # self.logger.printAndLog(const.MessageType.Regular, f'Tokenized: {tokenizer.tokenize(sentences[0])}')
-
-        # Print the sentence mapped to token ids.
-        # self.logger.printAndLog(const.MessageType.Regular,
-        #                        f'Token IDs:{tokenizer.convert_tokens_to_ids(tokenizer.tokenize(sentences[0]))}')
-
-        return tokenizer
-
-    def Load_DataSet(self, dataSetPath):
-        self.logger.printAndLog(const.MessageType.Regular, f'Loading data set')
-
-        # Load the dataset into a pandas dataframe.
-        df = pd.read_csv(dataSetPath)
-        # df = pd.read_csv("./cola_public/raw/in_domain_train.tsv", delimiter='\t', header=None,
-        #                 names=['sentence_source', 'label', 'label_notes', 'sentence'])
-
-        # Get the lists of sentences and their labels.
-        sentences, labels = zip(*((s, self.classify(l)) for s, l in zip(df.Tweet.values, df.Prediction.values) if type(s) is str))
-        # labels = [float(i) for i in df.Prediction.values]
-        # labels = [self.classify(i) for i in df.Prediction.values]
-
-        # sentences = df.sentence.values
-        # labels = df.label.values
-
-        # Report the number of sentences.
-        self.logger.printAndLog(const.MessageType.Regular, 'Number of training sentences: {:,}'.format(df.shape[0]))
-        self.logger.printAndLog(const.MessageType.Regular, "Examples from the dataSet:")
-        # Display 10 random rows from the data.
-        # for sample in enumerate(df.sample(10)):
-        #     self.logger.printAndLog(const.MessageType.Regular, f'{sample.to_string()}')
-        return df, sentences, labels
-
     def GetGPUDevice(self):
         # Get the GPU device name.
         device_name = tf.test.gpu_device_name()
@@ -484,22 +335,6 @@ class ModelTrainer(ABC):
             device = torch.device("cpu")
 
         return device
-
-    def Create_Iterator(self, train_inputs, train_masks, train_labels, validation_inputs, validation_masks,
-                        validation_labels):
-        # The DataLoader needs to know our batch size for training, so we specify it
-        # here.
-        # Create the DataLoader for our training set.
-        train_data = TensorDataset(train_inputs, train_masks, train_labels)
-        train_sampler = RandomSampler(train_data)
-        train_dataLoader = DataLoader(train_data, sampler=train_sampler, batch_size=self.batch_size)
-
-        # Create the DataLoader for our validation set.
-        validation_data = TensorDataset(validation_inputs, validation_masks, validation_labels)
-        validation_sampler = SequentialSampler(validation_data)
-        validation_dataLoader = DataLoader(validation_data, sampler=validation_sampler, batch_size=self.batch_size)
-
-        return train_dataLoader, validation_dataLoader
 
     def Load_BERT(self, num_labels):
         # Load BertForSequenceClassification, the pretrained BERT model with a single
@@ -538,60 +373,194 @@ class ModelTrainer(ABC):
 
         return model
 
-    def Plot_Training_Labels(self):
-        companiesKeywords, companiesPossibleKeywords = self.GetCompaniesKeywordsDataCount()
-        labels = list(key.split(" ", 2)[0] for key in companiesKeywords.keys())
-        xCoordinates = np.arange(len(labels))
-        keywordsHeights = companiesKeywords.values()
-        possibleKeywordsHeights = companiesPossibleKeywords.values()
+    def Load_From_PreTrained(self, source_dir):
+        self.logger.printAndLog(const.MessageType.Regular, f'Loading model from: {source_dir}')
+        # Load a trained model and vocabulary that you have fine-tuned
+        model = BertForSequenceClassification.from_pretrained(source_dir)
+        tokenizer = BertTokenizer.from_pretrained(source_dir)
 
-        fig, ax = plt.subplots()
-        width = 0.35
-        rect1 = ax.bar(xCoordinates - width / 2, keywordsHeights, width, label=const.COMPANY_KEYWORDS_COLUMN)
-        rect2 = ax.bar(xCoordinates + width / 2, possibleKeywordsHeights, width,
-                       label=const.COMPANY_POSSIBLE_KEYWORDS_COLUMN)
+        # Copy the model to the GPU.
+        model.to(self.device)
+        return model, tokenizer
 
-        ax.set_ylabel('Tweets')
-        ax.set_title('Number of Tweets by Company')
-        ax.set_xticks(xCoordinates)
-        ax.set_xticklabels(labels)
-        ax.legend()
+    def Load_Tokenizer(self):
+        # Load the BERT tokenizer.
+        self.logger.printAndLog(const.MessageType.Regular, 'Loading BERT tokenizer...')
+        tokenizer = BertTokenizer.from_pretrained('bert-base-uncased', do_lower_case=True)
 
-        DataBaseStatistics.autoLabel(rect1, ax)
-        DataBaseStatistics.autoLabel(rect2, ax)
+        # Print the original sentence.
+        # self.logger.printAndLog(const.MessageType.Regular, f' Original: {sentences[0]}')
 
-        # Arrange labels
-        for item in (ax.get_xticklabels()):
-            item.set_fontsize(9)
+        # Print the sentence split into tokens.
+        # self.logger.printAndLog(const.MessageType.Regular, f'Tokenized: {tokenizer.tokenize(sentences[0])}')
 
-        self.SavePlotToFile(const.twitterCrawlerPossibleKeywordsStatistics)
+        # Print the sentence mapped to token ids.
+        # self.logger.printAndLog(const.MessageType.Regular,
+        #                        f'Token IDs:{tokenizer.convert_tokens_to_ids(tokenizer.tokenize(sentences[0]))}')
 
-    def Plot_Training_Loss(self, loss_values):
-        # Use plot styling from seaborn.
-        sns.set(style='darkgrid')
+        return tokenizer
 
-        # Increase the plot size and font size.
-        sns.set(font_scale=1.5)
-        plt.rcParams["figure.figsize"] = (12, 6)
+    def Load_DataSet(self, dataSetPath):
+        self.logger.printAndLog(const.MessageType.Regular, f'Loading data set...')
 
-        # Plot the learning curve.
-        plt.plot(loss_values, 'b-o')
+        # Load the dataset into a pandas dataframe.
+        df = pd.read_csv(dataSetPath)
+        # df = pd.read_csv("./cola_public/raw/in_domain_train.tsv", delimiter='\t', header=None,
+        #                 names=['sentence_source', 'label', 'label_notes', 'sentence'])
 
-        # Label the plot.
-        plt.title("Training loss")
-        plt.xlabel("Epoch")
-        plt.ylabel("Loss")
+        # Get the lists of sentences and their labels.
+        sentences, labels = zip(*((d.Tweet, self.classify(d.Prediction))
+                                  for index, d in df.iterrows()
+                                  if type(d.Tweet) is str and self.filter(d)))
+        # labels = [float(i) for i in df.Prediction.values]
+        # labels = [self.classify(i) for i in df.Prediction.values]
 
-        # plt.show()
-        self.Save_Plot(const.MachineLearnerStatisticsFolder, const.MachineLearnerTrainPlot)
+        # sentences = df.sentence.values
+        # labels = df.label.values
 
-    def Save_Plot(self, directory, fileName):
-        figure = plt.gcf()  # get current figure
-        figure.set_size_inches(18, 10)
-        if not os.path.exists(directory):
-            os.makedirs(directory)
+        # Report the number of sentences.
+        self.logger.printAndLog(const.MessageType.Regular, 'Number of training sentences: {:,}'.format(df.shape[0]))
+        self.logger.printAndLog(const.MessageType.Regular, "Examples from the dataSet:")
+        # Display 10 random rows from the data.
+        for index, sample in df.sample(10).iterrows():
+            self.logger.printAndLog(const.MessageType.Regular, '---------------------------------------------')
+            self.logger.printAndLog(const.MessageType.Regular, f'Row number {index}:')
+            self.logger.printAndLog(const.MessageType.Regular, f'{sample.T.to_string()}')
 
-        plt.savefig(f"{directory}/{fileName}_{self.runName}.png", dpi=700)
+        self.logger.printAndLog(const.MessageType.Regular, '---------------------------------------------')
+        return df, sentences, labels
+
+    def Tokenize_Sentences(self, sentences, tokenizer):
+        # Tokenize all of the sentences and map the tokens to their word IDs.
+        input_ids = []
+
+        # For every sentence...
+        for sent in sentences:
+            if type(sent) is not str:
+                continue
+            # `encode` will:
+            #   (1) Tokenize the sentence.
+            #   (2) Prepend the `[CLS]` token to the start.
+            #   (3) Append the `[SEP]` token to the end.
+            #   (4) Map tokens to their IDs.
+            encoded_sent = tokenizer.encode(
+                sent,  # Sentence to encode.
+                add_special_tokens=True,  # Add '[CLS]' and '[SEP]'
+
+                # This function also supports truncation and conversion
+                # to pytorch tensors, but we need to do padding, so we
+                # can't use these features :( .
+                # max_length = 128,          # Truncate all sentences.
+                # return_tensors = 'pt',     # Return pytorch tensors.
+            )
+
+            # Add the encoded sentence to the list.
+            input_ids.append(encoded_sent)
+
+        # Print sentence 0, now as a list of IDs.
+        self.logger.printAndLog(const.MessageType.Regular, "Tokenized input example:")
+        self.logger.printAndLog(const.MessageType.Regular, f'Original: {sentences[0]}')
+        self.logger.printAndLog(const.MessageType.Regular, f'Token IDs: {input_ids[0]}')
+        self.logger.printAndLog(const.MessageType.Regular,
+                                f'Max sentence length: {max([len(sen) for sen in input_ids])}')
+
+        return input_ids
+
+    def Pad_Sequences(self, input_ids, tokenizer):
+        self.logger.printAndLog(const.MessageType.Regular,
+                                f'\nPadding/truncating all sentences to {self.MAX_LEN} values...')
+
+        self.logger.printAndLog(const.MessageType.Regular,
+                                f'\nPadding token: "{tokenizer.pad_token}", ID: {tokenizer.pad_token_id}')
+
+        # Pad our input tokens with value 0.
+        # "post" indicates that we want to pad and truncate at the end of the sequence,
+        # as opposed to the beginning.
+        input_ids = pad_sequences(input_ids, dtype='int64', maxlen=self.MAX_LEN,
+                                  value=0, truncating="post", padding="post")
+
+        self.logger.printAndLog(const.MessageType.Regular, '\nDone.')
+
+        return input_ids
+
+    @staticmethod
+    def Get_Attention_Mask(input_ids):
+        # Create attention masks
+        attention_masks = []
+
+        # For each sentence...
+        for sent in input_ids:
+            # Create the attention mask.
+            #   - If a token ID is 0, then it's padding, set the mask to 0.
+            #   - If a token ID is > 0, then it's a real token, set the mask to 1.
+            att_mask = [int(token_id > 0) for token_id in sent]
+
+            # Store the attention mask for this sentence.
+            attention_masks.append(att_mask)
+
+        return attention_masks
+
+    @staticmethod
+    def Split_DataSet(input_ids, labels, attention_mask):
+        # Use 90% for training and 10% for validation.
+        train_inputs, validation_inputs, train_labels, validation_labels = train_test_split(input_ids, labels,
+                                                                                            random_state=2018,
+                                                                                            test_size=0.1)
+        # Do the same for the masks.
+        train_masks, validation_masks, _, _ = train_test_split(attention_mask, labels,
+                                                               random_state=2018, test_size=0.1)
+
+        return train_inputs, validation_inputs, train_labels, validation_labels, train_masks, validation_masks
+
+    @staticmethod
+    def Convert_To_PyTorch(train_inputs, validation_inputs, train_labels, validation_labels, train_masks,
+                           validation_masks):
+        # Convert all inputs and labels into torch tensors, the required datatype
+        # for our model.
+        train_inputs = torch.tensor(train_inputs)
+        validation_inputs = torch.tensor(validation_inputs)
+
+        train_labels = torch.tensor(train_labels)
+        validation_labels = torch.tensor(validation_labels)
+
+        train_masks = torch.tensor(train_masks)
+        validation_masks = torch.tensor(validation_masks)
+
+        return train_inputs, train_labels, train_masks, validation_inputs, validation_labels, validation_masks
+
+    def Create_Iterator(self, train_inputs, train_masks, train_labels, validation_inputs, validation_masks,
+                        validation_labels):
+        # The DataLoader needs to know our batch size for training, so we specify it
+        # here.
+        # Create the DataLoader for our training set.
+        train_data = TensorDataset(train_inputs, train_masks, train_labels)
+        train_sampler = RandomSampler(train_data)
+        train_dataLoader = DataLoader(train_data, sampler=train_sampler, batch_size=self.batch_size)
+
+        # Create the DataLoader for our validation set.
+        validation_data = TensorDataset(validation_inputs, validation_masks, validation_labels)
+        validation_sampler = SequentialSampler(validation_data)
+        validation_dataLoader = DataLoader(validation_data, sampler=validation_sampler, batch_size=self.batch_size)
+
+        return train_dataLoader, validation_dataLoader
+
+    def Get_Optimizer(self, model, train_dataLoader):
+        # Note: AdamW is a class from the huggingface library (as opposed to pytorch)
+        # I believe the 'W' stands for 'Weight Decay fix"
+        optimizer = AdamW(model.parameters(),
+                          lr=2e-5,  # args.learning_rate - default is 5e-5, our notebook had 2e-5
+                          eps=1e-8  # args.adam_epsilon  - default is 1e-8.
+                          )
+
+        # Total number of training steps is number of batches * number of epochs.
+        total_steps = len(train_dataLoader) * self.epochs
+
+        # Create the learning rate scheduler.
+        scheduler = get_linear_schedule_with_warmup(optimizer,
+                                                    num_warmup_steps=0,  # Default value in run_glue.py
+                                                    num_training_steps=total_steps)
+
+        return optimizer, scheduler
 
     def Save_Model(self):
         output_path = f"{const.TrainedModelDirectory}/{self.runName}"

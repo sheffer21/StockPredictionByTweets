@@ -70,7 +70,8 @@ class PreProcessor:
         iterationsCount = 0  # For debugging
         for companySymbol in self.companiesDict:
             self.logger.printAndLog(const.MessageType.Regular, "Company symbol: {}, company name: {}\n"
-                                                               "".format(companySymbol, self.companiesDict[companySymbol]))
+                                                               "".format(companySymbol,
+                                                                         self.companiesDict[companySymbol]))
 
             iterationsCount += 1
 
@@ -93,7 +94,8 @@ class PreProcessor:
                                                              "".format(failure['company'], failure['symbol'],
                                                                        failure['from'], failure['to']))
 
-        filePath = "{}/{}_{}.{}".format(failedImportsDirectory, const.failedImportsFileName, self.logger.getLoggerDate(), "csv")
+        filePath = "{}/{}_{}.{}".format(failedImportsDirectory, const.failedImportsFileName,
+                                        self.logger.getLoggerDate(), "csv")
         PreProcessor.failedSymbolsImports.to_csv(f'{filePath}', index=False)
 
     # noinspection PyBroadException
@@ -126,10 +128,12 @@ class PreProcessor:
                     return ""
             except:
                 self.logger.printAndLog(const.MessageType.Error,
-                                        "An error occurred while trying to fetch for stock symbol: {}".format(stockSymbol))
+                                        "An error occurred while trying to fetch for stock symbol: {}".format(
+                                            stockSymbol))
                 return ""
 
-            self.logger.printAndLog(const.MessageType.Success, "Fetching succeeded, saving to file: {}".format(filePath))
+            self.logger.printAndLog(const.MessageType.Success,
+                                    "Fetching succeeded, saving to file: {}".format(filePath))
             self.exportDataFrame(dataFrame, filePath)
             PreProcessor.statistics.increaseSuccessfulImportCount()
 
@@ -204,7 +208,7 @@ class PreProcessor:
 
     @staticmethod
     def saveSplitDataBaseToCsv():
-        train, test = train_test_split(PreProcessor.finalDatabase, test_size=0.2, random_state=42)
+        train, test = train_test_split(PreProcessor.finalDatabase, test_size=0.2, random_state=42, shuffle=False)
 
         databaseDirectory = os.path.join(PreProcessor.dirName, const.finalDatabaseFolder)
         if not os.path.isdir(databaseDirectory):
@@ -218,16 +222,24 @@ class PreProcessor:
 
     def buildFinalDatabase(self):
         PreProcessor.finalDatabase = pd.concat(
-            [pd.DataFrame([[stockInfo.stockTag, self.clean_post(post.text)]],
-                          columns=[const.PREDICTION_COLUMN,
-                                   const.TEXT_COLUMN])
+            [pd.DataFrame([[post.timeStamp,
+                            stockInfo.stockTag,
+                            self.clean_post(post.text),
+                            ','.join(c.name for c in post.companiesList),
+                            post.followers]],
+                          columns=[const.DATE_COLUMN,
+                                   const.PREDICTION_COLUMN,
+                                   const.TEXT_COLUMN,
+                                   const.COMPANY_COLUMN,
+                                   const.USER_FOLLOWERS_COLUMN])
              for post in self.postsList
              for stockInfo in post.stocksInfo.values()
-             if type(post) is str], ignore_index=True)
+             if type(post.text) is str], ignore_index=True)
 
         PreProcessor.saveSplitDataBaseToCsv()
 
-    def GetCompanySymbols(self, company):
+    @staticmethod
+    def GetCompanySymbols(company):
         return company.stockSymbol.split(", ")
 
     @staticmethod
