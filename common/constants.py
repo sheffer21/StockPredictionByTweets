@@ -67,6 +67,8 @@ effectiveColumnName = "Open"
 # Machine learning configurations
 MachineLearnerStatisticsFolder = "../MachineLearner/Statistics"
 MachineLearnerTrainPlot = "Train_Plot"
+MachineLearnerFollowersPlot = "Followers_Plot"
+MachineLearnerLabelsPlot = "Labels_Plot"
 TrainedModelDirectory = "../MachineLearner/TrainedModel"
 TrainedModelFile = "Trained_Model"
 

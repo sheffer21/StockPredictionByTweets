@@ -23,7 +23,7 @@ class ModelTrainer(ABC):
                  loadFromPreTrained=False, preTrainedSourceDir=""):
         # Save parameter
         self.filter = dataFilter
-        self.resultAnalyzer = resultAnalyzer
+        self.dataAnalyzer = resultAnalyzer
         self.batch_size = batch_size
         self.epochs = epochs
         self.MAX_LEN = MAX_LEN
@@ -188,7 +188,7 @@ class ModelTrainer(ABC):
 
         self.logger.printAndLog(const.MessageType.Regular, "")
         self.logger.printAndLog(const.MessageType.Regular, "Running Validation...")
-        self.resultAnalyzer.StartValidation()
+        self.dataAnalyzer.StartValidation()
 
         t0 = time.time()
 
@@ -230,9 +230,9 @@ class ModelTrainer(ABC):
             logits = logits.detach().cpu().numpy()
             label_ids = b_labels.to('cpu').numpy()
 
-            self.resultAnalyzer.PerformValidationStep(logits, label_ids)
+            self.dataAnalyzer.PerformValidationStep(logits, label_ids)
 
-        self.resultAnalyzer.FinishValidation()
+        self.dataAnalyzer.FinishValidation()
         # Report the final accuracy for this validation run.
         self.logger.printAndLog(const.MessageType.Regular,
                                 f"  Validation took: {self.format_time(time.time() - t0)}")
@@ -306,7 +306,7 @@ class ModelTrainer(ABC):
             true_labels.append(label_ids)
 
         self.logger.printAndLog(const.MessageType.Regular, '    DONE.')
-        self.resultAnalyzer.PrintTestResult(true_labels, predictions)
+        self.dataAnalyzer.PrintTestResult(true_labels, predictions)
 
     def GetGPUDevice(self):
         # Get the GPU device name.
@@ -401,7 +401,8 @@ class ModelTrainer(ABC):
         return tokenizer
 
     def Load_DataSet(self, dataSetPath):
-        self.logger.printAndLog(const.MessageType.Regular, f'Loading data set...')
+        self.logger.printAndLog(const.MessageType.Regular, '-------------------------------------------------')
+        self.logger.printAndLog(const.MessageType.Regular, f'Loading DataSet...')
 
         # Load the dataset into a pandas dataframe.
         df = pd.read_csv(dataSetPath)
@@ -409,14 +410,16 @@ class ModelTrainer(ABC):
         #                 names=['sentence_source', 'label', 'label_notes', 'sentence'])
 
         # Get the lists of sentences and their labels.
-        sentences, labels = zip(*((d.Tweet, self.classify(d.Prediction))
-                                  for index, d in df.iterrows()
-                                  if type(d.Tweet) is str and self.filter(d)))
+        sentences, labels, followers = zip(*((d.Tweet, self.classify(d.Prediction), d[const.USER_FOLLOWERS_COLUMN])
+                                             for index, d in df.iterrows()
+                                             if type(d.Tweet) is str and self.filter(d)))
         # labels = [float(i) for i in df.Prediction.values]
         # labels = [self.classify(i) for i in df.Prediction.values]
 
         # sentences = df.sentence.values
         # labels = df.label.values
+        # Analyze data
+        self.dataAnalyzer.AnalyzeDataSet(sentences, labels, followers, self.runName)
 
         # Report the number of sentences.
         self.logger.printAndLog(const.MessageType.Regular, 'Number of training sentences: {:,}'.format(df.shape[0]))
@@ -467,11 +470,12 @@ class ModelTrainer(ABC):
         return input_ids
 
     def Pad_Sequences(self, input_ids, tokenizer):
+        self.logger.printAndLog(const.MessageType.Regular, "---------------------------------")
         self.logger.printAndLog(const.MessageType.Regular,
-                                f'\nPadding/truncating all sentences to {self.MAX_LEN} values...')
+                                f'Padding/truncating all sentences to {self.MAX_LEN} values...')
 
         self.logger.printAndLog(const.MessageType.Regular,
-                                f'\nPadding token: "{tokenizer.pad_token}", ID: {tokenizer.pad_token_id}')
+                                f'Padding token: "{tokenizer.pad_token}", ID: {tokenizer.pad_token_id}')
 
         # Pad our input tokens with value 0.
         # "post" indicates that we want to pad and truncate at the end of the sequence,
@@ -479,7 +483,7 @@ class ModelTrainer(ABC):
         input_ids = pad_sequences(input_ids, dtype='int64', maxlen=self.MAX_LEN,
                                   value=0, truncating="post", padding="post")
 
-        self.logger.printAndLog(const.MessageType.Regular, '\nDone.')
+        self.logger.printAndLog(const.MessageType.Regular, 'Done.')
 
         return input_ids
 

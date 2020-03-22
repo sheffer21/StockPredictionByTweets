@@ -2,6 +2,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import os
 import common.constants as const
+import numpy as np
 
 
 def Plot_Training_Loss(loss_values, runName):
@@ -24,36 +25,31 @@ def Plot_Training_Loss(loss_values, runName):
     Save_Plot(const.MachineLearnerStatisticsFolder, const.MachineLearnerTrainPlot, runName)
 
 
-def Plot_Training_Labels(self):
-    companiesKeywords, companiesPossibleKeywords = self.GetCompaniesKeywordsDataCount()
-    labels = list(key.split(" ", 2)[0] for key in companiesKeywords.keys())
-    xCoordinates = np.arange(len(labels))
-    keywordsHeights = companiesKeywords.values()
-    possibleKeywordsHeights = companiesPossibleKeywords.values()
+def Plot_Distributions(list, runName):
+    sns.distplot(list)
+    Save_Plot(const.MachineLearnerStatisticsFolder, const.MachineLearnerFollowersPlot, runName)
+
+
+def Plot_DataBase_Labels_Statistics(labels, labels_names, runName):
+    xCoordinates = np.arange(len(labels_names))
+    heights = [sum([1 for label_value in labels if label_value == label_index])
+               for label_index in range(len(labels_names))]
 
     fig, ax = plt.subplots()
-    width = 0.35
-    rect1 = ax.bar(xCoordinates - width / 2, keywordsHeights, width, label=const.COMPANY_KEYWORDS_COLUMN)
-    rect2 = ax.bar(xCoordinates + width / 2, possibleKeywordsHeights, width,
-                   label=const.COMPANY_POSSIBLE_KEYWORDS_COLUMN)
-
-    ax.set_ylabel('Tweets')
-    ax.set_title('Number of Tweets by Company')
+    ax.set_ylabel('Number of Tweets')
+    ax.set_title('Number of Tweets by label')
     ax.set_xticks(xCoordinates)
-    ax.set_xticklabels(labels)
-    ax.legend()
-
-    DataBaseStatistics.autoLabel(rect1, ax)
-    DataBaseStatistics.autoLabel(rect2, ax)
+    ax.set_xticklabels(labels_names)
+    ax.bar(x=xCoordinates, height=heights, width=0.40, color=['green'])
 
     # Arrange labels
     for item in (ax.get_xticklabels()):
         item.set_fontsize(9)
 
-    self.SavePlotToFile(const.twitterCrawlerPossibleKeywordsStatistics)
+    Save_Plot(const.MachineLearnerStatisticsFolder, const.MachineLearnerLabelsPlot, runName)
 
 
-def Save_Plot(self, directory, fileName, runName):
+def Save_Plot(directory, fileName, runName):
     figure = plt.gcf()  # get current figure
     figure.set_size_inches(18, 10)
     if not os.path.exists(directory):
