@@ -1,10 +1,10 @@
-from MachineLearner.ResultAnalyzer import ResultAnalyzer
+from MachineLearner.DataAnalyzer import DataAnalyzer
 import numpy as np
 import common.constants as const
 from sklearn.metrics import matthews_corrcoef
 
 
-class ClassificationResultAnalyzer(ResultAnalyzer.ResultAnalyzer):
+class ClassificationResultAnalyzer(DataAnalyzer.DataAnalyzer):
 
     def __init__(self, logger):
         super().__init__(logger)

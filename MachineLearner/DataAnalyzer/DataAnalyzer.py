@@ -1,12 +1,13 @@
 from abc import ABC
 
 
-class ResultAnalyzer:
+class DataAnalyzer(ABC):
 
     def __init__(self, logger):
         self.logger = logger
         self.nb_eval_steps = 0
 
+    # Validation Analyzer---------------------------------------------------------
     def StartValidation(self):
         self.nb_eval_steps = 0
         pass
@@ -19,5 +20,6 @@ class ResultAnalyzer:
     def FinishValidation(self):
         pass
 
+    # Test Analyzer---------------------------------------------------------
     def PrintTestResult(self, true_labels, predictions):
         pass

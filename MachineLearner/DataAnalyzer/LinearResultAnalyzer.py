@@ -1,10 +1,10 @@
-from MachineLearner.ResultAnalyzer import ResultAnalyzer
+from MachineLearner.DataAnalyzer import DataAnalyzer
 import common.constants as const
 from math import sqrt
 from sklearn.metrics import mean_squared_error
 
 
-class LinearResultAnalyzer(ResultAnalyzer.ResultAnalyzer):
+class LinearResultAnalyzer(DataAnalyzer.DataAnalyzer):
 
     def __init__(self, logger):
         super().__init__(logger)
@@ -30,7 +30,13 @@ class LinearResultAnalyzer(ResultAnalyzer.ResultAnalyzer):
                                 f"  Mean Square: {self.eval_meanSquare / self.nb_eval_steps:.2f}")
 
     def PrintTestResult(self, true_labels, predictions):
-        pass
+        # Every item on the list contain a single batch result
+        true_labels = [item for sublist in true_labels for item in sublist]
+        predictions = [item for sublist in predictions for item in sublist]
+        self.logger.printAndLog(const.MessageType.Regular,
+                                f'   Coefficient: {self.correlCo(true_labels, predictions):.2f}')
+        self.logger.printAndLog(const.MessageType.Regular,
+                                f'   Mean Square: {self.GetMeanSquare(true_labels, predictions):.2f}')
 
     @staticmethod
     def GetMeanSquare(y_actual, y_predicted):
