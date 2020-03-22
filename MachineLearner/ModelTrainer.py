@@ -98,7 +98,7 @@ class ModelTrainer(ABC):
 
                     # Report progress.
                     self.logger.printAndLog(const.MessageType.Regular,
-                                            f'Batch {step > 5,}  of  {len(train_dataLoader) > 5,}.    Elapsed: {elapsed}.')
+                                            f'Batch {step}  of  {len(train_dataLoader)}.    Elapsed: {elapsed}.')
 
                 # Unpack this training batch from our dataLoader.
                 #
@@ -386,6 +386,8 @@ class ModelTrainer(ABC):
 
         # For every sentence...
         for sent in sentences:
+            if type(sent) is not str:
+                continue
             # `encode` will:
             #   (1) Tokenize the sentence.
             #   (2) Prepend the `[CLS]` token to the start.
@@ -406,6 +408,7 @@ class ModelTrainer(ABC):
             input_ids.append(encoded_sent)
 
         # Print sentence 0, now as a list of IDs.
+        self.logger.printAndLog(const.MessageType.Regular, "Tokenized input example:")
         self.logger.printAndLog(const.MessageType.Regular, f'Original: {sentences[0]}')
         self.logger.printAndLog(const.MessageType.Regular, f'Token IDs: {input_ids[0]}')
         self.logger.printAndLog(const.MessageType.Regular,
@@ -439,19 +442,19 @@ class ModelTrainer(ABC):
         #                 names=['sentence_source', 'label', 'label_notes', 'sentence'])
 
         # Get the lists of sentences and their labels.
-        sentences = df.Tweet.values
+        sentences, labels = zip(*((s, self.classify(l)) for s, l in zip(df.Tweet.values, df.Prediction.values) if type(s) is str))
         # labels = [float(i) for i in df.Prediction.values]
-        labels = [self.classify(i) for i in df.Prediction.values]
+        # labels = [self.classify(i) for i in df.Prediction.values]
 
         # sentences = df.sentence.values
         # labels = df.label.values
 
         # Report the number of sentences.
-        self.logger.printAndLog(const.MessageType.Regular, 'Number of training sentences: {:,}\n'.format(df.shape[0]))
-
+        self.logger.printAndLog(const.MessageType.Regular, 'Number of training sentences: {:,}'.format(df.shape[0]))
+        self.logger.printAndLog(const.MessageType.Regular, "Examples from the dataSet:")
         # Display 10 random rows from the data.
-        for sample in df.sample(10):
-            self.logger.printAndLog(const.MessageType.Regular, f'{sample}')
+        # for sample in enumerate(df.sample(10)):
+        #     self.logger.printAndLog(const.MessageType.Regular, f'{sample.to_string()}')
         return df, sentences, labels
 
     def GetGPUDevice(self):
@@ -588,7 +591,7 @@ class ModelTrainer(ABC):
         if not os.path.exists(directory):
             os.makedirs(directory)
 
-        plt.savefig(f"{directory}/{fileName}_{self.runName}.png", dpi=500)
+        plt.savefig(f"{directory}/{fileName}_{self.runName}.png", dpi=700)
 
     def Save_Model(self):
         output_path = f"{const.TrainedModelDirectory}/{self.runName}"
@@ -609,7 +612,8 @@ class ModelTrainer(ABC):
         self.tokenizer.save_pretrained(output_path)
 
         # Good practice: save your training arguments together with the trained model
-        # torch.save(self.runName, os.path.join(const.TrainedModelDirectory, 'training_args.bin'))
+        args = f"Run {self.runName} with Epochs: {self.epochs}, MAX_LEN: {self.MAX_LEN}, Batch_size: {self.batch_size}"
+        torch.save(args, os.path.join(output_path, 'training_args.bin'))
 
     @staticmethod
     def format_time(elapsed):
