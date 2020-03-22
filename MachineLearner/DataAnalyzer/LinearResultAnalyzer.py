@@ -10,6 +10,11 @@ class LinearResultAnalyzer(DataAnalyzer.DataAnalyzer):
         super().__init__(logger)
         self.eval_meanSquare, self.coefficient = 0, 0
 
+    # Database Analyzer---------------------------------------------------------
+    def AnalyzeDataSet(self, sentences, labels, followers, runName):
+        super().AnalyzeDataSet(sentences, labels, followers, runName)
+
+    # Validation Analyzer---------------------------------------------------------
     def StartValidation(self):
         super().StartValidation()
         self.eval_meanSquare = 0
@@ -29,6 +34,7 @@ class LinearResultAnalyzer(DataAnalyzer.DataAnalyzer):
         self.logger.printAndLog(const.MessageType.Regular,
                                 f"  Mean Square: {self.eval_meanSquare / self.nb_eval_steps:.2f}")
 
+    # Test Analyzer---------------------------------------------------------
     def PrintTestResult(self, true_labels, predictions):
         # Every item on the list contain a single batch result
         true_labels = [item for sublist in true_labels for item in sublist]

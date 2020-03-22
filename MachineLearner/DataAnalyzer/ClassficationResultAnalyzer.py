@@ -2,6 +2,7 @@ from MachineLearner.DataAnalyzer import DataAnalyzer
 import numpy as np
 import common.constants as const
 from sklearn.metrics import matthews_corrcoef
+import MachineLearner.DataAnalyzer.StatisticsProvider as stat
 
 
 class ClassificationResultAnalyzer(DataAnalyzer.DataAnalyzer):
@@ -10,6 +11,12 @@ class ClassificationResultAnalyzer(DataAnalyzer.DataAnalyzer):
         super().__init__(logger)
         self.eval_accuracy = 0
 
+    # Database Analyzer---------------------------------------------------------
+    def AnalyzeDataSet(self, sentences, labels, followers, runName):
+        super().AnalyzeDataSet(sentences, labels, followers, runName)
+        stat.Plot_DataBase_Labels_Statistics(labels, ["Neutral", "Negative", "Positive"], runName)
+
+    # Validation Analyzer---------------------------------------------------------
     def StartValidation(self):
         super().StartValidation()
         self.eval_accuracy = 0
@@ -24,6 +31,7 @@ class ClassificationResultAnalyzer(DataAnalyzer.DataAnalyzer):
         self.logger.printAndLog(const.MessageType.Regular,
                                 "   Accuracy: {0:.2f}".format(self.eval_accuracy / self.nb_eval_steps))
 
+    # Test Analyzer---------------------------------------------------------
     def PrintTestResult(self, true_labels, predictions):
         self.Get_MCC(true_labels, predictions)
 

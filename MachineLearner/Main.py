@@ -6,7 +6,7 @@ from MachineLearner.DataAnalyzer.LinearResultAnalyzer import LinearResultAnalyze
 import MachineLearner.Classifiers as classifiers
 import MachineLearner.DataFilters as dataFilters
 
-Threshold = 1
+Threshold = 5
 MAX_LEN = 64
 # Number of training epochs (authors recommend between 2 and 4)
 epochs = 4
@@ -29,26 +29,26 @@ def main(outSourcedLogger=None):
     #    = numericRepresentationService.getNumericRepresentationOfFinalData()
 
     # Train the model
-    # classificationAnalyzer = ClassificationResultAnalyzer(logger)
-    # classification_model = ModelTrainer(logger, 3, lambda x: classifiers.classify_3classes(x, Threshold),
-    #                                     "3_Classes_Training", MAX_LEN,
-    #                                     epochs, batch_size,
-    #                                     classificationAnalyzer,
-    #                                     lambda d: default_dataFilter(d))
-    # classification_model.Train(f'{const.finalDatabaseFolder}{const.trainFile}')
-    # classification_model.Test(f'{const.finalDatabaseFolder}{const.testFile}')
+    classificationAnalyzer = ClassificationResultAnalyzer(logger)
+    classification_model = ModelTrainer(logger, 3, lambda x: classifiers.classify_3classes(x, Threshold),
+                                        "3_Classes_Training", MAX_LEN,
+                                        epochs, batch_size,
+                                        classificationAnalyzer,
+                                        lambda d: dataFilters.default_dataFilter(d))
+    classification_model.Train(f'{const.finalDatabaseFolder}{const.trainFileDebug}')
+    classification_model.Test(f'{const.finalDatabaseFolder}{const.testFileDebug}')
 
-    linearResultAnalyzer = LinearResultAnalyzer(logger)
-    linear_model = ModelTrainer(logger, 1, lambda x: classifiers.default_classifier(x),
-                                "Linear_Classification",
-                                MAX_LEN, epochs,
-                                batch_size,
-                                linearResultAnalyzer,
-                                lambda d: dataFilters.default_dataFilter(d))
-                                # True,
-                                # f'{const.TrainedModelDirectory}/Linear_Classification_21-03-2020_20-32-20')
-    linear_model.Train(f'{const.finalDatabaseFolder}{const.trainFileDebug}')
-    linear_model.Test(f'{const.finalDatabaseFolder}{const.testFileDebug}')
+    # linearResultAnalyzer = LinearResultAnalyzer(logger)
+    # linear_model = ModelTrainer(logger, 1, lambda x: classifiers.default_classifier(x),
+    #                             "Linear_Classification",
+    #                             MAX_LEN, epochs,
+    #                             batch_size,
+    #                             linearResultAnalyzer,
+    #                             lambda d: dataFilters.default_dataFilter(d))
+    #                             # True,
+    #                            # f'{const.TrainedModelDirectory}/Linear_Classification_21-03-2020_20-32-20')
+    # linear_model.Train(f'{const.finalDatabaseFolder}{const.trainFileDebug}')
+    # linear_model.Test(f'{const.finalDatabaseFolder}{const.testFileDebug}')
 
     # Done
     logger.printAndLog(const.MessageType.Summarize, "Learning stage finished...")
