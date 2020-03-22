@@ -4,7 +4,7 @@ import os
 import common.constants as const
 
 
-def Plot_Training_Loss(loss_values):
+def Plot_Training_Loss(loss_values, runName):
     # Use plot styling from seaborn.
     sns.set(style='darkgrid')
 
@@ -21,7 +21,7 @@ def Plot_Training_Loss(loss_values):
     plt.ylabel("Loss")
 
     # plt.show()
-    Save_Plot(const.MachineLearnerStatisticsFolder, const.MachineLearnerTrainPlot)
+    Save_Plot(const.MachineLearnerStatisticsFolder, const.MachineLearnerTrainPlot, runName)
 
 
 def Plot_Training_Labels(self):

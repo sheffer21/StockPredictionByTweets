@@ -176,8 +176,8 @@ class ModelTrainer(ABC):
 
         self.logger.printAndLog(const.MessageType.Regular, "")
         self.logger.printAndLog(const.MessageType.Regular, "Training complete!")
-        stat.Plot_Training_Loss(loss_values)
         self.Save_Model()
+        stat.Plot_Training_Loss(loss_values, self.runName)
 
     def PerformValidation(self, validation_dataLoader):
         # ========================================
