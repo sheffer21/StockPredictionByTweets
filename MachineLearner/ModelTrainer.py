@@ -42,7 +42,8 @@ class ModelTrainer(ABC):
 
     def Train(self, trainDataSetPath):
         # Load train
-        dataSet, sentences, labels = self.Load_DataSet(trainDataSetPath)
+        self.logger.printAndLog(const.MessageType.Regular, f'Training model {self.runName}')
+        sentences, labels = self.Load_DataSet(trainDataSetPath)
         input_ids = self.Tokenize_Sentences(sentences, self.tokenizer)
         input_ids = self.Pad_Sequences(input_ids, self.tokenizer)
         attention_mask = self.Get_Attention_Mask(input_ids)
@@ -239,13 +240,13 @@ class ModelTrainer(ABC):
 
     def Test(self, testPath):
         self.logger.printAndLog(const.MessageType.Regular, '---------------------------------------------')
-        self.logger.printAndLog(const.MessageType.Regular, "Start testing result on test data set")
+        self.logger.printAndLog(const.MessageType.Regular, f"Start testing result on test {self.runName}")
 
         # Load the dataset into a pandas dataframe.
-        df, sentences, labels = self.Load_DataSet(testPath)
+        sentences, labels = self.Load_DataSet(testPath)
 
         # Report the number of sentences.
-        self.logger.printAndLog(const.MessageType.Regular, f'Number of test sentences: {df.shape[0]}\n')
+        self.logger.printAndLog(const.MessageType.Regular, f'Number of test sentences: {len(sentences)}\n')
 
         # Tokenize all of the sentences and map the tokens to thier word IDs.
         input_ids = self.Tokenize_Sentences(sentences, self.tokenizer)
@@ -325,7 +326,7 @@ class ModelTrainer(ABC):
             device = torch.device("cuda")
 
             self.logger.printAndLog(const.MessageType.Regular,
-                                    f'There are %d GPU(s) available. {torch.cuda.device_count()}')
+                                    f'There are {torch.cuda.device_count()} GPU(s) available.')
 
             self.logger.printAndLog(const.MessageType.Regular, f'We will use the GPU:{torch.cuda.get_device_name(0)}')
 
@@ -413,9 +414,14 @@ class ModelTrainer(ABC):
         # sentences, labels, followers = zip(*((d.Tweet, self.classify(d.Prediction), d[const.USER_FOLLOWERS_COLUMN])
         #                                     for index, d in df.iterrows()
         #                                     if type(d.Tweet) is str and self.filter(d)))
-        sentences, labels = zip(*((d.Tweet, self.classify(d.Prediction))
-                                  for index, d in df.iterrows()
-                                  if type(d.Tweet) is str and self.filter(d)))
+
+        df = pd.concat([d for index, d in df.iterrows()
+                        if type(d.Tweet) is str and self.filter(d)])
+
+        sentences = df.Tweet.values
+        labels = [self.classify(prediction) for prediction in df.Prediction.values]
+        followers = df[const.USER_FOLLOWERS_COLUMN].values
+        companies = df[const.COMPANY_COLUMN].values
 
         # labels = [float(i) for i in df.Prediction.values]
         # labels = [self.classify(i) for i in df.Prediction.values]
@@ -429,13 +435,15 @@ class ModelTrainer(ABC):
         self.logger.printAndLog(const.MessageType.Regular, 'Number of training sentences: {:,}'.format(len(sentences)))
         self.logger.printAndLog(const.MessageType.Regular, "Examples from the dataSet:")
         # Display 10 random rows from the data.
-        for index, sample in df.sample(10).iterrows():
+        for index in range(10):
             self.logger.printAndLog(const.MessageType.Regular, '---------------------------------------------')
-            self.logger.printAndLog(const.MessageType.Regular, f'Row number {index}:')
-            self.logger.printAndLog(const.MessageType.Regular, f'{sample.T.to_string()}')
-
+            self.logger.printAndLog(const.MessageType.Regular, f'Row number:   {index}:')
+            self.logger.printAndLog(const.MessageType.Regular, f'Prediction:   {labels[index]}')
+            self.logger.printAndLog(const.MessageType.Regular, f'Tweet:        {sentences[index]}')
+            self.logger.printAndLog(const.MessageType.Regular, f'Followers:    {followers[index]}')
+            self.logger.printAndLog(const.MessageType.Regular, f'Company:      {companies[index]}')
         self.logger.printAndLog(const.MessageType.Regular, '---------------------------------------------')
-        return df, sentences, labels
+        return sentences, labels
 
     def Tokenize_Sentences(self, sentences, tokenizer):
         # Tokenize all of the sentences and map the tokens to their word IDs.
