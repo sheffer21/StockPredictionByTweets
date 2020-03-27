@@ -213,7 +213,7 @@ class StockInfo:
             if currentDateInDateFormat < self.__s_postOriginalDate:
                 continue
 
-            tag += (StockInfo.effectiveDaysAfterPost - index) * self.__s_deviationPerDate[currentDate]
+            tag += (StockInfo.effectiveDaysAfterPost - index) * (StockInfo.effectiveDaysAfterPost - index) * self.__s_deviationPerDate[currentDate]
             if index == (StockInfo.effectiveDaysAfterPost - 1):
                 break
 
