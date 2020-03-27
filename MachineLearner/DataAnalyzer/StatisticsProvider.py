@@ -26,7 +26,15 @@ def Plot_Training_Loss(loss_values, runName):
 
 
 def Plot_Distributions(list, runName):
-    sns.distplot(list)
+    # seaborn histogram
+    sns.distplot(list, hist=True, kde=True,
+                 bins=1000, color='blue',
+                 hist_kws={'edgecolor': 'black'})
+    # Add labels
+    plt.title('Histogram of Followers')
+    plt.xlabel('Followers')
+    plt.ylabel('#Tweets')
+
     Save_Plot(const.MachineLearnerStatisticsFolder, const.MachineLearnerFollowersPlot, runName)
 
 
@@ -56,3 +64,4 @@ def Save_Plot(directory, fileName, runName):
         os.makedirs(directory)
 
     plt.savefig(f"{directory}/{fileName}_{runName}.png", dpi=700)
+    plt.clf()
