@@ -174,9 +174,9 @@ class ModelTrainer(ABC):
 
             self.PerformValidation(validation_dataLoader)
 
+        self.Save_Model()
         self.logger.printAndLog(const.MessageType.Regular, "")
         self.logger.printAndLog(const.MessageType.Regular, "Training complete!")
-        self.Save_Model()
         stat.Plot_Training_Loss(loss_values, self.runName)
 
     def PerformValidation(self, validation_dataLoader):
@@ -410,19 +410,23 @@ class ModelTrainer(ABC):
         #                 names=['sentence_source', 'label', 'label_notes', 'sentence'])
 
         # Get the lists of sentences and their labels.
-        sentences, labels, followers = zip(*((d.Tweet, self.classify(d.Prediction), d[const.USER_FOLLOWERS_COLUMN])
-                                             for index, d in df.iterrows()
-                                             if type(d.Tweet) is str and self.filter(d)))
+        # sentences, labels, followers = zip(*((d.Tweet, self.classify(d.Prediction), d[const.USER_FOLLOWERS_COLUMN])
+        #                                     for index, d in df.iterrows()
+        #                                     if type(d.Tweet) is str and self.filter(d)))
+        sentences, labels = zip(*((d.Tweet, self.classify(d.Prediction))
+                                  for index, d in df.iterrows()
+                                  if type(d.Tweet) is str and self.filter(d)))
+
         # labels = [float(i) for i in df.Prediction.values]
         # labels = [self.classify(i) for i in df.Prediction.values]
 
         # sentences = df.sentence.values
         # labels = df.label.values
         # Analyze data
-        self.dataAnalyzer.AnalyzeDataSet(sentences, labels, followers, self.runName)
+        # self.dataAnalyzer.AnalyzeDataSet(sentences, labels, followers, self.runName)
 
         # Report the number of sentences.
-        self.logger.printAndLog(const.MessageType.Regular, 'Number of training sentences: {:,}'.format(df.shape[0]))
+        self.logger.printAndLog(const.MessageType.Regular, 'Number of training sentences: {:,}'.format(len(sentences)))
         self.logger.printAndLog(const.MessageType.Regular, "Examples from the dataSet:")
         # Display 10 random rows from the data.
         for index, sample in df.sample(10).iterrows():

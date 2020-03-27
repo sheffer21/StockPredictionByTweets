@@ -5,6 +5,7 @@ from MachineLearner.DataAnalyzer.ClassficationResultAnalyzer import Classificati
 from MachineLearner.DataAnalyzer.LinearResultAnalyzer import LinearResultAnalyzer
 import MachineLearner.Classifiers as classifiers
 import MachineLearner.DataFilters as dataFilters
+import datetime
 
 Threshold = 5
 MAX_LEN = 64
@@ -29,26 +30,28 @@ def main(outSourcedLogger=None):
     #    = numericRepresentationService.getNumericRepresentationOfFinalData()
 
     # Train the model
-    classificationAnalyzer = ClassificationResultAnalyzer(logger)
-    classification_model = ModelTrainer(logger, 3, lambda x: classifiers.classify_3classes(x, Threshold),
-                                        "3_Classes_Training_with_threshold_5", MAX_LEN,
-                                        epochs, batch_size,
-                                        classificationAnalyzer,
-                                        lambda d: dataFilters.default_dataFilter(d))
-    classification_model.Train(f'{const.finalDatabaseFolder}{const.trainFile}')
-    classification_model.Test(f'{const.finalDatabaseFolder}{const.testFile}')
+    # classificationAnalyzer = ClassificationResultAnalyzer(logger)
+    # classification_model = ModelTrainer(logger, 3, lambda x: classifiers.classify_3classes(x, Threshold),
+    #                                     "3_Classes_Training_with_threshold_5", MAX_LEN,
+    #                                     epochs, batch_size,
+    #                                     classificationAnalyzer,
+    #                                     lambda d: dataFilters.default_dataFilter(d))
+    # classification_model.Train(f'{const.finalDatabaseFolder}{const.trainFile}')
+    # classification_model.Test(f'{const.finalDatabaseFolder}{const.testFile}')
+    companies = ["Microsoft", "Google", "Intel", "Adobe", "Apple", "Amazon", "Facebook", "Twitter", "Samsung", "Activision", "Johnson"]
+    linearResultAnalyzer = LinearResultAnalyzer(logger)
 
-    # linearResultAnalyzer = LinearResultAnalyzer(logger)
-    # linear_model = ModelTrainer(logger, 1, lambda x: classifiers.default_classifier(x),
-    #                             "Linear_Classification",
-    #                             MAX_LEN, epochs,
-    #                             batch_size,
-    #                             linearResultAnalyzer,
-    #                             lambda d: dataFilters.default_dataFilter(d))
-    #                             # True,
-    #                             # f'{const.TrainedModelDirectory}/Linear_Classification_21-03-2020_20-32-20')
-    # linear_model.Train(f'{const.finalDatabaseFolder}{const.trainFileDebug}')
-    # linear_model.Test(f'{const.finalDatabaseFolder}{const.testFileDebug}')
+    for company in companies:
+        linear_model_date = ModelTrainer(logger, 1, lambda x: classifiers.default_classifier(x),
+                                         f"Linear_Classification_for_company_{company}",
+                                         MAX_LEN, epochs,
+                                         batch_size,
+                                         linearResultAnalyzer,
+                                         lambda d: dataFilters.data_companyFilter(d, company))
+                                         # True,
+                                         # f'{const.TrainedModelDirectory}/Linear_Classification_21-03-2020_20-32-20')
+        linear_model_date.Train(f'{const.finalDatabaseFolder}{const.trainFile}')
+        linear_model_date.Test(f'{const.finalDatabaseFolder}{const.testFile}')
 
     # Done
     logger.printAndLog(const.MessageType.Summarize, "Learning stage finished...")
