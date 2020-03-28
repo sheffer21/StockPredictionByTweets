@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import common.constants as const
 from common.logger import Logger as Log
 from MachineLearner.ModelTrainer import ModelTrainer
@@ -29,26 +31,30 @@ def main(outSourcedLogger=None):
     #    = numericRepresentationService.getNumericRepresentationOfFinalData()
 
     # Train the model
-    classificationAnalyzer = ClassificationResultAnalyzer(logger)
-    classification_model = ModelTrainer(logger, 3, lambda x: classifiers.classify_3classes(x, Threshold),
-                                        "3_Classes_Training", MAX_LEN,
-                                        epochs, batch_size,
-                                        classificationAnalyzer,
-                                        lambda d: dataFilters.default_dataFilter(d))
-    classification_model.Train(f'{const.finalDatabaseFolder}{const.trainFileDebug}')
-    classification_model.Test(f'{const.finalDatabaseFolder}{const.testFileDebug}')
 
-    # linearResultAnalyzer = LinearResultAnalyzer(logger)
-    # linear_model = ModelTrainer(logger, 1, lambda x: classifiers.default_classifier(x),
-    #                             "Linear_Classification",
-    #                             MAX_LEN, epochs,
-    #                             batch_size,
-    #                             linearResultAnalyzer,
-    #                             lambda d: dataFilters.default_dataFilter(d))
-    #                             # True,
-    #                            # f'{const.TrainedModelDirectory}/Linear_Classification_21-03-2020_20-32-20')
+    # classificationAnalyzer = ClassificationResultAnalyzer(logger)
+    # classification_model = ModelTrainer(logger, 3, lambda x: classifiers.classify_3classes(x, Threshold),
+    #                                     "3_Classes_Training_with_threshold_5", MAX_LEN,
+    #                                     epochs, batch_size,
+    #                                     classificationAnalyzer,
+    #                                     lambda d: dataFilters.default_dataFilter(d),
+    #                                     True,
+    #                                     f'{const.TrainedModelDirectory}3_Classes_Training_with_threshold_5_22-03-2020_17-24-16')
+    # # classification_model.Train(f'{const.finalDatabaseFolder}{const.trainFile}')
+    # classification_model.Test(f'{const.finalDatabaseFolder}{const.testFile}')
+
+    date = datetime.strptime("2020-02-15 00:00:00", const.databaseDateFormat).date()
+    linearResultAnalyzer = LinearResultAnalyzer(logger)
+    linear_model = ModelTrainer(logger, 1, lambda x: classifiers.default_classifier(x),
+                                "Linear_Classification_for_Posts_before_february_15_22-03-2020_20-35-55",
+                                MAX_LEN, epochs,
+                                batch_size,
+                                linearResultAnalyzer,
+                                lambda d: dataFilters.date_dataFilter(d, date),
+                                True,
+                                f'{const.TrainedModelDirectory}Linear_Classification_for_Posts_before_february_15_22-03-2020_20-35-55')
     # linear_model.Train(f'{const.finalDatabaseFolder}{const.trainFileDebug}')
-    # linear_model.Test(f'{const.finalDatabaseFolder}{const.testFileDebug}')
+    linear_model.Test(f'{const.finalDatabaseFolder}{const.testFile}')
 
     # Done
     logger.printAndLog(const.MessageType.Summarize, "Learning stage finished...")

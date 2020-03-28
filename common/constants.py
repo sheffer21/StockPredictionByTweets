@@ -69,7 +69,7 @@ MachineLearnerStatisticsFolder = "../MachineLearner/Statistics"
 MachineLearnerTrainPlot = "Train_Plot"
 MachineLearnerFollowersPlot = "Followers_Plot"
 MachineLearnerLabelsPlot = "Labels_Plot"
-TrainedModelDirectory = "../MachineLearner/TrainedModel"
+TrainedModelDirectory = "../MachineLearner/TrainedModel/"
 TrainedModelFile = "Trained_Model"
 
 # Main program console colors
