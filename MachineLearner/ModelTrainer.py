@@ -579,7 +579,7 @@ class ModelTrainer(ABC):
         return optimizer, scheduler
 
     def Save_Model(self):
-        output_path = f"{const.TrainedModelDirectory}/{self.runName}"
+        output_path = f"{const.TrainedModelDirectory}{self.runName}"
 
         # Create output directory if needed
         if not os.path.exists(output_path):
