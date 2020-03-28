@@ -38,20 +38,17 @@ def main(outSourcedLogger=None):
     #                                     lambda d: dataFilters.default_dataFilter(d))
     # classification_model.Train(f'{const.finalDatabaseFolder}{const.trainFile}')
     # classification_model.Test(f'{const.finalDatabaseFolder}{const.testFile}')
-    companies = ["Microsoft", "Google", "Intel", "Adobe", "Apple", "Amazon", "Facebook", "Twitter", "Samsung", "Activision", "Johnson"]
-    linearResultAnalyzer = LinearResultAnalyzer(logger)
+    # companies = ["Microsoft", "Google", "Intel", "Adobe", "Apple", "Amazon", "Facebook", "Twitter", "Samsung", "Activision", "Johnson"]
 
-    for company in companies:
-        linear_model_date = ModelTrainer(logger, 1, lambda x: classifiers.default_classifier(x),
-                                         f"Linear_Classification_for_company_{company}",
-                                         MAX_LEN, epochs,
-                                         batch_size,
-                                         linearResultAnalyzer,
-                                         lambda d: dataFilters.data_companyFilter(d, company))
-                                         # True,
-                                         # f'{const.TrainedModelDirectory}/Linear_Classification_21-03-2020_20-32-20')
-        linear_model_date.Train(f'{const.finalDatabaseFolder}{const.trainFile}')
-        linear_model_date.Test(f'{const.finalDatabaseFolder}{const.testFile}')
+    linearResultAnalyzer = LinearResultAnalyzer(logger)
+    linear_model_date = ModelTrainer(logger, 1, lambda x: classifiers.default_classifier(x),
+                                     f"Linear_Classification_for_power2prediction",
+                                     MAX_LEN, epochs,
+                                     batch_size,
+                                     linearResultAnalyzer,
+                                     lambda d: dataFilters.default_dataFilter(d))
+    linear_model_date.Train(f'{const.finalDatabaseFolder}{const.trainFile}')
+    linear_model_date.Test(f'{const.finalDatabaseFolder}{const.testFile}')
 
     # Done
     logger.printAndLog(const.MessageType.Summarize, "Learning stage finished...")
