@@ -1,3 +1,5 @@
+from pandas import np
+
 from MachineLearner.DataAnalyzer import DataAnalyzer
 import common.constants as const
 from math import sqrt
@@ -39,6 +41,11 @@ class LinearResultAnalyzer(DataAnalyzer.DataAnalyzer):
         # Every item on the list contain a single batch result
         true_labels = [item for sublist in true_labels for item in sublist]
         predictions = [item for sublist in predictions for item in sublist]
+
+        # np.savetxt(f'{const.TrainedModelDirectory}{self.runName}/test_result.out', (true_labels, predictions))
+        np.savetxt(f'{const.TrainedModelDirectory}Linear_Classification_for_Posts_before_february_15_22-03-2020_20-35-55/test_result.csv',
+                   (true_labels, predictions), delimiter=',')
+
         self.logger.printAndLog(const.MessageType.Regular,
                                 f'   Coefficient: {self.correlCo(true_labels, predictions):.2f}')
         self.logger.printAndLog(const.MessageType.Regular,

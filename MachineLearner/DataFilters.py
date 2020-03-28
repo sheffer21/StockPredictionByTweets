@@ -1,6 +1,5 @@
-import common.constants as const
 from datetime import datetime
-
+import common.constants as const
 
 def default_dataFilter(data):
     return True
