@@ -13,4 +13,5 @@ def followers_dataFilter(data, threshold):
 
 def date_dataFilter(data, threshold_date):
     date = datetime.strptime(data[const.DATE_COLUMN], const.databaseDateFormat).date()
-    return date < threshold_date
+    value = date < threshold_date
+    return value

@@ -244,7 +244,7 @@ class ModelTrainer(ABC):
         self.logger.printAndLog(const.MessageType.Regular, f"Start testing result on test {self.runName}")
 
         # Load the dataset into a pandas dataframe.
-        sentences, labels = self.Load_DataSet(testPath)
+        sentences, labels, _, _ = self.Load_DataSet(testPath)
 
         # Report the number of sentences.
         self.logger.printAndLog(const.MessageType.Regular, f'Number of test sentences: {len(sentences)}\n')

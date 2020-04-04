@@ -209,7 +209,7 @@ class PreProcessor:
 
     @staticmethod
     def saveSplitDataBaseToCsv():
-        train, test = train_test_split(PreProcessor.finalDatabase, test_size=0.2, random_state=42, shuffle=False)
+        train, test = train_test_split(PreProcessor.finalDatabase, test_size=0.2, random_state=42)
 
         databaseDirectory = os.path.join(PreProcessor.dirName, const.finalDatabaseFolder)
         if not os.path.isdir(databaseDirectory):
