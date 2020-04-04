@@ -37,13 +37,9 @@ class LinearResultAnalyzer(DataAnalyzer.DataAnalyzer):
                                 f"  Mean Square: {self.eval_meanSquare / self.nb_eval_steps:.2f}")
 
     # Test Analyzer---------------------------------------------------------
-    def PrintTestResult(self, true_labels, predictions):
-        # Every item on the list contain a single batch result
-        true_labels = [item for sublist in true_labels for item in sublist]
-        predictions = [item for sublist in predictions for item in sublist]
-
-        # np.savetxt(f'{const.TrainedModelDirectory}{self.runName}/test_result.out', (true_labels, predictions))
-        np.savetxt(f'{const.TrainedModelDirectory}Linear_Classification_for_Posts_before_february_15_22-03-2020_20-35-55/test_result.csv',
+    def PrintTestResult(self, true_labels, predictions, runName):
+        # np.savetxt(f'{const.TrainedModelDirectory}{runName}/test_result.out', (true_labels, predictions))
+        np.savetxt(f'{const.TrainedModelDirectory}Linear_Classification_With_Bert_Large_03-04-2020_10-34-20/test_result_batch_classification.csv',
                    (true_labels, predictions), delimiter=',')
 
         self.logger.printAndLog(const.MessageType.Regular,
@@ -86,4 +82,4 @@ class LinearResultAnalyzer(DataAnalyzer.DataAnalyzer):
         rDen = xStandDev * yStandDev
 
         r = rNum / rDen
-        return r[0]
+        return r

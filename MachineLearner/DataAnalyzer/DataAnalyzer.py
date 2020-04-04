@@ -26,5 +26,5 @@ class DataAnalyzer(ABC):
         pass
 
     # Test Analyzer---------------------------------------------------------
-    def PrintTestResult(self, true_labels, predictions):
+    def PrintTestResult(self, true_labels, predictions, runName):
         pass
