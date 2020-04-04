@@ -4,14 +4,10 @@ from datetime import datetime
 from common import constants as const
 import os
 from TwitterCrawler.DataBaseOperationsService import DataBaseOperationsService as operations
+import TwitterCrawler.SecretKey as secret
 
 
 class TwitterCrawler:
-    consumer_key = '991t554wZOqeYfIAWOxg4pRID'
-    consumer_secret = 'PbQpvVZGfETYkMK4FWyv9pNPCb10lZwrrpPg3BRnoPm4u9JMh1'
-    access_token = '1196704751641137152-IX9GPWlE1sJBX0q9PTk9yP8yAsiYIq'
-    access_token_secret = 'HTE8WwpYWGbhKzvDihB28FEAMbdPfM075rF6eEwla5G7j'
-
     columns = [const.DATE_COLUMN,
                const.ID_COLUMN,
                const.TEXT_COLUMN,
@@ -96,8 +92,8 @@ class TwitterCrawler:
                                                          const.USER_FOLLOWERS_COLUMN)
 
     def connectToTwitter(self):
-        auth = tweepy.OAuthHandler(TwitterCrawler.consumer_key, TwitterCrawler.consumer_secret)
-        auth.set_access_token(TwitterCrawler.access_token, TwitterCrawler.access_token_secret)
+        auth = tweepy.OAuthHandler(secret.consumer_key, secret.consumer_secret)
+        auth.set_access_token(secret.access_token, secret.access_token_secret)
         api = tweepy.API(auth, wait_on_rate_limit=True, wait_on_rate_limit_notify=True)
 
         try:
