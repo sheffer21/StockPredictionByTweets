@@ -38,12 +38,9 @@ class LinearResultAnalyzer(DataAnalyzer.DataAnalyzer):
 
     # Test Analyzer---------------------------------------------------------
     def PrintTestResult(self, true_labels, predictions, runName):
-        # Every item on the list contain a single batch result
-        true_labels = [item for sublist in true_labels for item in sublist]
-        predictions = [item for sublist in predictions for item in sublist]
-
-        np.savetxt(f'{const.TrainedModelDirectory}{runName}/test_result.csv', (true_labels, predictions),
-                   delimiter=',')
+        # np.savetxt(f'{const.TrainedModelDirectory}{runName}/test_result.out', (true_labels, predictions))
+        np.savetxt(f'{const.TrainedModelDirectory}Linear_Classification_With_Bert_Large_03-04-2020_10-34-20/test_result_batch_classification.csv',
+                   (true_labels, predictions), delimiter=',')
 
         self.logger.printAndLog(const.MessageType.Regular,
                                 f'   Coefficient: {self.correlCo(true_labels, predictions):.2f}')
@@ -85,4 +82,4 @@ class LinearResultAnalyzer(DataAnalyzer.DataAnalyzer):
         rDen = xStandDev * yStandDev
 
         r = rNum / rDen
-        return r[0]
+        return r

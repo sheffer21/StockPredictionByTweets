@@ -15,6 +15,7 @@ import time
 import datetime
 import os
 from abc import ABC
+import matplotlib.pyplot as plt
 
 
 class ModelTrainer(ABC):
@@ -243,7 +244,7 @@ class ModelTrainer(ABC):
         self.logger.printAndLog(const.MessageType.Regular, f"Start testing result on test {self.runName}")
 
         # Load the dataset into a pandas dataframe.
-        sentences, labels = self.Load_DataSet(testPath)
+        sentences, labels, _, _ = self.Load_DataSet(testPath)
 
         # Report the number of sentences.
         self.logger.printAndLog(const.MessageType.Regular, f'Number of test sentences: {len(sentences)}\n')
@@ -308,6 +309,78 @@ class ModelTrainer(ABC):
 
         self.logger.printAndLog(const.MessageType.Regular, '    DONE.')
         self.dataAnalyzer.PrintTestResult(true_labels, predictions, self.runName)
+
+    def Test_Batch_Predictions(self, testPath):
+        self.logger.printAndLog(const.MessageType.Regular, '---------------------------------------------')
+        self.logger.printAndLog(const.MessageType.Regular, f"Start batch testing result on test {self.runName}")
+
+        # Load the dataset into a pandas dataframe.
+        sentences, labels, companies, dates = self.Load_DataSet(testPath)
+
+        # Report the number of sentences.
+        self.logger.printAndLog(const.MessageType.Regular, f'Number of test sentences: {len(sentences)}\n')
+
+        # Tokenize all of the sentences and map the tokens to thier word IDs.
+        input_ids = self.Tokenize_Sentences(sentences, self.tokenizer)
+
+        # Pad our input tokens
+        input_ids = self.Pad_Sequences(input_ids, self.tokenizer)
+
+        # Create attention masks
+        # Create a mask of 1s for each token followed by 0s for padding
+        attention_masks = self.Get_Attention_Mask(input_ids)
+
+        # Convert to tensors.
+        prediction_inputs = torch.tensor(input_ids)
+        prediction_masks = torch.tensor(attention_masks)
+        prediction_labels = torch.tensor(labels)
+
+        # Set the batch size.
+
+        # Create the DataLoader.
+        prediction_data = TensorDataset(prediction_inputs, prediction_masks, prediction_labels)
+        prediction_sampler = SequentialSampler(prediction_data)
+        prediction_dataLoader = DataLoader(prediction_data, sampler=prediction_sampler, batch_size=self.batch_size)
+
+        # Prediction on test set
+
+        self.logger.printAndLog(const.MessageType.Regular,
+                                f'Predicting labels for {len(prediction_inputs)} test sentences...')
+
+        # Put model in evaluation mode
+        self.model.eval()
+
+        # Tracking variables
+        predictions, true_labels = [], []
+
+        # Predict
+        for batch in prediction_dataLoader:
+            # Add batch to GPU
+            batch = tuple(t.to(self.device) for t in batch)
+
+            # Unpack the inputs from our dataloader
+            b_input_ids, b_input_mask, b_labels = batch
+
+            # Telling the model not to compute or store gradients, saving memory and
+            # speeding up prediction
+            with torch.no_grad():
+                # Forward pass, calculate logit predictions
+                outputs = self.model(b_input_ids, token_type_ids=None,
+                                     attention_mask=b_input_mask)
+
+            logits = outputs[0]
+
+            # Move logits and labels to CPU
+            logits = logits.detach().cpu().numpy()
+            label_ids = b_labels.to('cpu').numpy()
+
+            # Store predictions and true labels
+            predictions.append(logits)
+            true_labels.append(label_ids)
+
+        self.logger.printAndLog(const.MessageType.Regular, '    DONE.')
+        batch_trueLabels, batch_predictions = self.GetBatchPrediction(true_labels, predictions, companies, dates)
+        self.dataAnalyzer.PrintTestResult(batch_trueLabels, batch_predictions, self.runName)
 
     def GetGPUDevice(self):
         # Get the GPU device name.
@@ -422,6 +495,7 @@ class ModelTrainer(ABC):
         labels = [self.classify(prediction) for prediction in df.Prediction.values]
         followers = df[const.USER_FOLLOWERS_COLUMN].values
         companies = df[const.COMPANY_COLUMN].values
+        dates = df[const.DATE_COLUMN].values
 
         # labels = [float(i) for i in df.Prediction.values]
         # labels = [self.classify(i) for i in df.Prediction.values]
@@ -443,7 +517,7 @@ class ModelTrainer(ABC):
             self.logger.printAndLog(const.MessageType.Regular, f'Followers:    {followers[index]}')
             self.logger.printAndLog(const.MessageType.Regular, f'Company:      {companies[index]}')
         self.logger.printAndLog(const.MessageType.Regular, '---------------------------------------------')
-        return sentences, labels
+        return sentences, labels, companies, dates
 
     def Tokenize_Sentences(self, sentences, tokenizer):
         # Tokenize all of the sentences and map the tokens to their word IDs.
@@ -610,3 +684,37 @@ class ModelTrainer(ABC):
 
         # Format as hh:mm:ss
         return str(datetime.timedelta(seconds=elapsed_rounded))
+
+    @staticmethod
+    def GetBatchPrediction(true_labels, predictions, companies, dates):
+        batch_trueLabels, batch_predictions = [], []
+
+        true_labels = [item for sublist in true_labels for item in sublist]
+        predictions = [item for sublist in predictions for item in sublist]
+
+        data = pd.concat([pd.DataFrame([
+            [datetime.datetime.strptime(dates[index], const.databaseDateFormat).date(),
+             companies[index],
+             predictions[index][0],
+             true_labels[index]]],
+            columns=['date', 'company', 'prediction', 'true_label'])
+            for index in range(len(predictions))])
+
+        grouped_data_by_date_and_company = data.groupby(['date', 'company'])
+
+        index = 0
+        for group_name, df_group in grouped_data_by_date_and_company:
+            index += 1
+            fig = plt.figure()
+            ax = fig.add_subplot(111)
+            predictions = df_group['prediction']
+            n, bins, patches = ax.hist(predictions, bins=10, normed=True, fc='k', alpha=0.3)
+            prediction = bins[np.argmax(n)]
+
+            for i, item in df_group.iterrows():
+                batch_trueLabels.append(item['true_label'])
+                batch_predictions.append(prediction)
+
+            # plt.show()
+
+        return batch_trueLabels, batch_predictions

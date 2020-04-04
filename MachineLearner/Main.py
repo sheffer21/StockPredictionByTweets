@@ -36,20 +36,17 @@ def main(outSourcedLogger=None):
     keywordsData = pd.read_csv(f'{const.databaseFolder}keywords.csv')
     keywords = keywordsData["Approved Keywords"]
 
-    date = datetime.strptime("2020-02-15 00:00:00", const.databaseDateFormat).date()
     classificationAnalyzer = ClassificationResultAnalyzer(logger)
-    classes = 15
-    classification_model = ModelTrainer(logger, classes, lambda x: classifiers.classify_Nclasses(x, classes, -30, 30),
-                                        f"3_Classes_Training_with_{classes}_classes", MAX_LEN,
+    date = datetime.strptime("2020-02-15 00:00:00", const.databaseDateFormat).date()
+    classification_model = ModelTrainer(logger, 3, lambda x: classifiers.classify_3classes(x, Threshold),
+                                        "3_Classes_Training_Threshold_5_Before_February_15", MAX_LEN,
                                         epochs, batch_size,
                                         classificationAnalyzer,
-                                        lambda d: dataFilters.default_dataFilter(d))
-                                        # True,
-                                        # f'{const.TrainedModelDirectory}3_Classes_Training_with_threshold_5_Followers_More_Then_5000_28-03-2020_09-53-30')
-    classification_model.Train(f'{const.finalDatabaseFolder}{const.trainFile}')
+                                        lambda d: dataFilters.date_dataFilter(d, date),
+                                        True,
+                                        f'{const.TrainedModelDirectory}3_Classes_Training_with_threshold_5_Before_February_15_28-03-2020_12-43-09')
+    # classification_model.Train(f'{const.finalDatabaseFolder}{const.trainFile}')
     classification_model.Test(f'{const.finalDatabaseFolder}{const.testFile}')
-
-    # companies = ["Microsoft", "Google", "Intel", "Adobe", "Apple", "Amazon", "Facebook", "Twitter", "Samsung", "Activision", "Johnson"]
 
     # linearResultAnalyzer = LinearResultAnalyzer(logger)
     # linear_model_date = ModelTrainer(logger, 1, lambda x: classifiers.default_classifier(x),
@@ -79,7 +76,19 @@ def main(outSourcedLogger=None):
     # linear_model.Train(f'{const.finalDatabaseFolder}{const.trainFileDebug}')
     # linear_model.Test(f'{const.finalDatabaseFolder}{const.testFile}')
 
+    # linearResultAnalyzer = LinearResultAnalyzer(logger)
+    # linear_model = ModelTrainer(logger, 1, lambda x: classifiers.default_classifier(x),
+    #                             "Linear_Classification_Test_With_Batch_Prediction_Test_Bert_Large",
+    #                             MAX_LEN, epochs,
+    #                             batch_size,
+    #                             linearResultAnalyzer,
+    #                             lambda d: dataFilters.default_dataFilter(d),
+    #                             True,
+    #                             f'{const.TrainedModelDirectory}Linear_Classification_With_Bert_Large_03-04-2020_10-34-20')
+    # # linear_model.Train(f'{const.finalDatabaseFolder}{const.trainFileDebug}')
+    # linear_model.Test_Batch_Predictions(f'{const.finalDatabaseFolder}{const.testFile}')
     # Done
+
     logger.printAndLog(const.MessageType.Summarize, "Learning stage finished...")
 
 

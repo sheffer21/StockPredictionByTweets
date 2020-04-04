@@ -30,3 +30,4 @@ Databases/Stocks
 MachineLearner/Statistics/
 MachineLearner/TrainedModel/
 Archive/
+TwitterCrawler/SecretKey.py
