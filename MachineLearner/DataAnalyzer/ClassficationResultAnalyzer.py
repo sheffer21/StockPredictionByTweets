@@ -73,9 +73,8 @@ class ClassificationResultAnalyzer(DataAnalyzer.DataAnalyzer):
                                 f"Positive samples: {correct_predictions} of {total} "
                                 f"({(correct_predictions / total * 100.0)})")
 
-        # np.savetxt(f'{const.TrainedModelDirectory}{runName}/test_result.out', (flat_true_labels, flat_predictions))
-        np.savetxt(f'{const.TrainedModelDirectory}3_Classes_Training_with_threshold_5_Before_February_15_28-03-2020_12-43-09/test_result.csv',
-                   (flat_true_labels, flat_predictions), delimiter=',')
+        np.savetxt(f'{const.TrainedModelDirectory}{runName}/test_result.csv', (flat_true_labels, flat_predictions),
+                   delimiter=',')
 
         # Calculate the MCC
         mcc = matthews_corrcoef(flat_true_labels, flat_predictions)

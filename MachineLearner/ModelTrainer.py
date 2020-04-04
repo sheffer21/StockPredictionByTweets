@@ -31,6 +31,7 @@ class ModelTrainer(ABC):
         self.logger = logger
         self.classify = classify
         self.runName = f'{runName}_{datetime.datetime.now().strftime("%d-%m-%Y_%H-%M-%S")}'
+        self.num_labels = num_labels
 
         # Load model
         self.device = self.GetGPUDevice()
@@ -39,7 +40,7 @@ class ModelTrainer(ABC):
             self.model, self.tokenizer = self.Load_From_PreTrained(preTrainedSourceDir)
         else:
             self.tokenizer = self.Load_Tokenizer()
-            self.model = self.Load_BERT(num_labels)
+            self.model = self.Load_BERT()
 
     def Train(self, trainDataSetPath):
         # Load train
@@ -239,80 +240,9 @@ class ModelTrainer(ABC):
         self.logger.printAndLog(const.MessageType.Regular,
                                 f"  Validation took: {self.format_time(time.time() - t0)}")
 
-    def Test(self, testPath):
+    def Test(self, testPath, batchTesting=False):
         self.logger.printAndLog(const.MessageType.Regular, '---------------------------------------------')
         self.logger.printAndLog(const.MessageType.Regular, f"Start testing result on test {self.runName}")
-
-        # Load the dataset into a pandas dataframe.
-        sentences, labels, _, _ = self.Load_DataSet(testPath)
-
-        # Report the number of sentences.
-        self.logger.printAndLog(const.MessageType.Regular, f'Number of test sentences: {len(sentences)}\n')
-
-        # Tokenize all of the sentences and map the tokens to thier word IDs.
-        input_ids = self.Tokenize_Sentences(sentences, self.tokenizer)
-
-        # Pad our input tokens
-        input_ids = self.Pad_Sequences(input_ids, self.tokenizer)
-
-        # Create attention masks
-        # Create a mask of 1s for each token followed by 0s for padding
-        attention_masks = self.Get_Attention_Mask(input_ids)
-
-        # Convert to tensors.
-        prediction_inputs = torch.tensor(input_ids)
-        prediction_masks = torch.tensor(attention_masks)
-        prediction_labels = torch.tensor(labels)
-
-        # Set the batch size.
-
-        # Create the DataLoader.
-        prediction_data = TensorDataset(prediction_inputs, prediction_masks, prediction_labels)
-        prediction_sampler = SequentialSampler(prediction_data)
-        prediction_dataLoader = DataLoader(prediction_data, sampler=prediction_sampler, batch_size=self.batch_size)
-
-        # Prediction on test set
-
-        self.logger.printAndLog(const.MessageType.Regular,
-                                f'Predicting labels for {len(prediction_inputs)} test sentences...')
-
-        # Put model in evaluation mode
-        self.model.eval()
-
-        # Tracking variables
-        predictions, true_labels = [], []
-
-        # Predict
-        for batch in prediction_dataLoader:
-            # Add batch to GPU
-            batch = tuple(t.to(self.device) for t in batch)
-
-            # Unpack the inputs from our dataloader
-            b_input_ids, b_input_mask, b_labels = batch
-
-            # Telling the model not to compute or store gradients, saving memory and
-            # speeding up prediction
-            with torch.no_grad():
-                # Forward pass, calculate logit predictions
-                outputs = self.model(b_input_ids, token_type_ids=None,
-                                     attention_mask=b_input_mask)
-
-            logits = outputs[0]
-
-            # Move logits and labels to CPU
-            logits = logits.detach().cpu().numpy()
-            label_ids = b_labels.to('cpu').numpy()
-
-            # Store predictions and true labels
-            predictions.append(logits)
-            true_labels.append(label_ids)
-
-        self.logger.printAndLog(const.MessageType.Regular, '    DONE.')
-        self.dataAnalyzer.PrintTestResult(true_labels, predictions, self.runName)
-
-    def Test_Batch_Predictions(self, testPath):
-        self.logger.printAndLog(const.MessageType.Regular, '---------------------------------------------')
-        self.logger.printAndLog(const.MessageType.Regular, f"Start batch testing result on test {self.runName}")
 
         # Load the dataset into a pandas dataframe.
         sentences, labels, companies, dates = self.Load_DataSet(testPath)
@@ -378,9 +308,14 @@ class ModelTrainer(ABC):
             predictions.append(logits)
             true_labels.append(label_ids)
 
+        if batchTesting:
+            # batch prediction only available for linear regression
+            if self.num_labels != 1:
+                raise Exception()
+            true_labels, predictions = self.GetBatchPredictions(true_labels, predictions, companies, dates)
+
+        self.dataAnalyzer.PrintTestResult(true_labels, predictions, self.runName)
         self.logger.printAndLog(const.MessageType.Regular, '    DONE.')
-        batch_trueLabels, batch_predictions = self.GetBatchPrediction(true_labels, predictions, companies, dates)
-        self.dataAnalyzer.PrintTestResult(batch_trueLabels, batch_predictions, self.runName)
 
     def GetGPUDevice(self):
         # Get the GPU device name.
@@ -410,12 +345,12 @@ class ModelTrainer(ABC):
 
         return device
 
-    def Load_BERT(self, num_labels):
+    def Load_BERT(self):
         # Load BertForSequenceClassification, the pretrained BERT model with a single
         # linear classification layer on top.
         model = BertForSequenceClassification.from_pretrained(
             "bert-base-uncased",  # Use the 12-layer BERT model, with an uncased vocab.
-            num_labels=num_labels,  # The number of output labels--2 for binary classification.
+            num_labels=self.num_labels,  # The number of output labels--2 for binary classification.
             # You can increase this for multi-class tasks.
             output_attentions=False,  # Whether the model returns attentions weights.
             output_hidden_states=False,  # Whether the model returns all hidden-states.
@@ -686,7 +621,7 @@ class ModelTrainer(ABC):
         return str(datetime.timedelta(seconds=elapsed_rounded))
 
     @staticmethod
-    def GetBatchPrediction(true_labels, predictions, companies, dates):
+    def GetBatchPredictions(true_labels, predictions, companies, dates):
         batch_trueLabels, batch_predictions = [], []
 
         true_labels = [item for sublist in true_labels for item in sublist]

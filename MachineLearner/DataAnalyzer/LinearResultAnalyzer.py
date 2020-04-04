@@ -38,9 +38,8 @@ class LinearResultAnalyzer(DataAnalyzer.DataAnalyzer):
 
     # Test Analyzer---------------------------------------------------------
     def PrintTestResult(self, true_labels, predictions, runName):
-        # np.savetxt(f'{const.TrainedModelDirectory}{runName}/test_result.out', (true_labels, predictions))
-        np.savetxt(f'{const.TrainedModelDirectory}Linear_Classification_With_Bert_Large_03-04-2020_10-34-20/test_result_batch_classification.csv',
-                   (true_labels, predictions), delimiter=',')
+        np.savetxt(f'{const.TrainedModelDirectory}{runName}/test_result.out', (true_labels, predictions),
+                   delimiter=',')
 
         self.logger.printAndLog(const.MessageType.Regular,
                                 f'   Coefficient: {self.correlCo(true_labels, predictions):.2f}')
