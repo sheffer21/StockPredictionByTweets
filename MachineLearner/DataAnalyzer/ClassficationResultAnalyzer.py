@@ -32,8 +32,8 @@ class ClassificationResultAnalyzer(DataAnalyzer.DataAnalyzer):
                                 "   Accuracy: {0:.2f}".format(self.eval_accuracy / self.nb_eval_steps))
 
     # Test Analyzer---------------------------------------------------------
-    def PrintTestResult(self, true_labels, predictions):
-        self.Get_MCC(true_labels, predictions)
+    def PrintTestResult(self, true_labels, predictions, runName):
+        self.Get_MCC(true_labels, predictions, runName)
 
     # Function to calculate the accuracy of our predictions vs labels
     @staticmethod
@@ -42,7 +42,7 @@ class ClassificationResultAnalyzer(DataAnalyzer.DataAnalyzer):
         labels_flat = labels.flatten()
         return np.sum(pred_flat == labels_flat) / len(labels_flat)
 
-    def Get_MCC(self, true_labels, predictions):
+    def Get_MCC(self, true_labels, predictions, runName):
         matthews_set = []
 
         # Evaluate each test batch using Matthew's correlation coefficient
@@ -72,6 +72,13 @@ class ClassificationResultAnalyzer(DataAnalyzer.DataAnalyzer):
         self.logger.printAndLog(const.MessageType.Regular,
                                 f"Positive samples: {correct_predictions} of {total} "
                                 f"({(correct_predictions / total * 100.0)})")
+
+        np.savetxt(f'{const.TrainedModelDirectory}{runName}/test_result.csv', (flat_true_labels, flat_predictions),
+                   delimiter=',')
+
+        # np.savetxt(f'{const.TrainedModelDirectory}3_Classes_Training_with_threshold_5_Followers_More_Then_5000_28-03-2020_09-53-30/test_result.csv',
+        #           (flat_true_labels, flat_predictions),
+        #           delimiter=',')
 
         # Calculate the MCC
         mcc = matthews_corrcoef(flat_true_labels, flat_predictions)

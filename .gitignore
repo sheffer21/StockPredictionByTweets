@@ -21,7 +21,9 @@ Preprocessor/Log/
 TwitterCrawler/.idea/
 __pycache__/
 common/__pycache__/
-Databases/Database/
+Databases/Database/Power2Prediction
+Databases/Database/test_tweetsDebug.csv
+Databases/Database/train_tweetsDebug.csv
 Databases/Graphs/
 Databases/stockerbot-export.csv
 Databases/Stocks

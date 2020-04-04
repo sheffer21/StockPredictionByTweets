@@ -150,6 +150,7 @@ class PreProcessor:
             postText = databaseRow[const.TEXT_COLUMN]
             postDate = databaseRow[const.DATE_COLUMN]
             postUserFollowers = databaseRow[const.USER_FOLLOWERS_COLUMN]
+            postKeyword = databaseRow[const.SEARCH_KEYWORD_COLUMN]
             postSymbols = databaseRow[const.STOCK_SYMBOL_COLUMN]
             postCompany = databaseRow[const.COMPANY_COLUMN]
 
@@ -162,7 +163,7 @@ class PreProcessor:
                 postCompaniesList.append(newCompany)
                 self.companiesDict[postSymbolsParsed[companiesArrayIndex]] = postCompaniesParsed[companiesArrayIndex]
 
-            newPost = Post(postId, postText, postDate, postUserFollowers, postCompaniesList)
+            newPost = Post(postId, postText, postDate, postUserFollowers, postCompaniesList, postKeyword)
 
             self.postsList.append(newPost)
 
@@ -226,12 +227,14 @@ class PreProcessor:
                             stockInfo.stockTag,
                             self.clean_post(post.text),
                             ','.join(c.name for c in post.companiesList),
-                            post.followers]],
+                            post.followers,
+                            post.PostKeyword]],
                           columns=[const.DATE_COLUMN,
                                    const.PREDICTION_COLUMN,
                                    const.TEXT_COLUMN,
                                    const.COMPANY_COLUMN,
-                                   const.USER_FOLLOWERS_COLUMN])
+                                   const.USER_FOLLOWERS_COLUMN,
+                                   const.SEARCH_KEYWORD_COLUMN])
              for post in self.postsList
              for stockInfo in post.stocksInfo.values()
              if type(post.text) is str], ignore_index=True)
