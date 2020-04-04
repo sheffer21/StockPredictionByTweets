@@ -17,3 +17,15 @@ def date_dataFilter(data, threshold_date):
 def data_companyFilter(data, compant_name):
     return data[const.COMPANY_COLUMN] == compant_name
 
+
+def keywords_dataFilter(data, keywords):
+    dataKeyword = data[const.SEARCH_KEYWORD_COLUMN]
+    for keyword in keywords:
+        if dataKeyword == keyword:
+            return True
+    return False
+
+
+def data_predictionFilter(data, predictionThreshold):
+    return abs(data[const.PREDICTION_COLUMN]) < predictionThreshold
+

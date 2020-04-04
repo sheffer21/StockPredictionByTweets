@@ -307,7 +307,7 @@ class ModelTrainer(ABC):
             true_labels.append(label_ids)
 
         self.logger.printAndLog(const.MessageType.Regular, '    DONE.')
-        self.dataAnalyzer.PrintTestResult(true_labels, predictions)
+        self.dataAnalyzer.PrintTestResult(true_labels, predictions, self.runName)
 
     def GetGPUDevice(self):
         # Get the GPU device name.

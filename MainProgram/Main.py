@@ -21,15 +21,15 @@ def main():
     # else:
     #     logger.printAndLog(const.MessageType.Summarize, "TweetsCrawler not ran")
 
-    runPreProcessing = input(const.MAIN_HEADER + "Do you want to run the Preprocessor? \n"
-                                                 "Preprocessor uses fetched databases to build and analyze "
-                                                 "stocks database prior the learning stage. \n"
-                                                 "Type <yes/no>: " + const.MAIN_ENDC)
-
-    if runPreProcessing == "yes":
-        init.main(logger)
-    else:
-        logger.printAndLog(const.MessageType.Summarize, "Preprocessor not ran")
+    # runPreProcessing = input(const.MAIN_HEADER + "Do you want to run the Preprocessor? \n"
+    #                                              "Preprocessor uses fetched databases to build and analyze "
+    #                                              "stocks database prior the learning stage. \n"
+    #                                              "Type <yes/no>: " + const.MAIN_ENDC)
+#
+    # if runPreProcessing == "yes":
+    #     init.main(logger)
+    # else:
+    #     logger.printAndLog(const.MessageType.Summarize, "Preprocessor not ran")
 
     # runMachineLearning = input(const.MAIN_HEADER + "Do you want to run the machine learner? \n"
     #                                                "description \n"

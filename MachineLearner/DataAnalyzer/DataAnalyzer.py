@@ -1,6 +1,7 @@
 from abc import ABC
 import MachineLearner.DataAnalyzer.StatisticsProvider as stat
 
+
 class DataAnalyzer(ABC):
 
     def __init__(self, logger):
@@ -26,5 +27,5 @@ class DataAnalyzer(ABC):
         pass
 
     # Test Analyzer---------------------------------------------------------
-    def PrintTestResult(self, true_labels, predictions):
+    def PrintTestResult(self, true_labels, predictions, runName):
         pass

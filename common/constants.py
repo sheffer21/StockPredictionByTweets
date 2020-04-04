@@ -3,6 +3,7 @@ import enum
 # Global configurations
 logsDirectory = "Log"
 logNamePrefix = "messages_"
+databaseFolder = "../Databases/"
 databaseLocationPath = "../Databases/Tweets/"
 databaseDateFormat = "%Y-%m-%d %H:%M:%S"
 stocksBasePath = "../Databases/Stocks"
