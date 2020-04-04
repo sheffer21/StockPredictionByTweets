@@ -150,6 +150,7 @@ class PreProcessor:
             postText = databaseRow[const.TEXT_COLUMN]
             postDate = databaseRow[const.DATE_COLUMN]
             postUserFollowers = databaseRow[const.USER_FOLLOWERS_COLUMN]
+            postKeyword = databaseRow[const.SEARCH_KEYWORD_COLUMN]
             postSymbols = databaseRow[const.STOCK_SYMBOL_COLUMN]
             postCompany = databaseRow[const.COMPANY_COLUMN]
             postKeyword = databaseRow[const.COMPANY_COLUMN]
@@ -228,7 +229,7 @@ class PreProcessor:
                             self.clean_post(post.text),
                             ','.join(c.name for c in post.companiesList),
                             post.followers,
-                            post.postKeyword]],
+                            post.PostKeyword]],
                           columns=[const.DATE_COLUMN,
                                    const.PREDICTION_COLUMN,
                                    const.TEXT_COLUMN,

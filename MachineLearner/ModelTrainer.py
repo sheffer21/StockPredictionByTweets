@@ -176,10 +176,10 @@ class ModelTrainer(ABC):
 
             self.PerformValidation(validation_dataLoader)
 
+        self.Save_Model()
         self.logger.printAndLog(const.MessageType.Regular, "")
         self.logger.printAndLog(const.MessageType.Regular, "Training complete!")
         stat.Plot_Training_Loss(loss_values, self.runName)
-        self.Save_Model()
 
     def PerformValidation(self, validation_dataLoader):
         # ========================================
@@ -503,10 +503,10 @@ class ModelTrainer(ABC):
         # sentences = df.sentence.values
         # labels = df.label.values
         # Analyze data
-        self.dataAnalyzer.AnalyzeDataSet(sentences, labels, followers, self.runName)
+        # self.dataAnalyzer.AnalyzeDataSet(sentences, labels, followers, self.runName)
 
         # Report the number of sentences.
-        self.logger.printAndLog(const.MessageType.Regular, 'Number of training sentences: {:,}'.format(df.shape[0]))
+        self.logger.printAndLog(const.MessageType.Regular, 'Number of training sentences: {:,}'.format(len(sentences)))
         self.logger.printAndLog(const.MessageType.Regular, "Examples from the dataSet:")
         # Display 10 random rows from the data.
         for index in range(10):

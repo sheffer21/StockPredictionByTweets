@@ -15,6 +15,7 @@ def getPostDateFromTimeStamp(timeStamp):  # Return date in format: 'YY-MM-DD'
 class Post:
 
     def __init__(self, postId, text, timeStamp, followers, companies, postKeyword):
+        self.__p_postKeyword = postKeyword
         self.__p_id = postId
         self.__p_text = text
         self.__p_timeStamp = timeStamp
@@ -34,7 +35,7 @@ class Post:
         return self.__p_companies
 
     @property
-    def postKeyword(self):
+    def PostKeyword(self):
         return self.__p_postKeyword
 
     @property

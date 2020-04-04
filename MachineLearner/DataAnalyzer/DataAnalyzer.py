@@ -1,6 +1,7 @@
 from abc import ABC
 import MachineLearner.DataAnalyzer.StatisticsProvider as stat
 
+
 class DataAnalyzer(ABC):
 
     def __init__(self, logger):
