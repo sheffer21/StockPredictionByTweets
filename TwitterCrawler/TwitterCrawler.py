@@ -94,7 +94,7 @@ class TwitterCrawler:
     def connectToTwitter(self):
         auth = tweepy.OAuthHandler(secret.consumer_key, secret.consumer_secret)
         auth.set_access_token(secret.access_token, secret.access_token_secret)
-        api = tweepy.API(auth, wait_on_rate_limit=True, wait_on_rate_limit_notify=True)p
+        api = tweepy.API(auth, wait_on_rate_limit=True, wait_on_rate_limit_notify=True)
 
         try:
             api.verify_credentials()
