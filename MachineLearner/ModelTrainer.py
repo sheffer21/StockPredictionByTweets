@@ -233,7 +233,7 @@ class ModelTrainer(ABC):
             logits = logits.detach().cpu().numpy()
             label_ids = b_labels.to('cpu').numpy()
 
-            self.dataAnalyzer.PerformValidationStep(logits, label_ids)
+            self.dataAnalyzer.PerformValidationStep([logit[0] for logit in logits], label_ids)
 
         self.dataAnalyzer.FinishValidation()
         # Report the final accuracy for this validation run.
