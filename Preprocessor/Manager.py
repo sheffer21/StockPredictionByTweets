@@ -153,7 +153,6 @@ class PreProcessor:
             postKeyword = databaseRow[const.SEARCH_KEYWORD_COLUMN]
             postSymbols = databaseRow[const.STOCK_SYMBOL_COLUMN]
             postCompany = databaseRow[const.COMPANY_COLUMN]
-            postKeyword = databaseRow[const.COMPANY_COLUMN]
 
             postCompaniesList = []
             postSymbolsParsed = postSymbols.split('-')

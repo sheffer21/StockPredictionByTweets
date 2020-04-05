@@ -39,11 +39,5 @@ def main():
     else:
         logger.printAndLog(const.MessageType.Summarize, "MachineLearner not ran")
 
-    runAfterMath = input("Do you want to run after math? \n"
-                         "After math lets you run operations like looking in graphs and getting statistics"
-                         "from the stocks data and learning stages."
-                         "Type <yes/no>: ")
-
-
 # Run project
 main()
