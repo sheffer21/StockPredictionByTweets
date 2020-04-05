@@ -2,11 +2,13 @@ Stock Prediction By Tweets project
 -------------------------------------------------------------
 TECHNION - ISRAEL  INSTITUTE OF TECHNOLOGY
 
-CRML Lab, Spring 2020
+CRML Lab
 
 By: Alon Sheffer and Ohad Vano
 
 Supervisor: Roman Kaplan
+
+Spring 2020
 
 Project goal:
 -------------------------------------------------------------
