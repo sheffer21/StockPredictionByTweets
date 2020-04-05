@@ -24,9 +24,11 @@ common/__pycache__/
 Databases/Database/Power2Prediction
 Databases/Database/test_tweetsDebug.csv
 Databases/Database/train_tweetsDebug.csv
+Databases/Database/DataBase/
 Databases/Graphs/
 Databases/stockerbot-export.csv
-Databases/Stocks
+Databases/Stocks 
+Databases/Database/DataBaseWithPower2Prediction/
 MachineLearner/Statistics/
 MachineLearner/TrainedModel/
 Archive/
