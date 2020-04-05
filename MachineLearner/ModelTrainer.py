@@ -45,7 +45,7 @@ class ModelTrainer(ABC):
     def Train(self, trainDataSetPath):
         # Load train
         self.logger.printAndLog(const.MessageType.Regular, f'Training model {self.runName}')
-        sentences, labels = self.Load_DataSet(trainDataSetPath)
+        sentences, labels, _, _ = self.Load_DataSet(trainDataSetPath)
         input_ids = self.Tokenize_Sentences(sentences, self.tokenizer)
         input_ids = self.Pad_Sequences(input_ids, self.tokenizer)
         attention_mask = self.Get_Attention_Mask(input_ids)
