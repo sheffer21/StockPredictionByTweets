@@ -19,6 +19,7 @@ class Post:
         self.__p_id = postId
         self.__p_text = text
         self.__p_timeStamp = timeStamp
+        self.__p_postKeyword = postKeyword
         self.__p_companies = companies
         self.__p_followers = followers
         self.__p_date = getPostDateFromTimeStamp(timeStamp)

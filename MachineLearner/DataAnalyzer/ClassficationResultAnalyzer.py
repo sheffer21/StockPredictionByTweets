@@ -76,10 +76,6 @@ class ClassificationResultAnalyzer(DataAnalyzer.DataAnalyzer):
         np.savetxt(f'{const.TrainedModelDirectory}{runName}/test_result.csv', (flat_true_labels, flat_predictions),
                    delimiter=',')
 
-        # np.savetxt(f'{const.TrainedModelDirectory}3_Classes_Training_with_threshold_5_Followers_More_Then_5000_28-03-2020_09-53-30/test_result.csv',
-        #           (flat_true_labels, flat_predictions),
-        #           delimiter=',')
-
         # Calculate the MCC
         mcc = matthews_corrcoef(flat_true_labels, flat_predictions)
         self.logger.printAndLog(const.MessageType.Regular, 'MCC: %.3f' % mcc)
@@ -88,4 +84,3 @@ class ClassificationResultAnalyzer(DataAnalyzer.DataAnalyzer):
     def difference(list1, list2):
         list_dif = [i for i in list1 + list2 if i not in list1 or i not in list2]
         return list_dif
-

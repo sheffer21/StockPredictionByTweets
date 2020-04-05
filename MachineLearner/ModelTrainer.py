@@ -15,6 +15,7 @@ import time
 import datetime
 import os
 from abc import ABC
+import matplotlib.pyplot as plt
 
 
 class ModelTrainer(ABC):
@@ -30,6 +31,7 @@ class ModelTrainer(ABC):
         self.logger = logger
         self.classify = classify
         self.runName = f'{runName}_{datetime.datetime.now().strftime("%d-%m-%Y_%H-%M-%S")}'
+        self.num_labels = num_labels
 
         # Load model
         self.device = self.GetGPUDevice()
@@ -38,7 +40,7 @@ class ModelTrainer(ABC):
             self.model, self.tokenizer = self.Load_From_PreTrained(preTrainedSourceDir)
         else:
             self.tokenizer = self.Load_Tokenizer()
-            self.model = self.Load_BERT(num_labels)
+            self.model = self.Load_BERT()
 
     def Train(self, trainDataSetPath):
         # Load train
@@ -238,12 +240,12 @@ class ModelTrainer(ABC):
         self.logger.printAndLog(const.MessageType.Regular,
                                 f"  Validation took: {self.format_time(time.time() - t0)}")
 
-    def Test(self, testPath):
+    def Test(self, testPath, batchTesting=False):
         self.logger.printAndLog(const.MessageType.Regular, '---------------------------------------------')
         self.logger.printAndLog(const.MessageType.Regular, f"Start testing result on test {self.runName}")
 
         # Load the dataset into a pandas dataframe.
-        sentences, labels = self.Load_DataSet(testPath)
+        sentences, labels, companies, dates = self.Load_DataSet(testPath)
 
         # Report the number of sentences.
         self.logger.printAndLog(const.MessageType.Regular, f'Number of test sentences: {len(sentences)}\n')
@@ -306,8 +308,14 @@ class ModelTrainer(ABC):
             predictions.append(logits)
             true_labels.append(label_ids)
 
-        self.logger.printAndLog(const.MessageType.Regular, '    DONE.')
+        if batchTesting:
+            # batch prediction only available for linear regression
+            if self.num_labels != 1:
+                raise Exception()
+            true_labels, predictions = self.GetBatchPredictions(true_labels, predictions, companies, dates)
+
         self.dataAnalyzer.PrintTestResult(true_labels, predictions, self.runName)
+        self.logger.printAndLog(const.MessageType.Regular, '    DONE.')
 
     def GetGPUDevice(self):
         # Get the GPU device name.
@@ -337,12 +345,12 @@ class ModelTrainer(ABC):
 
         return device
 
-    def Load_BERT(self, num_labels):
+    def Load_BERT(self):
         # Load BertForSequenceClassification, the pretrained BERT model with a single
         # linear classification layer on top.
         model = BertForSequenceClassification.from_pretrained(
             "bert-base-uncased",  # Use the 12-layer BERT model, with an uncased vocab.
-            num_labels=num_labels,  # The number of output labels--2 for binary classification.
+            num_labels=self.num_labels,  # The number of output labels--2 for binary classification.
             # You can increase this for multi-class tasks.
             output_attentions=False,  # Whether the model returns attentions weights.
             output_hidden_states=False,  # Whether the model returns all hidden-states.
@@ -422,6 +430,7 @@ class ModelTrainer(ABC):
         labels = [self.classify(prediction) for prediction in df.Prediction.values]
         followers = df[const.USER_FOLLOWERS_COLUMN].values
         companies = df[const.COMPANY_COLUMN].values
+        dates = df[const.DATE_COLUMN].values
 
         # labels = [float(i) for i in df.Prediction.values]
         # labels = [self.classify(i) for i in df.Prediction.values]
@@ -443,7 +452,7 @@ class ModelTrainer(ABC):
             self.logger.printAndLog(const.MessageType.Regular, f'Followers:    {followers[index]}')
             self.logger.printAndLog(const.MessageType.Regular, f'Company:      {companies[index]}')
         self.logger.printAndLog(const.MessageType.Regular, '---------------------------------------------')
-        return sentences, labels
+        return sentences, labels, companies, dates
 
     def Tokenize_Sentences(self, sentences, tokenizer):
         # Tokenize all of the sentences and map the tokens to their word IDs.
@@ -610,3 +619,37 @@ class ModelTrainer(ABC):
 
         # Format as hh:mm:ss
         return str(datetime.timedelta(seconds=elapsed_rounded))
+
+    @staticmethod
+    def GetBatchPredictions(true_labels, predictions, companies, dates):
+        batch_trueLabels, batch_predictions = [], []
+
+        true_labels = [item for sublist in true_labels for item in sublist]
+        predictions = [item for sublist in predictions for item in sublist]
+
+        data = pd.concat([pd.DataFrame([
+            [datetime.datetime.strptime(dates[index], const.databaseDateFormat).date(),
+             companies[index],
+             predictions[index][0],
+             true_labels[index]]],
+            columns=['date', 'company', 'prediction', 'true_label'])
+            for index in range(len(predictions))])
+
+        grouped_data_by_date_and_company = data.groupby(['date', 'company'])
+
+        index = 0
+        for group_name, df_group in grouped_data_by_date_and_company:
+            index += 1
+            fig = plt.figure()
+            ax = fig.add_subplot(111)
+            predictions = df_group['prediction']
+            n, bins, patches = ax.hist(predictions, bins=10, normed=True, fc='k', alpha=0.3)
+            prediction = bins[np.argmax(n)]
+
+            for i, item in df_group.iterrows():
+                batch_trueLabels.append(item['true_label'])
+                batch_predictions.append(prediction)
+
+            # plt.show()
+
+        return batch_trueLabels, batch_predictions

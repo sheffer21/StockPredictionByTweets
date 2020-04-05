@@ -1,6 +1,7 @@
 from datetime import datetime
 import common.constants as const
 
+
 def default_dataFilter(data):
     return True
 
@@ -28,4 +29,3 @@ def keywords_dataFilter(data, keywords):
 
 def data_predictionFilter(data, predictionThreshold):
     return abs(data[const.PREDICTION_COLUMN]) < predictionThreshold
-

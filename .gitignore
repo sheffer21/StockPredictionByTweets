@@ -32,3 +32,4 @@ Databases/Database/DataBaseWithPower2Prediction/
 MachineLearner/Statistics/
 MachineLearner/TrainedModel/
 Archive/
+TwitterCrawler/SecretKey.py
