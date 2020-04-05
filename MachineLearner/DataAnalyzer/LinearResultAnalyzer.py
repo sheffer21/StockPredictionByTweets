@@ -48,7 +48,7 @@ class LinearResultAnalyzer(DataAnalyzer.DataAnalyzer):
 
     @staticmethod
     def GetMeanSquare(y_actual, y_predicted):
-        return sqrt(mean_squared_error(y_actual, y_predicted))
+        return mean_squared_error(y_actual, y_predicted)
 
     @staticmethod
     def mean(someList):
