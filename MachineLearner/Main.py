@@ -1,3 +1,5 @@
+import pandas as pd
+
 import common.constants as const
 from common.logger import Logger as Log
 from MachineLearner.ModelTrainer import ModelTrainer
@@ -23,24 +25,27 @@ def main(outSourcedLogger=None):
 
     logger.printAndLog(const.MessageType.Summarize, "Starting machine learning algorithms...")
 
-    # Train the model
+    # Fetch safe keywords
+    df = pd.read_csv(f'{const.databaseFolder}keywords.csv')
+    safe_keywords = df['Approved Keywords']
 
-    classificationAnalyzer = ClassificationResultAnalyzer(logger)
-    classification_model = ModelTrainer(logger, 3, lambda x: classifiers.classify_3classes(x, Threshold),
-                                        "3_Classes_Training_with_threshold_5", MAX_LEN,
-                                        epochs, batch_size,
-                                        classificationAnalyzer,
-                                        lambda d: dataFilters.default_dataFilter(d))
-    classification_model.Train(f'{const.finalDatabaseFolder}{const.trainFile}')
-    classification_model.Test(f'{const.finalDatabaseFolder}{const.testFile}')
+    # Train the model
+    # classificationAnalyzer = ClassificationResultAnalyzer(logger)
+    # classification_model = ModelTrainer(logger, 3, lambda x: classifiers.classify_3classes(x, Threshold),
+    #                                     "3_Classes_Training_with_threshold_5", MAX_LEN,
+    #                                     epochs, batch_size,
+    #                                     classificationAnalyzer,
+    #                                     lambda d: dataFilters.default_dataFilter(d))
+    # classification_model.Train(f'{const.finalDatabaseFolder}{const.trainFile}')
+    # classification_model.Test(f'{const.finalDatabaseFolder}{const.testFile}')
 
     linearResultAnalyzer = LinearResultAnalyzer(logger)
     linear_model_date = ModelTrainer(logger, 1, lambda x: classifiers.default_classifier(x),
-                                     f"Linear_Classification",
+                                     f"Linear_Classification_With_Safe_keywords",
                                      MAX_LEN, epochs,
                                      batch_size,
                                      linearResultAnalyzer,
-                                     lambda d: dataFilters.default_dataFilter(d))
+                                     lambda d: dataFilters.keywords_dataFilter(d, safe_keywords))
     linear_model_date.Train(f'{const.finalDatabaseFolder}{const.trainFile}')
     linear_model_date.Test(f'{const.finalDatabaseFolder}{const.testFile}')
 
