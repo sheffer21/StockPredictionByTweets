@@ -7,8 +7,8 @@ import MachineLearner.DataAnalyzer.StatisticsProvider as stat
 
 class ClassificationResultAnalyzer(DataAnalyzer.DataAnalyzer):
 
-    def __init__(self, logger):
-        super().__init__(logger)
+    def __init__(self, logger, classes):
+        super().__init__(logger, DataAnalyzer.AnalyzerType.Classification, classes)
         self.eval_accuracy = 0
 
     # Database Analyzer---------------------------------------------------------
@@ -32,8 +32,17 @@ class ClassificationResultAnalyzer(DataAnalyzer.DataAnalyzer):
                                 "   Accuracy: {0:.2f}".format(self.eval_accuracy / self.nb_eval_steps))
 
     # Test Analyzer---------------------------------------------------------
-    def PrintTestResult(self, true_labels, predictions, runName):
+    def PrintTestResult(self, true_labels, predictions, companies, dates, runName):
+        self.PrintResults([item for sublist in true_labels for item in sublist],
+                          [item for sublist in predictions for item in sublist],
+                          companies,
+                          dates,
+                          runName)
         self.Get_MCC(true_labels, predictions, runName)
+
+    def GetBatchPredictions(self, true_labels, predictions, companies, dates, runName):
+        true_labels_flat, predictions_flat = self.GetFlattenVectors(true_labels, predictions)
+        return super().GetBatchPredictions(true_labels_flat, predictions_flat, companies, dates, runName)
 
     # Function to calculate the accuracy of our predictions vs labels
     @staticmethod
@@ -73,9 +82,6 @@ class ClassificationResultAnalyzer(DataAnalyzer.DataAnalyzer):
                                 f"Positive samples: {correct_predictions} of {total} "
                                 f"({(correct_predictions / total * 100.0)})")
 
-        np.savetxt(f'{const.TrainedModelDirectory}{runName}/test_result.csv', (flat_true_labels, flat_predictions),
-                   delimiter=',')
-
         # Calculate the MCC
         mcc = matthews_corrcoef(flat_true_labels, flat_predictions)
         self.logger.printAndLog(const.MessageType.Regular, 'MCC: %.3f' % mcc)
@@ -84,3 +90,14 @@ class ClassificationResultAnalyzer(DataAnalyzer.DataAnalyzer):
     def difference(list1, list2):
         list_dif = [i for i in list1 + list2 if i not in list1 or i not in list2]
         return list_dif
+
+    def GetFlattenVectors(self, true_labels, predictions):
+        # Combine the predictions for each batch into a single list of 0s and 1s.
+        flat_predictions = [item for sublist in predictions for item in sublist]
+        flat_predictions = np.argmax(flat_predictions, axis=1).flatten()
+        flat_predictions = [item for item in flat_predictions]
+
+        # Combine the correct labels for each batch into a single list.
+        flat_true_labels = [item for sublist in true_labels for item in sublist]
+
+        return flat_true_labels, flat_predictions

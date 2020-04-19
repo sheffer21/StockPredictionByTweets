@@ -15,7 +15,6 @@ import time
 import datetime
 import os
 from abc import ABC
-import matplotlib.pyplot as plt
 
 
 class ModelTrainer(ABC):
@@ -260,6 +259,8 @@ class ModelTrainer(ABC):
         # Create a mask of 1s for each token followed by 0s for padding
         attention_masks = self.Get_Attention_Mask(input_ids)
 
+        t0 = time.time()
+
         # Convert to tensors.
         prediction_inputs = torch.tensor(input_ids)
         prediction_masks = torch.tensor(attention_masks)
@@ -308,13 +309,14 @@ class ModelTrainer(ABC):
             predictions.append(logits)
             true_labels.append(label_ids)
 
-        if batchTesting:
-            # batch prediction only available for linear regression
-            if self.num_labels != 1:
-                raise Exception()
-            true_labels, predictions = self.GetBatchPredictions(true_labels, predictions, companies, dates)
+        self.logger.printAndLog(const.MessageType.Regular,
+                                f"  Test took: {self.format_time(time.time() - t0)}")
 
-        self.dataAnalyzer.PrintTestResult(true_labels, predictions, self.runName)
+        if batchTesting:
+            self.dataAnalyzer.GetBatchPredictions(true_labels, predictions, companies, dates, self.runName)
+        else:
+            self.dataAnalyzer.PrintTestResult(true_labels, predictions, companies, dates, self.runName)
+
         self.logger.printAndLog(const.MessageType.Regular, '    DONE.')
 
     def GetGPUDevice(self):
@@ -619,37 +621,3 @@ class ModelTrainer(ABC):
 
         # Format as hh:mm:ss
         return str(datetime.timedelta(seconds=elapsed_rounded))
-
-    @staticmethod
-    def GetBatchPredictions(true_labels, predictions, companies, dates):
-        batch_trueLabels, batch_predictions = [], []
-
-        true_labels = [item for sublist in true_labels for item in sublist]
-        predictions = [item for sublist in predictions for item in sublist]
-
-        data = pd.concat([pd.DataFrame([
-            [datetime.datetime.strptime(dates[index], const.databaseDateFormat).date(),
-             companies[index],
-             predictions[index][0],
-             true_labels[index]]],
-            columns=['date', 'company', 'prediction', 'true_label'])
-            for index in range(len(predictions))])
-
-        grouped_data_by_date_and_company = data.groupby(['date', 'company'])
-
-        index = 0
-        for group_name, df_group in grouped_data_by_date_and_company:
-            index += 1
-            fig = plt.figure()
-            ax = fig.add_subplot(111)
-            predictions = df_group['prediction']
-            n, bins, patches = ax.hist(predictions, bins=10, normed=True, fc='k', alpha=0.3)
-            prediction = bins[np.argmax(n)]
-
-            for i, item in df_group.iterrows():
-                batch_trueLabels.append(item['true_label'])
-                batch_predictions.append(prediction)
-
-            # plt.show()
-
-        return batch_trueLabels, batch_predictions

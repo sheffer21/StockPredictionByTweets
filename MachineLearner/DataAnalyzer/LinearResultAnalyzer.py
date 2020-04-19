@@ -9,7 +9,7 @@ from sklearn.metrics import mean_squared_error
 class LinearResultAnalyzer(DataAnalyzer.DataAnalyzer):
 
     def __init__(self, logger):
-        super().__init__(logger)
+        super().__init__(logger, DataAnalyzer.AnalyzerType.Linear, 1)
         self.eval_meanSquare, self.coefficient = 0, 0
 
     # Database Analyzer---------------------------------------------------------
@@ -37,10 +37,12 @@ class LinearResultAnalyzer(DataAnalyzer.DataAnalyzer):
                                 f"  Mean Square: {self.eval_meanSquare / self.nb_eval_steps:.2f}")
 
     # Test Analyzer---------------------------------------------------------
-    def PrintTestResult(self, true_labels, predictions, runName):
-        np.savetxt(f'{const.TrainedModelDirectory}{runName}/test_result.out', (true_labels, predictions),
-                   delimiter=',')
-
+    def PrintTestResult(self, true_labels, predictions, companies, dates, runName):
+        self.PrintResults([item for sublist in true_labels for item in sublist],
+                          [item for sublist in predictions for item in sublist],
+                          companies,
+                          dates,
+                          runName)
         self.logger.printAndLog(const.MessageType.Regular,
                                 f'   Coefficient: {self.correlCo(true_labels, predictions):.2f}')
         self.logger.printAndLog(const.MessageType.Regular,
@@ -82,3 +84,12 @@ class LinearResultAnalyzer(DataAnalyzer.DataAnalyzer):
 
         r = rNum / rDen
         return r
+
+    def GetBatchPredictions(self, true_labels, predictions, companies, dates, runName):
+        true_labels_flat, predictions_flat = self.GetFlattenVectors(true_labels, predictions)
+        return super().GetBatchPredictions(true_labels_flat, predictions_flat, companies, dates)
+
+    def GetFlattenVectors(self, true_labels, predictions):
+        true_labels = [item for sublist in true_labels for item in sublist]
+        predictions = [item[0] for sublist in predictions for item in sublist]
+        return true_labels, predictions
