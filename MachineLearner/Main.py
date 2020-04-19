@@ -25,7 +25,7 @@ def main(outSourcedLogger=None):
 
     # Train the model
 
-    classificationAnalyzer = ClassificationResultAnalyzer(logger)
+    classificationAnalyzer = ClassificationResultAnalyzer(logger, 3)
     classification_model = ModelTrainer(logger, 3, lambda x: classifiers.classify_3classes(x, Threshold),
                                         "3_Classes_Training_with_threshold_5", MAX_LEN,
                                         epochs, batch_size,
